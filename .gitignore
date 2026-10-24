@@ -1,0 +1,32 @@
+# Python environment and generated files
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Local secrets and machine files
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# Source recordings and generated artifacts
+inputs/videos/*
+!inputs/videos/.gitkeep
+work/clips/*
+!work/clips/.gitkeep
+outputs/*
+!outputs/.gitkeep
+!outputs/pov_reports/
+outputs/pov_reports/*
+!outputs/pov_reports/.gitkeep
+!outputs/evidence_clips/
+outputs/evidence_clips/*
+!outputs/evidence_clips/.gitkeep
+config/run.json
+config/manifest.json
