@@ -1,6 +1,6 @@
 # Overwatch Multi-POV Teamfight Judge — Project Plan
 
-**Version:** 0.1 (MVP)  
+**Version:** 0.2 (MVP — pre-aligned inputs)  
 **Status:** Proposed  
 **Primary language:** English for machine-readable prompts and agent handoffs; user-facing verdict may be Chinese.  
 **Owner:** Project coordinator agent  
@@ -15,14 +15,14 @@ Given five synchronized first-person Overwatch 2 recordings from the **same team
 - Independent **natural-language** POV reports, with timestamps and evidence.
 - Shared timeline and conflict-aware fusion.
 - Evidence-grounded blame attribution with explicit uncertainty and a possible **inconclusive** verdict.
-- CLI execution, cached intermediate artifacts, manual synchronization, and human evaluation.
+- CLI execution, cached intermediate artifacts, pre-aligned input validation, and human evaluation.
 
 ### Out of scope (MVP)
 - Full-match automated fight segmentation, live gameplay coaching, training a game-specific model, precise damage reconstruction, win-probability estimates, automatic causal proof, public player rankings, and a polished frontend.
 
 ### Non-negotiable constraints
 1. Stage A is descriptive, **not evaluative**.
-2. Every important claim references a source POV and local time range.
+2. Every important claim references a source POV and timestamp range on the shared video timeline.
 3. Distinguish `observed`, `inferred`, `unknown`, and `conflicted`.
 4. Do not infer off-screen inactivity or assume players knew what other POVs show.
 5. The final judge may abstain; do not force one scapegoat or numerical blame percentages.
@@ -34,17 +34,17 @@ Given five synchronized first-person Overwatch 2 recordings from the **same team
 | Term | Definition |
 |---|---|
 | POV | A single player's first-person recording |
-| Local timestamp | Seconds from the start of that POV file |
-| Global timestamp | Seconds on the shared synchronized timeline |
-| Offset | `global_time = local_time + offset_seconds` |
-| Evidence reference | `POV_ID@start-end` in local seconds, optionally paired with global time |
+| Timestamp | Seconds elapsed since the beginning of the pre-aligned videos; the same timestamp denotes the same in-game moment across all five POVs |
+| Evidence reference | `POV_ID@start-end` in aligned-video seconds (e.g. `tank@12.0-13.4`) |
 | Observation | Directly visible or audible in the supplied recording |
 | Inference | Plausible interpretation requiring reasoning beyond direct observation |
 | Candidate mistake | A potentially avoidable action or omission; not necessarily causal |
 | Causal contributor | A supported factor that plausibly changed the fight's trajectory |
 | Inconclusive | Available evidence cannot justify a reliable verdict |
 
-**Time convention:** All canonical machine-readable times are decimal seconds. Human-readable Markdown may additionally show `MM:SS.s`. Synchronization uncertainty is reported as `sync_uncertainty_seconds`; do not present sub-second precision when inputs do not support it.
+**Input synchronization assumption:** All five input POV videos are pre-aligned and begin at the same in-game moment. A timestamp of `t` seconds refers to the same in-game time across all five videos. The pipeline assumes this alignment is correct and does not perform automatic synchronization, anchor matching, or offset correction.
+
+**Time convention:** Use one field, `timestamp`, measured in decimal seconds elapsed since the beginning of the aligned videos. For intervals, use `start_timestamp` and `end_timestamp` with the same convention. Human-readable Markdown may additionally show `MM:SS.s`. Do not claim finer temporal precision than the video inspection supports.
 
 ## 3. Architecture and artifact flow
 
@@ -52,13 +52,13 @@ Given five synchronized first-person Overwatch 2 recordings from the **same team
 inputs/videos/{tank,dps1,dps2,support1,support2}.mp4
              │
              ▼
-S0: Intake, inspect, trim, synchronize
-             │ manifest.json + sync.json
+S0: Intake and pre-aligned video validation
+             │ config/manifest.json
              ▼
 A1–A5: Independent Codex-led visual analysis (parallel)
              │ outputs/pov_reports/{pov_id}.md
              ▼
-B: Cross-POV reconstruction (LLM + deterministic time conversion)
+B: Cross-POV reconstruction (LLM, shared timestamps)
              │ outputs/fusion.md
              ▼
 C: Evidence-grounded tactical judge (separate LLM call)
@@ -75,53 +75,54 @@ Stage A can use Codex to inspect frames, clips, timestamps, HUD, and audio via a
 | Agent | Owns | Inputs | Outputs | Must not do |
 |---|---|---|---|---|
 | Coordinator | Scheduling, config, dependencies, acceptance gates | User request, manifest | Run plan, status, artifact index | Fabricate evidence or bypass failed gates |
-| Intake/Sync | Video validation, shared timeline | 5 videos, anchor timestamps | `manifest.json`, `sync.json` | Assume clips are synchronized |
-| POV Analyst ×5 | Independent factual video descriptions | Exactly one POV, Stage A prompt, sync metadata | Five `pov_reports/*.md` | Read other POV reports or assign blame |
-| Fusion Analyst | Event matching, cross-POV reconstruction | Five reports, sync metadata | `fusion.md` | Resolve conflicts without evidence or assign blame |
+| Intake Validator | File integrity, coverage and recording metadata | 5 pre-aligned videos | `manifest.json` | Modify timing or claim to verify synchronization from metadata alone |
+| POV Analyst ×5 | Independent factual video descriptions | Exactly one POV, Stage A prompt, shared timestamp convention | Five `pov_reports/*.md` | Read other POV reports or assign blame |
+| Fusion Analyst | Event matching, cross-POV reconstruction | Five reports, shared timestamp convention | `fusion.md` | Resolve conflicts without evidence or assign blame |
 | Judge | Tactical critique and causal hypotheses | `fusion.md`, cited excerpts from original reports | `verdict.md` | Treat hypotheses as proven or force a winner |
 | Evidence Auditor | Trace citations to clips, flag contradictions | All artifacts and original videos | `qa_report.md` | Quietly edit original observations |
 | Report Publisher | Format validated conclusions | Verdict, QA report | `final_report.md` | Remove uncertainty or unsupported-claim warnings |
 
 **Isolation rule:** Each POV analyst works in a separate context with access only to its assigned video, configuration, and common prompt. Agents communicate via saved artifacts, not informal assumptions.
 
-## 5. Stage S0 — Intake and synchronization
+## 5. Stage S0 — Intake and validation of pre-aligned inputs
 
 **Objective:** Ensure the five recordings are usable and refer to the same fight.
 
-**Input:** Five user-supplied video files; optional hero/role mapping; optional known synchronized event (kill feed, objective change, countdown); optional manually specified clip start/end.
+**Input:** Five user-supplied, pre-aligned video files that start at the same in-game moment; optional hero/role mapping; optional common fight interval expressed in aligned-video seconds.
 
 **Tasks:**
 1. Validate existence, readability, duration, resolution, fps, and audio presence using `ffprobe`.
 2. Assign stable IDs: `tank`, `dps1`, `dps2`, `support1`, `support2`; record actual hero if known, otherwise `unknown`.
-3. Confirm all videos cover the target fight. Trim working copies if necessary; retain originals.
-4. Manually identify at least one common anchor event across recordings, ideally two to verify alignment.
-5. Compute offsets using `global_time = local_time + offset_seconds`; record uncertainty.
-6. Create a reproducible manifest with hashes, trim ranges, paths, and timestamps.
+3. Check that all videos cover the requested fight interval, and flag truncated, missing, frozen, or unreadable segments.
+4. Check durations and frame rates; report differences without assuming that equal durations or frame rates prove synchronization.
+5. Preserve the original aligned start point. Do not independently trim or shift a single POV; if a common fight segment is extracted, use the identical start and end timestamps for every POV and preserve originals.
+6. Create a reproducible manifest with hashes, paths, metadata, coverage checks, and any common extraction interval.
 
-**Output:** `config/manifest.json`, `config/sync.json`, optional normalized clips under `work/clips/`.
+**Output:** `config/manifest.json`, optional equally trimmed working clips under `work/clips/`.
 
-**Required fields (`manifest.json`):** `run_id`, `game`, `fight_id`, `videos[]` containing `pov_id`, `path`, `sha256`, `duration_seconds`, `fps`, `width`, `height`, `audio_present`, `hero`, `trim_start_seconds`, `trim_end_seconds`.
+**Required fields (`manifest.json`):** `run_id`, `game`, `fight_id`, `prealigned_input_assumed` (`true`), `fight_start_timestamp`, `fight_end_timestamp`, `videos[]` containing `pov_id`, `path`, `sha256`, `duration_seconds`, `fps`, `width`, `height`, `audio_present`, `hero`, `coverage_status`, `missing_intervals` (if any). If derived clips are created, record a single common extraction interval for all five POVs.
 
-**Required fields (`sync.json`):** `reference_pov`, `offsets_seconds`, `anchors[]` with source POV/local times/event description, `sync_uncertainty_seconds`, `method`, `verified`.
+**No `sync.json` is generated.** Alignment is an upstream input guarantee, not a pipeline output. `prealigned_input_assumed: true` records the contract; it does not imply independent verification.
 
 **Acceptance criteria:**
 - Exactly five readable POVs; no missing file; stable ID mapping.
-- One fight interval is defined for each POV.
-- At least one cross-POV event anchor is documented; offsets are explicit.
-- **Target:** alignment error ≤ 0.5 s on independently checked anchor events. If not met, flag degraded synchronization and block sub-second causal claims.
-- If synchronization cannot be established, mark S0 **blocked**, do not silently continue.
+- One common fight interval is defined and covered by all five POVs.
+- Metadata checks report durations, fps, and any missing/unreadable intervals.
+- No automatic synchronization, anchor search, or offset computation occurs.
+- If any input is missing, unreadable, or fails to cover required fight events, mark S0 **BLOCKED** or explicitly flag limited coverage; do not silently proceed.
+- If obvious evidence contradicts the pre-alignment assumption, flag the input contract as violated and request corrected files rather than shifting footage automatically.
 
 ## 6. Stage A — Independent single-POV observation
 
 **Objective:** Convert one video into a neutral, timestamped **natural-language** behavior report. Five parallel agents each run once per POV.
 
-**Input:** One POV video/clip; `pov_id`; role/hero if known; sync offset; `prompts/stage_a.md`.
+**Input:** One pre-aligned POV video/clip; `pov_id`; role/hero if known; shared timestamp convention; `prompts/stage_a.md`.
 
 **Tasks:**
 1. Record inspection coverage: clip ranges reviewed, frame/clip sampling, audio/HUD inspection, inaccessible intervals.
 2. Identify visible context (map, mode, hero, objective) only when supported.
 3. Write a chronological narrative of movement, positioning, attacks/heals, abilities, deaths, objective changes, and teammate/enemy interactions.
-4. For each meaningful event, provide **local timestamp range**, observation, immediate visible outcome, and evidence quality.
+4. For each meaningful event, provide a **timestamp range** in aligned-video seconds, observation, immediate visible outcome, and evidence quality.
 5. Describe information available to the POV player at critical moments (HUD, visible teammates/enemies, audio, kill feed).
 6. List cross-POV questions and uncertainty without tactical grading.
 
@@ -132,13 +133,12 @@ Stage A can use Codex to inspect frames, clips, timestamps, HUD, and audio via a
 ## Metadata
 - Video: ...
 - Hero: ... (or unknown)
-- Local clip interval: ...
-- Global offset: ...
+- Aligned-video interval: ...
 - Inspection coverage / method: ...
 ## Gameplay Context
 ...
 ## Timestamped Behavioral Timeline
-### [local 12.0–13.4 s | global 14.2–15.6 s]
+### [12.0–13.4 s]
 - Observed: ...
 - Immediate outcome: ...
 - Evidence: tank@12.0-13.4
@@ -166,12 +166,12 @@ Stage A can use Codex to inspect frames, clips, timestamps, HUD, and audio via a
 
 ## 7. Stage B — Multi-POV fusion
 
-**Objective:** Combine five neutral reports into one time-aligned account without assigning blame.
+**Objective:** Combine five neutral reports on their existing shared timeline without assigning blame.
 
-**Input:** Five `pov_reports/*.md`, `sync.json`, `prompts/stage_b.md`.
+**Input:** Five `pov_reports/*.md`, `config/manifest.json`, `prompts/stage_b.md`.
 
 **Tasks:**
-1. Convert local timestamps to global timestamps deterministically in code.
+1. Use timestamps directly as supplied; all five videos share the same zero point. Never calculate offsets or transform timestamps.
 2. Group observations that refer to the same underlying event; retain every source citation.
 3. Produce a time-indexed five-player action matrix; distinguish `not observed` from `not participating`.
 4. Reconstruct key fight phases: setup, initiation, first major exchange, turning points, outcome.
@@ -181,12 +181,12 @@ Stage A can use Codex to inspect frames, clips, timestamps, HUD, and audio via a
 
 **Output:** `outputs/fusion.md`.
 
-**Required sections:** Shared Context; Sync Quality; Unified Timeline; Five-Player Action Matrix; Team Coordination; Turning Points; Player Knowledge Limits; Conflicts and Uncertainties; Evidence Index; Neutral Summary.
+**Required sections:** Shared Context; Input Coverage and Alignment Assumption; Unified Timeline; Five-Player Action Matrix; Team Coordination; Turning Points; Player Knowledge Limits; Conflicts and Uncertainties; Evidence Index; Neutral Summary.
 
 **Acceptance criteria:**
 - All five players represented in the action matrix at each key fight phase; unknown intervals are allowed.
 - Every consequential event cites at least one `POV_ID@start-end` source.
-- No unexplained local/global timestamp mixing.
+- All event intervals and citations use the single shared `timestamp` convention.
 - Conflicting evidence remains flagged, not arbitrarily reconciled.
 - No player blame or tactical grades.
 - Every critical uncertainty is either resolved with cited evidence or passed to Stage C as unresolved.
@@ -195,7 +195,7 @@ Stage A can use Codex to inspect frames, clips, timestamps, HUD, and audio via a
 
 **Objective:** Identify the most defensible contributing factors to the defeat, distinguishing individual execution, decision-making, coordination, enemy outplay, and missing evidence.
 
-**Input:** `fusion.md`, cited original POV report excerpts, sync quality, `prompts/stage_c.md`.
+**Input:** `fusion.md`, cited original POV report excerpts, input coverage limitations from `manifest.json`, `prompts/stage_c.md`.
 
 **Tasks:**
 1. Establish the fight outcome and starting constraints (numbers, positioning, resources where observable).
@@ -223,7 +223,7 @@ Stage A can use Codex to inspect frames, clips, timestamps, HUD, and audio via a
 
 **Objective:** Verify that the verdict is traceable to footage and publish only supported findings.
 
-**Input:** Original videos, sync data, five reports, fusion, verdict.
+**Input:** Original pre-aligned videos, `manifest.json`, five reports, fusion, verdict.
 
 **Tasks:**
 1. Extract or open the cited video windows for every primary and secondary adverse finding.
@@ -266,11 +266,11 @@ python main.py run --stage C --config config/run.json
 python main.py run --stage D --config config/run.json
 ```
 
-**Configuration:** input video paths, POV IDs, optional hero names, clip intervals, sync anchors/offsets, model/tool choices per stage, prompt paths, output directory, max retries, and inspection settings. API keys come from environment variables only.
+**Configuration:** pre-aligned input video paths, POV IDs, optional hero names, one shared fight interval, model/tool choices per stage, prompt paths, output directory, max retries, and inspection settings. API keys come from environment variables only.
 
 **Run metadata:** Save model/tool versions, prompt hashes, input hashes, sampling parameters, start/end times, stage status, error logs, and artifact paths in `outputs/run_metadata.json`.
 
-**Cache key:** stage + source artifact hashes + prompt version + model/tool config. Changing Stage C prompt must not force video reanalysis; changing synchronization must invalidate downstream fusion and judgment.
+**Cache key:** stage + source artifact hashes + prompt version + model/tool config. Changing Stage C prompt must not force video reanalysis; changing the common fight interval or input videos must invalidate affected downstream artifacts.
 
 **State transitions:** `PENDING → RUNNING → PASS | BLOCKED | FAIL`; dependent stages run only when upstream inputs pass or have explicitly approved limitations. Retry transient failures at most twice with backoff; never conceal persistent failures.
 
@@ -285,7 +285,6 @@ overwatch-judge/
 ├── config/
 │   ├── run.example.json
 │   ├── manifest.json
-│   └── sync.json
 ├── inputs/videos/              # gitignored, original recordings
 ├── work/clips/                 # gitignored, derived clips
 ├── prompts/
@@ -295,7 +294,6 @@ overwatch-judge/
 │   └── stage_d.md
 ├── src/
 │   ├── intake.py
-│   ├── sync.py
 │   ├── video_inspection.py
 │   ├── pov_analysis.py
 │   ├── fusion.py
@@ -304,7 +302,7 @@ overwatch-judge/
 │   ├── artifacts.py
 │   └── cli.py
 ├── tests/
-│   ├── test_sync.py
+│   ├── test_input_coverage.py
 │   ├── test_evidence_refs.py
 │   ├── test_stage_gates.py
 │   └── fixtures/
@@ -330,7 +328,7 @@ Create a small manually reviewed benchmark with at least **three fights** (prefe
 | Unsupported factual claim rate | Unverifiable/contradicted factual claims / audited factual claims | ≤ 10% |
 | Primary finding evidence coverage | Primary adverse findings with reviewable citations / all primary findings | 100% |
 | False-confidence audit | Cases where model states certainty despite missing/contradictory evidence | 0 critical cases |
-| Sync quality | Error against independent anchor | ≤ 0.5 s target |
+| Input coverage | Required fight interval readable in all five POVs | 100% or explicitly flagged/blocked |
 | Judge usefulness | Human reviewers rating verdict actionable and grounded | ≥ 4/5 median (exploratory) |
 
 **Evaluation protocol:** Score Stage A independently before reviewing Stage C. Do not use the judge's own output as ground truth. Compare one-POV vs five-POV judgments on the same fights and document whether added perspectives resolve ambiguity. Avoid claiming causal correctness solely from human preference ratings.
@@ -341,7 +339,7 @@ Create a small manually reviewed benchmark with at least **three fights** (prefe
 |---|---|---|
 | M0: Repo scaffold | Config, CLI, prompts, tests, logging | `validate` works and outputs are reproducible |
 | M1: Single POV | S0 + Stage A for one clip | Neutral timestamped report; manually reviewed evidence |
-| M2: Five POVs | Stage A ×5 + synchronization | Five isolated reports, common timeline established |
+| M2: Five POVs | Stage A ×5 on pre-aligned inputs | Five isolated reports using the same timestamp convention |
 | M3: Fusion | Stage B report | Action matrix, citations, and unresolved conflicts present |
 | M4: Judge | Stage C verdict | Evidence-grounded findings and inconclusive path work |
 | M5: Audit | Stage D and evaluation results | Critical findings audited; release gate passed |
@@ -354,7 +352,7 @@ Create a small manually reviewed benchmark with at least **three fights** (prefe
 |---|---|---|
 | Codex cannot inspect video reliably | Fabricated/partial Stage A | Explicit inspection manifest, frame/clip tools, fail-closed behavior |
 | Fast abilities missed by sparse sampling | Wrong event timeline | Targeted high-frequency clip reinspection |
-| Video offsets are wrong | False ordering and causality | Anchors, independent sync check, uncertainty bounds |
+| Upstream alignment assumption is violated | False ordering and causality | Flag suspicious cross-POV timing; request corrected pre-aligned inputs, never auto-shift |
 | Natural-language compression loses detail | Wrong fusion/judgment | Timestamped evidence paragraphs, original reports retained |
 | Five POVs contain contradictory observations | Hallucinated consensus | Conflict ledger and reinspection requests |
 | Hindsight bias | Unfair blame | Per-player information state and alternatives |
@@ -393,7 +391,7 @@ Each agent must write a handoff block at the end of its artifact:
 
 1. Which exact Codex workflow and local visual inspection tools will Stage A use?
 2. What is the preferred recording format, clip duration, and acceptable latency/cost?
-3. How will five recordings be aligned if no shared audio or kill-feed anchor exists?
+3. What upstream process guarantees that all five videos start at the same in-game moment, and who is responsible for correcting misaligned uploads?
 4. Which LLM will run Stage B and Stage C, and how will outputs be versioned?
 5. Should final reports be Chinese, English, or bilingual?
 6. Will voice chat be included? If yes, how will privacy and consent be handled?
@@ -402,7 +400,7 @@ Each agent must write a handoff block at the end of its artifact:
 ## 18. Immediate next tasks
 
 1. Create the repository skeleton and place this document at `PROJECT_PLAN.md`.
-2. Implement S0 validation and time-offset conversion, with unit tests.
+2. Implement S0 file, duration, frame-rate, and fight-coverage validation, with unit tests. Do not implement offset conversion.
 3. Draft the Stage A prompt from the requirements above.
 4. Run Stage A on **one 20–40 second clip**, verify the model actually inspected the footage, and manually audit ten events.
 5. Fix Stage A until the observations are useful before parallelizing to five POVs.
