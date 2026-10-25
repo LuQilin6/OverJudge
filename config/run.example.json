@@ -42,14 +42,14 @@
   "max_retries": 2,
   "stage_tools": {
     "S0": null,
-    "A": null,
+    "A": "codex_manual",
     "B": null,
     "C": null,
     "D": null
   },
   "inspection_settings": {
-    "method": null,
-    "frame_sampling_fps": null,
-    "inspect_audio": null
+    "method": "codex_manual",
+    "frame_sampling_fps": 2,
+    "inspect_audio": false
   }
 }

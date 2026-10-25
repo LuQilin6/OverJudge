@@ -4,7 +4,7 @@ Overwatch 2 multi-POV teamfight analysis scaffold, based on [PROJECT_PLAN.md](PR
 
 ## Current status
 
-Scaffold only. Python modules, test files, and stage prompts are intentionally empty. CLI commands and analysis stages are not implemented. No model calls, video analysis, or validation have run.
+Stage A infrastructure is implemented: configuration/intake validation, timestamped frame extraction, isolated inspection jobs, and report import with structural checks. Analysis is Codex-led and manual; there is no automatic model backend. Stage B–D remain unimplemented. No real footage has been analyzed.
 
 ## Local environment
 
@@ -45,3 +45,55 @@ Model SDKs, OpenCV, and audio/transcription packages remain deferred until the i
 The pipeline will generate `config/manifest.json`, reports, and `outputs/run_metadata.json` once implemented. These are deliberately not populated with fabricated run data. Recordings, generated artifacts, local configuration, secrets, and `.venv/` are ignored by Git.
 
 The original versioned plan is preserved alongside `PROJECT_PLAN.md`. This scaffold does not complete the plan's M0 acceptance gate, which requires working validation and reproducible output.
+
+## Stage A workflow
+
+Copy `config/run.example.json` to `config/run.json`, set the common fight interval,
+and supply video paths. Paths resolve relative to the project containing `config/`.
+The example deliberately leaves the fight end unset, so it cannot start an accidental run.
+Install FFmpeg/ffprobe before processing footage.
+
+```bash
+.venv/bin/python main.py validate --config config/run.json
+.venv/bin/python main.py run --stage A --pov tank --config config/run.json
+.venv/bin/python -m pytest -q
+```
+
+`validate` requires all five inputs. For the one-POV pilot, `run` can prepare the
+selected valid POV while recording that full intake is blocked. Outputs are scoped
+to `outputs/{run_id}/`; the manifest is saved there to avoid collisions between runs.
+Metadata checks do not detect frozen frames or prove synchronization.
+
+The run creates `stage_a/{pov}/{cache_key}/job.json`, a prompt snapshot, and
+`frames/inspection.json` with absolute video timestamps. Each frame starts with
+`inspected: false`. A prepared job exits with status 1 / BLOCKED pending actual
+visual inspection; it does not generate a gameplay narrative. Identical completed
+preparation jobs are reused. Input, prompt, interval, or sampling changes create
+new jobs. No audio analysis is currently supported.
+
+Open only the assigned job's frames/video in a separate Codex context and follow
+its prompt. Record actual reviewed frame timestamps in a JSON file, for example:
+
+```json
+{
+  "reviewer": "reviewer name",
+  "model_or_tool": "actual model/tool and version",
+  "reviewed_frame_timestamps": [12.0, 12.5],
+  "audio_inspected": false,
+  "limitations": ["Only these sampled frames were inspected; audio unavailable."]
+}
+```
+
+Import the resulting Markdown and review record:
+
+```bash
+.venv/bin/python main.py submit --config config/run.json --pov tank --job outputs/RUN/stage_a/tank/KEY --report /path/to/report.md --review /path/to/review.json
+```
+
+Import checks headings, event fields, timestamp bounds, POV citations, and review
+provenance. Reports are retained by content hash under `pov_reports/{pov}/` with
+review/provenance sidecars. Structural acceptance is PASS_WITH_LIMITATIONS with a
+human evidence audit still PENDING; it does not establish factual accuracy or
+sufficient coverage and does not authorize downstream stages. Audit ten manually
+labeled events before expanding to five POVs. Sparse sampling may require denser
+reinspection; change the configured sampling rate to create a new job.
