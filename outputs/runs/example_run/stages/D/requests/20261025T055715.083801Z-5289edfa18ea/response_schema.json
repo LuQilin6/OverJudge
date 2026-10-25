@@ -1,0 +1,35 @@
+{
+  "envelope": {
+    "execution": {
+      "tool": "actual tool name",
+      "model": "actual model/version, or unknown",
+      "operator": "reviewer/operator name"
+    },
+    "result": {
+      "qa_status": "PASS | PASS_WITH_LIMITATIONS | FAIL; computed gate can downgrade",
+      "reviewer": {
+        "name": "nonempty actual identity",
+        "tool": "actual tool/model and version",
+        "method": "actual visual/audio review method and coverage"
+      },
+      "inspected_evidence": "list of {evidence_ref, clip_sha256, source_sha256, inspected: boolean, notes}; exact extracted-clip hashes",
+      "finding_checks": {
+        "finding_id": "existing finding ID; one per adverse finding",
+        "status": "supported | qualified | unsupported | unverified",
+        "identity_verified": "boolean; false blocks adverse-finding publication",
+        "timestamp_verified": "boolean; false blocks adverse-finding publication",
+        "ability_verified": "boolean; false blocks adverse-finding publication",
+        "hindsight_checked": "boolean; false blocks adverse-finding publication",
+        "source_consistency_checked": "boolean; false blocks adverse-finding publication",
+        "notes": "specific source-based check and limitations"
+      },
+      "conclusion_review": {
+        "inspected": "boolean",
+        "evidence_refs": "nonempty allowed references actually inspected",
+        "notes": "audit of conclusion and source-report consistency"
+      },
+      "issues": "list of {severity: critical|major|minor, claim, source, finding, required_fix, owner}; all open critical/major issues block publication",
+      "limitations": "list of nonempty strings; retained in final report"
+    }
+  }
+}

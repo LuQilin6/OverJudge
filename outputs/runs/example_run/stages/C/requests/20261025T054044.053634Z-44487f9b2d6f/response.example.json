@@ -1,0 +1,60 @@
+{
+  "execution": {
+    "tool": "REPLACE",
+    "model": "REPLACE",
+    "operator": "REPLACE"
+  },
+  "result": {
+    "schema_version": "1.0",
+    "fight_summary": {
+      "outcome": "unknown",
+      "summary": "Example only: the supplied evidence has not established the fight outcome.",
+      "evidence_refs": []
+    },
+    "confirmed_facts": [],
+    "findings": [],
+    "player_findings": {
+      "tank": {
+        "status": "no_supported_mistake",
+        "summary": "Example only: no supported mistake is established for this player.",
+        "finding_ids": []
+      },
+      "dps1": {
+        "status": "no_supported_mistake",
+        "summary": "Example only: no supported mistake is established for this player.",
+        "finding_ids": []
+      },
+      "dps2": {
+        "status": "no_supported_mistake",
+        "summary": "Example only: no supported mistake is established for this player.",
+        "finding_ids": []
+      },
+      "support1": {
+        "status": "no_supported_mistake",
+        "summary": "Example only: no supported mistake is established for this player.",
+        "finding_ids": []
+      },
+      "support2": {
+        "status": "no_supported_mistake",
+        "summary": "Example only: no supported mistake is established for this player.",
+        "finding_ids": []
+      }
+    },
+    "alternative_explanations": [
+      "Missing or conflicting evidence could prevent reliable attribution."
+    ],
+    "verdict": {
+      "outcome": "inconclusive",
+      "summary": "Example only: replace this template with an evidence-grounded response, or explicitly abstain.",
+      "limitations": [
+        "This is a response template, not an analysis of an actual fight."
+      ]
+    },
+    "top_evidence_clips": [],
+    "actionable_lessons": [],
+    "confidence": {
+      "label": "low",
+      "rationale": "No gameplay evidence is asserted by this template."
+    }
+  }
+}

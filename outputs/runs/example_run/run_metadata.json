@@ -9,10 +9,50 @@
       {
         "invalidated_from": "B",
         "timestamp": "2026-10-25T05:24:11.725966+00:00"
+      },
+      {
+        "invalidated_from": "C",
+        "timestamp": "2026-10-25T05:40:44.049349+00:00"
+      },
+      {
+        "invalidated_from": "C",
+        "timestamp": "2026-10-25T05:44:14.442383+00:00"
+      },
+      {
+        "invalidated_from": "D",
+        "timestamp": "2026-10-25T05:57:15.078965+00:00"
+      },
+      {
+        "invalidated_from": "D",
+        "timestamp": "2026-10-25T06:02:58.888584+00:00"
       }
     ],
-    "history": [],
-    "latest": null
+    "history": [
+      {
+        "created_at": "2026-10-25T06:02:58.893412+00:00",
+        "final_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/releases/20261025T060258.892044Z-8475da5b22d7/final_report.md",
+        "final_sha256": "3cb2c4fe46f9f51d78ad8678963ac04c1d60818a305f018fb00e924908fa6d57",
+        "metadata_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/releases/20261025T060258.892044Z-8475da5b22d7/metadata.json",
+        "metadata_sha256": "183f60c8af640fb43e599abaa740d8419216407a937453fdc62360a27deaa650",
+        "published": true,
+        "qa_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/releases/20261025T060258.892044Z-8475da5b22d7/qa_report.md",
+        "qa_sha256": "e5d4605d1d9f00b8d92ea4d300f2034ee4152b892e5f897fe5d4e7a64d0fd609",
+        "revision_id": "20261025T060258.892044Z-8475da5b22d7",
+        "status": "PASS_WITH_LIMITATIONS"
+      }
+    ],
+    "latest": {
+      "created_at": "2026-10-25T06:02:58.893412+00:00",
+      "final_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/releases/20261025T060258.892044Z-8475da5b22d7/final_report.md",
+      "final_sha256": "3cb2c4fe46f9f51d78ad8678963ac04c1d60818a305f018fb00e924908fa6d57",
+      "metadata_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/releases/20261025T060258.892044Z-8475da5b22d7/metadata.json",
+      "metadata_sha256": "183f60c8af640fb43e599abaa740d8419216407a937453fdc62360a27deaa650",
+      "published": true,
+      "qa_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/releases/20261025T060258.892044Z-8475da5b22d7/qa_report.md",
+      "qa_sha256": "e5d4605d1d9f00b8d92ea4d300f2034ee4152b892e5f897fe5d4e7a64d0fd609",
+      "revision_id": "20261025T060258.892044Z-8475da5b22d7",
+      "status": "PASS_WITH_LIMITATIONS"
+    }
   },
   "run_id": "example_run",
   "schema_version": 1,
@@ -182,11 +222,155 @@
           },
           "status": "PENDING",
           "timestamp": "2026-10-25T05:24:11.725961+00:00"
+        },
+        {
+          "details": {
+            "invalidated_from": "C"
+          },
+          "status": "PENDING",
+          "timestamp": "2026-10-25T05:40:44.049294+00:00"
+        },
+        {
+          "details": {
+            "accepted_limitations": [
+              "Stage A tank: see Coverage and Limitations",
+              "Stage A dps1: see Coverage and Limitations",
+              "Stage A dps2: see Coverage and Limitations",
+              "Stage A support1: see Coverage and Limitations",
+              "Stage A support2: see Coverage and Limitations",
+              "Stage B: passed with limitations",
+              "Stage A reports are structurally accepted only; independent human evidence audit is PENDING.",
+              "Downstream execution requires the coordinator's explicit acceptance of these limitations.",
+              "Metadata does not verify synchronization, frozen frames, or complete decode integrity.",
+              "Stage A tank: Structural validation does not establish factual accuracy or sufficient coverage; independent evidence audit is PENDING.",
+              "Stage A tank: 36 discrete frames at 2 fps; no continuous playback; intersample actions may be missed.",
+              "Stage A tank: All frames reviewed scaled to 640x362 in labeled contact sheets; only 10.0, 15.0 and 17.5 additionally reviewed full resolution.",
+              "Stage A tank: No audio inspected; HUD and actor details limited by scaling, effects and occlusion.",
+              "Stage A tank: No sample after 17.5 seconds in configured 0.0–18.0 interval; overall fight outcome unknown.",
+              "Stage A tank: Only tank POV consumed; alignment assumed and broadcast HUD does not establish player knowledge.",
+              "Stage A tank: Events between samples may be missed.",
+              "Stage A tank: Frame extraction alone is not visual inspection; audio has not been inspected.",
+              "Stage A tank reviewer: 36 discrete frames at 2 fps; no continuous playback; intersample actions may be missed.",
+              "Stage A tank reviewer: All frames reviewed scaled to 640x362 in labeled contact sheets; only 10.0, 15.0 and 17.5 additionally reviewed full resolution.",
+              "Stage A tank reviewer: No audio inspected; HUD and actor details limited by scaling, effects and occlusion.",
+              "Stage A tank reviewer: No sample after 17.5 seconds in configured 0.0–18.0 interval; overall fight outcome unknown.",
+              "Stage A tank reviewer: Only tank POV consumed; alignment assumed and broadcast HUD does not establish player knowledge.",
+              "Stage A dps1: Structural validation does not establish factual accuracy or sufficient coverage; independent evidence audit is PENDING.",
+              "Stage A dps1: Reviewed 36 supplied still frames at 0.5-second spacing; activity between samples is not established.",
+              "Stage A dps1: No frame was supplied at 18.0 seconds; the final inspected timestamp is 17.5 seconds.",
+              "Stage A dps1: Audio was not supplied or inspected.",
+              "Stage A dps1: Broadcast outlines and markers may expose information unavailable to the player.",
+              "Stage A dps1: Original video and supplied SHA-256 were not independently verified; exact model version is unknown.",
+              "Stage A dps1: Effects and overlapping characters obscure some targets, damage sources, and ability details.",
+              "Stage A dps1: Events between samples may be missed.",
+              "Stage A dps1: Frame extraction alone is not visual inspection; audio has not been inspected.",
+              "Stage A dps1 reviewer: Reviewed 36 supplied still frames at 0.5-second spacing; activity between samples is not established.",
+              "Stage A dps1 reviewer: No frame was supplied at 18.0 seconds; the final inspected timestamp is 17.5 seconds.",
+              "Stage A dps1 reviewer: Audio was not supplied or inspected.",
+              "Stage A dps1 reviewer: Broadcast outlines and markers may expose information unavailable to the player.",
+              "Stage A dps1 reviewer: Original video and supplied SHA-256 were not independently verified; exact model version is unknown.",
+              "Stage A dps1 reviewer: Effects and overlapping characters obscure some targets, damage sources, and ability details.",
+              "Stage A dps2: Structural validation does not establish factual accuracy or sufficient coverage; independent evidence audit is PENDING.",
+              "Stage A dps2: Only supplied still images at 0.5-second intervals were inspected; intervening actions are unknown.",
+              "Stage A dps2: Audio was not supplied or inspected.",
+              "Stage A dps2: Hero and exact map identity are unknown; ability identities were not established.",
+              "Stage A dps2: Broadcast outlines and markers may expose information beyond the player's native view.",
+              "Stage A dps2: No frame at 18.0 seconds was supplied; coverage ends at 17.5 seconds.",
+              "Stage A dps2: Events between samples may be missed.",
+              "Stage A dps2: Frame extraction alone is not visual inspection; audio has not been inspected.",
+              "Stage A dps2 reviewer: Only supplied still images at 0.5-second intervals were inspected; intervening actions are unknown.",
+              "Stage A dps2 reviewer: Audio was not supplied or inspected.",
+              "Stage A dps2 reviewer: Hero and exact map identity are unknown; ability identities were not established.",
+              "Stage A dps2 reviewer: Broadcast outlines and markers may expose information beyond the player's native view.",
+              "Stage A dps2 reviewer: No frame at 18.0 seconds was supplied; coverage ends at 17.5 seconds.",
+              "Stage A support1: Structural validation does not establish factual accuracy or sufficient coverage; independent evidence audit is PENDING.",
+              "Stage A support1: Reviewed 36 supplied still images at 0.5-second spacing, covering 0.0–17.5 seconds; no continuous video inspection.",
+              "Stage A support1: The configured interval ends at 18.0 seconds, but no image at 18.0 seconds was supplied.",
+              "Stage A support1: Audio was not supplied or inspected.",
+              "Stage A support1: Combat effects and occlusion limit identification of individual projectiles, ability activations, and healing recipients.",
+              "Stage A support1: The original video and its SHA-256 were supplied as metadata and were not independently verified.",
+              "Stage A support1: Events between samples may be missed.",
+              "Stage A support1: Frame extraction alone is not visual inspection; audio has not been inspected.",
+              "Stage A support1 reviewer: Reviewed 36 supplied still images at 0.5-second spacing, covering 0.0–17.5 seconds; no continuous video inspection.",
+              "Stage A support1 reviewer: The configured interval ends at 18.0 seconds, but no image at 18.0 seconds was supplied.",
+              "Stage A support1 reviewer: Audio was not supplied or inspected.",
+              "Stage A support1 reviewer: Combat effects and occlusion limit identification of individual projectiles, ability activations, and healing recipients.",
+              "Stage A support1 reviewer: The original video and its SHA-256 were supplied as metadata and were not independently verified.",
+              "Stage A support2: Structural validation does not establish factual accuracy or sufficient coverage; independent evidence audit is PENDING.",
+              "Stage A support2: Only the 36 supplied frames at 0.5-second spacing were inspected; intervening activity and 17.5–18.0 seconds were not inspected.",
+              "Stage A support2: Audio was not supplied and was not inspected.",
+              "Stage A support2: Visual effects, walls and overlapping characters obscure some targets and ability effects.",
+              "Stage A support2: Original video and hash were supplied as metadata and were not independently verified.",
+              "Stage A support2: Events between samples may be missed.",
+              "Stage A support2: Frame extraction alone is not visual inspection; audio has not been inspected.",
+              "Stage A support2 reviewer: Only the 36 supplied frames at 0.5-second spacing were inspected; intervening activity and 17.5–18.0 seconds were not inspected.",
+              "Stage A support2 reviewer: Audio was not supplied and was not inspected.",
+              "Stage A support2 reviewer: Visual effects, walls and overlapping characters obscure some targets and ability effects.",
+              "Stage A support2 reviewer: Original video and hash were supplied as metadata and were not independently verified.",
+              "Stage A human evidence audit is PENDING; imported observations are provisional"
+            ],
+            "mode": "manual",
+            "request_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/C/requests/20261025T054044.053634Z-44487f9b2d6f"
+          },
+          "status": "RUNNING",
+          "timestamp": "2026-10-25T05:40:44.056437+00:00"
         }
       ],
-      "history": [],
-      "latest": null,
-      "status": "PENDING"
+      "history": [
+        {
+          "cache_key": "926bccd57be74b220dd7a5a5e10796900c7887c52076c56c82f39e30ea5a73a6",
+          "created_at": "2026-10-25T05:44:14.439471+00:00",
+          "metadata_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/C/results/20261025T054414.439252Z-dab528108181/metadata.json",
+          "metadata_sha256": "d44f1ef74196d8a04e2794ba479e69035b37fc748b6da040cd51eb2c75b60030",
+          "prompt_sha256": "c19dcd6a39dffc5f76622f77820542d2187735991f4ff626c3687224e88f3e05",
+          "report_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/C/results/20261025T054414.439252Z-dab528108181/verdict.md",
+          "report_sha256": "47be0d352bbf44d16c292384718539e8009cf2b365a8da2cd521369d5b8c77ae",
+          "request_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/C/requests/20261025T054044.053634Z-44487f9b2d6f",
+          "result_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/C/results/20261025T054414.439252Z-dab528108181/result.json",
+          "result_sha256": "51425535df41ec66fa898c37aef8964b66bc20e70f8e8c313b10a7c96fe621ff",
+          "revision_id": "20261025T054414.439252Z-dab528108181",
+          "stage": "C",
+          "status": "PASS_WITH_LIMITATIONS"
+        }
+      ],
+      "latest": {
+        "cache_key": "926bccd57be74b220dd7a5a5e10796900c7887c52076c56c82f39e30ea5a73a6",
+        "created_at": "2026-10-25T05:44:14.439471+00:00",
+        "metadata_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/C/results/20261025T054414.439252Z-dab528108181/metadata.json",
+        "metadata_sha256": "d44f1ef74196d8a04e2794ba479e69035b37fc748b6da040cd51eb2c75b60030",
+        "prompt_sha256": "c19dcd6a39dffc5f76622f77820542d2187735991f4ff626c3687224e88f3e05",
+        "report_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/C/results/20261025T054414.439252Z-dab528108181/verdict.md",
+        "report_sha256": "47be0d352bbf44d16c292384718539e8009cf2b365a8da2cd521369d5b8c77ae",
+        "request_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/C/requests/20261025T054044.053634Z-44487f9b2d6f",
+        "result_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/C/results/20261025T054414.439252Z-dab528108181/result.json",
+        "result_sha256": "51425535df41ec66fa898c37aef8964b66bc20e70f8e8c313b10a7c96fe621ff",
+        "revision_id": "20261025T054414.439252Z-dab528108181",
+        "stage": "C",
+        "status": "PASS_WITH_LIMITATIONS"
+      },
+      "latest_request": {
+        "cache_key": "926bccd57be74b220dd7a5a5e10796900c7887c52076c56c82f39e30ea5a73a6",
+        "context_sha256": "0e0f722cca4015bf5eda7ce0e4d165be2698728b138302e501db52143aba2ebb",
+        "created_at": "2026-10-25T05:40:44.052460+00:00",
+        "prompt_sha256": "c19dcd6a39dffc5f76622f77820542d2187735991f4ff626c3687224e88f3e05",
+        "request_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/C/requests/20261025T054044.053634Z-44487f9b2d6f",
+        "revision_id": "20261025T054044.053634Z-44487f9b2d6f",
+        "run_id": "example_run",
+        "stage": "C"
+      },
+      "requests": [
+        {
+          "cache_key": "926bccd57be74b220dd7a5a5e10796900c7887c52076c56c82f39e30ea5a73a6",
+          "context_sha256": "0e0f722cca4015bf5eda7ce0e4d165be2698728b138302e501db52143aba2ebb",
+          "created_at": "2026-10-25T05:40:44.052460+00:00",
+          "prompt_sha256": "c19dcd6a39dffc5f76622f77820542d2187735991f4ff626c3687224e88f3e05",
+          "request_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/C/requests/20261025T054044.053634Z-44487f9b2d6f",
+          "revision_id": "20261025T054044.053634Z-44487f9b2d6f",
+          "run_id": "example_run",
+          "stage": "C"
+        }
+      ],
+      "status": "PASS_WITH_LIMITATIONS"
     },
     "D": {
       "events": [
@@ -203,12 +387,171 @@
           },
           "status": "PENDING",
           "timestamp": "2026-10-25T05:24:11.725965+00:00"
+        },
+        {
+          "details": {
+            "invalidated_from": "C"
+          },
+          "status": "PENDING",
+          "timestamp": "2026-10-25T05:40:44.049348+00:00"
+        },
+        {
+          "details": {
+            "invalidated_from": "C"
+          },
+          "status": "PENDING",
+          "timestamp": "2026-10-25T05:44:14.442380+00:00"
+        },
+        {
+          "details": {
+            "invalidated_from": "D"
+          },
+          "status": "PENDING",
+          "timestamp": "2026-10-25T05:57:15.078899+00:00"
+        },
+        {
+          "details": {
+            "accepted_limitations": [
+              "Stage A tank: see Coverage and Limitations",
+              "Stage A dps1: see Coverage and Limitations",
+              "Stage A dps2: see Coverage and Limitations",
+              "Stage A support1: see Coverage and Limitations",
+              "Stage A support2: see Coverage and Limitations",
+              "Stage B: passed with limitations",
+              "Stage C: passed with limitations",
+              "Stage A reports are structurally accepted only; independent human evidence audit is PENDING.",
+              "Downstream execution requires the coordinator's explicit acceptance of these limitations.",
+              "Metadata does not verify synchronization, frozen frames, or complete decode integrity.",
+              "Stage A tank: Structural validation does not establish factual accuracy or sufficient coverage; independent evidence audit is PENDING.",
+              "Stage A tank: 36 discrete frames at 2 fps; no continuous playback; intersample actions may be missed.",
+              "Stage A tank: All frames reviewed scaled to 640x362 in labeled contact sheets; only 10.0, 15.0 and 17.5 additionally reviewed full resolution.",
+              "Stage A tank: No audio inspected; HUD and actor details limited by scaling, effects and occlusion.",
+              "Stage A tank: No sample after 17.5 seconds in configured 0.0–18.0 interval; overall fight outcome unknown.",
+              "Stage A tank: Only tank POV consumed; alignment assumed and broadcast HUD does not establish player knowledge.",
+              "Stage A tank: Events between samples may be missed.",
+              "Stage A tank: Frame extraction alone is not visual inspection; audio has not been inspected.",
+              "Stage A tank reviewer: 36 discrete frames at 2 fps; no continuous playback; intersample actions may be missed.",
+              "Stage A tank reviewer: All frames reviewed scaled to 640x362 in labeled contact sheets; only 10.0, 15.0 and 17.5 additionally reviewed full resolution.",
+              "Stage A tank reviewer: No audio inspected; HUD and actor details limited by scaling, effects and occlusion.",
+              "Stage A tank reviewer: No sample after 17.5 seconds in configured 0.0–18.0 interval; overall fight outcome unknown.",
+              "Stage A tank reviewer: Only tank POV consumed; alignment assumed and broadcast HUD does not establish player knowledge.",
+              "Stage A dps1: Structural validation does not establish factual accuracy or sufficient coverage; independent evidence audit is PENDING.",
+              "Stage A dps1: Reviewed 36 supplied still frames at 0.5-second spacing; activity between samples is not established.",
+              "Stage A dps1: No frame was supplied at 18.0 seconds; the final inspected timestamp is 17.5 seconds.",
+              "Stage A dps1: Audio was not supplied or inspected.",
+              "Stage A dps1: Broadcast outlines and markers may expose information unavailable to the player.",
+              "Stage A dps1: Original video and supplied SHA-256 were not independently verified; exact model version is unknown.",
+              "Stage A dps1: Effects and overlapping characters obscure some targets, damage sources, and ability details.",
+              "Stage A dps1: Events between samples may be missed.",
+              "Stage A dps1: Frame extraction alone is not visual inspection; audio has not been inspected.",
+              "Stage A dps1 reviewer: Reviewed 36 supplied still frames at 0.5-second spacing; activity between samples is not established.",
+              "Stage A dps1 reviewer: No frame was supplied at 18.0 seconds; the final inspected timestamp is 17.5 seconds.",
+              "Stage A dps1 reviewer: Audio was not supplied or inspected.",
+              "Stage A dps1 reviewer: Broadcast outlines and markers may expose information unavailable to the player.",
+              "Stage A dps1 reviewer: Original video and supplied SHA-256 were not independently verified; exact model version is unknown.",
+              "Stage A dps1 reviewer: Effects and overlapping characters obscure some targets, damage sources, and ability details.",
+              "Stage A dps2: Structural validation does not establish factual accuracy or sufficient coverage; independent evidence audit is PENDING.",
+              "Stage A dps2: Only supplied still images at 0.5-second intervals were inspected; intervening actions are unknown.",
+              "Stage A dps2: Audio was not supplied or inspected.",
+              "Stage A dps2: Hero and exact map identity are unknown; ability identities were not established.",
+              "Stage A dps2: Broadcast outlines and markers may expose information beyond the player's native view.",
+              "Stage A dps2: No frame at 18.0 seconds was supplied; coverage ends at 17.5 seconds.",
+              "Stage A dps2: Events between samples may be missed.",
+              "Stage A dps2: Frame extraction alone is not visual inspection; audio has not been inspected.",
+              "Stage A dps2 reviewer: Only supplied still images at 0.5-second intervals were inspected; intervening actions are unknown.",
+              "Stage A dps2 reviewer: Audio was not supplied or inspected.",
+              "Stage A dps2 reviewer: Hero and exact map identity are unknown; ability identities were not established.",
+              "Stage A dps2 reviewer: Broadcast outlines and markers may expose information beyond the player's native view.",
+              "Stage A dps2 reviewer: No frame at 18.0 seconds was supplied; coverage ends at 17.5 seconds.",
+              "Stage A support1: Structural validation does not establish factual accuracy or sufficient coverage; independent evidence audit is PENDING.",
+              "Stage A support1: Reviewed 36 supplied still images at 0.5-second spacing, covering 0.0–17.5 seconds; no continuous video inspection.",
+              "Stage A support1: The configured interval ends at 18.0 seconds, but no image at 18.0 seconds was supplied.",
+              "Stage A support1: Audio was not supplied or inspected.",
+              "Stage A support1: Combat effects and occlusion limit identification of individual projectiles, ability activations, and healing recipients.",
+              "Stage A support1: The original video and its SHA-256 were supplied as metadata and were not independently verified.",
+              "Stage A support1: Events between samples may be missed.",
+              "Stage A support1: Frame extraction alone is not visual inspection; audio has not been inspected.",
+              "Stage A support1 reviewer: Reviewed 36 supplied still images at 0.5-second spacing, covering 0.0–17.5 seconds; no continuous video inspection.",
+              "Stage A support1 reviewer: The configured interval ends at 18.0 seconds, but no image at 18.0 seconds was supplied.",
+              "Stage A support1 reviewer: Audio was not supplied or inspected.",
+              "Stage A support1 reviewer: Combat effects and occlusion limit identification of individual projectiles, ability activations, and healing recipients.",
+              "Stage A support1 reviewer: The original video and its SHA-256 were supplied as metadata and were not independently verified.",
+              "Stage A support2: Structural validation does not establish factual accuracy or sufficient coverage; independent evidence audit is PENDING.",
+              "Stage A support2: Only the 36 supplied frames at 0.5-second spacing were inspected; intervening activity and 17.5–18.0 seconds were not inspected.",
+              "Stage A support2: Audio was not supplied and was not inspected.",
+              "Stage A support2: Visual effects, walls and overlapping characters obscure some targets and ability effects.",
+              "Stage A support2: Original video and hash were supplied as metadata and were not independently verified.",
+              "Stage A support2: Events between samples may be missed.",
+              "Stage A support2: Frame extraction alone is not visual inspection; audio has not been inspected.",
+              "Stage A support2 reviewer: Only the 36 supplied frames at 0.5-second spacing were inspected; intervening activity and 17.5–18.0 seconds were not inspected.",
+              "Stage A support2 reviewer: Audio was not supplied and was not inspected.",
+              "Stage A support2 reviewer: Visual effects, walls and overlapping characters obscure some targets and ability effects.",
+              "Stage A support2 reviewer: Original video and hash were supplied as metadata and were not independently verified.",
+              "Stage A human evidence audit is PENDING; imported observations are provisional"
+            ],
+            "mode": "manual",
+            "request_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea"
+          },
+          "status": "RUNNING",
+          "timestamp": "2026-10-25T05:57:55.139670+00:00"
         }
       ],
-      "history": [],
-      "latest": null,
-      "status": "PENDING"
+      "history": [
+        {
+          "cache_key": "17c7108ceb959b668525f53447fe9dd3ac5fd458781815f624c09a69ecbb11dd",
+          "created_at": "2026-10-25T06:02:58.886976+00:00",
+          "metadata_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/results/20261025T060258.886681Z-0316fa1144dd/metadata.json",
+          "metadata_sha256": "5090cc4b05e626c8e221061d6c7d493300a9b4c0d378a212bc802bc54ab25754",
+          "prompt_sha256": "f78a8a3c6732008892c63c497b94a347cf46760cb0d55e9561f3bdefd0d1586e",
+          "report_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/results/20261025T060258.886681Z-0316fa1144dd/qa_report.md",
+          "report_sha256": "e5d4605d1d9f00b8d92ea4d300f2034ee4152b892e5f897fe5d4e7a64d0fd609",
+          "request_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea",
+          "result_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/results/20261025T060258.886681Z-0316fa1144dd/result.json",
+          "result_sha256": "9d0f764a749e2f37dfce163d667a98fde1e6a8166cf42cf325d4d0407f8094d8",
+          "revision_id": "20261025T060258.886681Z-0316fa1144dd",
+          "stage": "D",
+          "status": "PASS_WITH_LIMITATIONS"
+        }
+      ],
+      "latest": {
+        "cache_key": "17c7108ceb959b668525f53447fe9dd3ac5fd458781815f624c09a69ecbb11dd",
+        "created_at": "2026-10-25T06:02:58.886976+00:00",
+        "metadata_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/results/20261025T060258.886681Z-0316fa1144dd/metadata.json",
+        "metadata_sha256": "5090cc4b05e626c8e221061d6c7d493300a9b4c0d378a212bc802bc54ab25754",
+        "prompt_sha256": "f78a8a3c6732008892c63c497b94a347cf46760cb0d55e9561f3bdefd0d1586e",
+        "report_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/results/20261025T060258.886681Z-0316fa1144dd/qa_report.md",
+        "report_sha256": "e5d4605d1d9f00b8d92ea4d300f2034ee4152b892e5f897fe5d4e7a64d0fd609",
+        "request_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea",
+        "result_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/results/20261025T060258.886681Z-0316fa1144dd/result.json",
+        "result_sha256": "9d0f764a749e2f37dfce163d667a98fde1e6a8166cf42cf325d4d0407f8094d8",
+        "revision_id": "20261025T060258.886681Z-0316fa1144dd",
+        "stage": "D",
+        "status": "PASS_WITH_LIMITATIONS"
+      },
+      "latest_request": {
+        "cache_key": "17c7108ceb959b668525f53447fe9dd3ac5fd458781815f624c09a69ecbb11dd",
+        "context_sha256": "03236a7320acce14748693308086a9ccfcd06abce46bebb42183a50a443ff591",
+        "created_at": "2026-10-25T05:57:15.082506+00:00",
+        "prompt_sha256": "f78a8a3c6732008892c63c497b94a347cf46760cb0d55e9561f3bdefd0d1586e",
+        "request_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea",
+        "revision_id": "20261025T055715.083801Z-5289edfa18ea",
+        "run_id": "example_run",
+        "stage": "D"
+      },
+      "requests": [
+        {
+          "cache_key": "17c7108ceb959b668525f53447fe9dd3ac5fd458781815f624c09a69ecbb11dd",
+          "context_sha256": "03236a7320acce14748693308086a9ccfcd06abce46bebb42183a50a443ff591",
+          "created_at": "2026-10-25T05:57:15.082506+00:00",
+          "prompt_sha256": "f78a8a3c6732008892c63c497b94a347cf46760cb0d55e9561f3bdefd0d1586e",
+          "request_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea",
+          "revision_id": "20261025T055715.083801Z-5289edfa18ea",
+          "run_id": "example_run",
+          "stage": "D"
+        }
+      ],
+      "status": "PASS_WITH_LIMITATIONS"
     }
   },
-  "updated_at": "2026-10-25T05:24:11.725967+00:00"
+  "updated_at": "2026-10-25T06:02:58.893707+00:00"
 }
