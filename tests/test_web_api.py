@@ -16,7 +16,7 @@ def spec(count=1, size=4):
 
 @pytest.fixture
 def client(tmp_path):
-    with TestClient(create_app(tmp_path)) as client:
+    with TestClient(create_app(tmp_path, execution='manual')) as client:
         yield client
 
 

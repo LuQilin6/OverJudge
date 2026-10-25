@@ -1,6 +1,6 @@
 # Independent single-POV observer
 
-prompt_version: stage-a-v1.1
+prompt_version: stage-a-v1.2
 
 ## Role and allowed inputs
 
@@ -46,7 +46,7 @@ permission to copy example observations.
 - Video SHA-256: {hash from the assigned job}
 - Hero: {supported hero name or unknown}
 - Aligned-video interval: {original start–end seconds}
-- prompt_version: stage-a-v1.1
+- prompt_version: stage-a-v1.2
 - Inspection coverage / method: {actual frame timestamps/windows, sampling rate, tool/model/version, HUD access; audio unavailable}
 ## Gameplay Context
 {Supported map/mode/hero/objective facts; unsupported details remain unknown.}
@@ -70,7 +70,7 @@ permission to copy example observations.
 - Status: PASS_WITH_LIMITATIONS
 - Inputs consumed: {assigned video/hash, inspected frames/windows, configuration, prompt version}
 - Outputs produced: {this report and actual inspection review record}
-- Prompt/model/tool versions: {stage-a-v1.1 and actual tool/model versions, or model unknown}
+- Prompt/model/tool versions: {stage-a-v1.2 and actual tool/model versions, or model unknown}
 - Evidence coverage: {actual inspected timestamps/windows and gaps}
 - Unresolved questions: {specific uncertainties, or none established}
 - Known limitations: {sampling, HUD, audio and factual uncertainty}
@@ -101,3 +101,11 @@ video evidence. A model confidence label never substitutes for that review.
 
 ## Supplied-perspective contract (web integration)
 The task manifest is authoritative for perspective IDs and count (one to five). IDs pov1–pov5 are stable recording identities, not roles. Analyze only supplied perspectives. Missing players are unavailable evidence; never infer inactivity or assign them responsibility. Use exactly the supplied IDs for per-player maps, claims, and evidence. With one perspective, do not imply cross-perspective corroboration. With multiple perspectives, compare only available evidence. User questions and context are unverified allegations, not established facts. For web uploads, videos have been normalized to the common overlap; keep those timestamps unchanged. The web adapter maps them back to original recordings.
+
+## Frame-window boundaries
+Evidence windows are half-open: [start, end). A claim based on a frame at time t
+requires an evidence end strictly greater than t. For example, a claim seen in
+the 10.0-second image can use an interval ending at 10.5, not 10.0. At the final
+sample use the configured video end (for example, 22.1 for a frame at 22.0).
+Apply the same bound to the event heading. Do not place an endpoint observation
+outside its cited window. This does not establish activity between samples.

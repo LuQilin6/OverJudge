@@ -30,7 +30,7 @@ export function useReview() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [availability, setAvailability] = useState({ ready: false, message: 'Checking the local review pipeline…' });
+  const [availability, setAvailability] = useState({ ready: false, execution: 'codex', message: 'Checking the local review pipeline…' });
   const videoRef = useRef<HTMLVideoElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const reportInput = useRef<unknown>(null);
@@ -46,7 +46,7 @@ export function useReview() {
 
   async function checkConnection() {
     try { setAvailability(await request('/api/health')); }
-    catch { setAvailability({ ready: false, message: 'The local pipeline is unavailable. Start the server, then check again.' }); }
+    catch { setAvailability({ ready: false, execution: 'codex', message: 'The local pipeline is unavailable. Start the server, then check again.' }); }
   }
   useEffect(() => { void checkConnection(); return () => {
     generation.current++; abort.current?.abort();
@@ -131,7 +131,8 @@ export function useReview() {
       let current = jobSchema.parse(await request(`/api/reviews/${created.id}/start`, { method: 'POST', signal }));
       while (!signal.aborted && generation.current === version) {
         setJob(current);
-        if (current.state === 'failed' || current.state === 'cancelled') throw new Error(current.message);
+        if (current.state === 'failed') { createdId = ''; throw new Error(current.message); }
+        if (current.state === 'cancelled') throw new Error(current.message);
         if (current.state === 'complete') {
           const result = validateReviewReport(current.report, snapshot);
           setReport(result); return;

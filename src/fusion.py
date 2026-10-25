@@ -167,7 +167,7 @@ def validate_result(payload: dict, manifest: dict, allowed_refs: set[str]) -> di
     turning_points = _strings(result["turning_points"], "turning_points")
     result["turning_points"] = turning_points
     if len(turning_points) != len(set(turning_points)) or not set(turning_points) <= set(event_by_id):
-        raise ContractError("turning_points must contain unique known event IDs")
+        raise ContractError(f"turning_points must contain unique known event IDs as strings, chosen from {sorted(event_by_id)}; got {turning_points}")
     _object(result["player_knowledge_limits"], "player_knowledge_limits", set(supplied_povs(manifest)))
     for pov_id in supplied_povs(manifest):
         result["player_knowledge_limits"][pov_id] = _strings(result["player_knowledge_limits"][pov_id], f"{pov_id} knowledge limits", nonempty=True)
@@ -334,6 +334,12 @@ def response_schema(pov_ids=POV_IDS) -> dict:
         "response_fields": list(example_response(pov_ids)),
         "example": example_response(pov_ids),
         "claim": {"description": "nonempty neutral text", "epistemic_status": sorted(EPISTEMIC_STATES), "evidence_refs": "source POV@start-end list; required unless epistemic_status=unknown"},
+        "list_item_contracts": {
+            "turning_points": "Array of unique existing event_id STRINGS, e.g. ['e1']; never claim objects. Empty is allowed.",
+            "conflicts": {"conflict_id": "unique string", "description": "text", "event_ids": ["existing event_id"], "evidence_refs": ["exact source reference"], "severity": "critical|minor", "status": "resolved|unresolved", "resolution": "text or unknown", "resolution_evidence_refs": "reference array, may be empty only when unresolved"},
+            "reinspection_requests": {"conflict_id": "existing conflict_id", "pov_id": "supplied POV", "start_timestamp": "number", "end_timestamp": "number", "question": "nonempty text"},
+            "uncertainties_revision_log_limitations": "Each is an array of nonempty STRINGS, never objects.",
+        },
         "phase_names": list(PHASE_NAMES),
         "event_source_status": sorted(SOURCE_STATES),
         "constraints": [

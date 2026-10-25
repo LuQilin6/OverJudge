@@ -17,12 +17,16 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from dotenv import load_dotenv
+from api.codex_reviewer import connection_status, review_job, AI_LIMITATION
+
 from src.contracts import EvidenceRef, ContractError, read_json
 from src.intake import probe
 from src.stage_a import StageAService
 from src.pipeline import DownstreamPipeline
 
 ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(ROOT / '.env')
 MAX_FILE = 200 * 1024 * 1024
 TTL = 24 * 60 * 60
 
@@ -103,7 +107,8 @@ def browser_report(verdict, qa, spec, duration, offsets):
 
 
 class Job:
-    def __init__(self, directory, spec):
+    def __init__(self, directory, spec, execution="manual"):
+        self.execution = execution
         self.id = directory.name
         self.path = directory
         self.spec = spec
@@ -169,13 +174,16 @@ def prepare_job(job):
             job.update('preparing', f'Aligning {clip.label}.')
             run_process(job, ['ffmpeg', '-v', 'error', '-nostdin', '-y', '-i', str(source),
                 '-ss', str(job.offsets[clip.id]), '-t', str(job.duration), '-an',
-                '-vf', 'scale=trunc(min(1280\,iw)/2)*2:-2', '-c:v', 'libx264', '-preset', 'veryfast',
+                '-vf', r'scale=trunc(min(1280\,iw)/2)*2:-2', '-c:v', 'libx264', '-preset', 'veryfast',
                 '-crf', '18', '-pix_fmt', 'yuv420p', str(job.path / 'aligned' / f'{clip.id}.mp4')])
         config = {'run_id': job.id, 'fight_id': job.id, 'game': 'Overwatch 2',
             'allow_partial_povs': True, 'prealigned_input_assumed': True,
             'fight_start_timestamp': 0.0, 'fight_end_timestamp': job.duration,
             'videos': [{'pov_id': c.id, 'path': f'aligned/{c.id}.mp4', 'hero': c.hero.strip() or 'unknown'} for c in job.spec.clips],
             'prompts': {s: f'prompts/stage_{s.lower()}.md' for s in 'ABCD'}, 'output_directory': 'outputs'}
+        if job.execution == 'codex':
+            config['inspection_settings'] = {'method': 'codex_cli'}
+            config['stage_tools'] = {s: {'method': 'codex_cli', 'tool': 'Codex CLI'} for s in 'ABCD'}
         job.config.write_text(json.dumps(config, indent=2))
         user_context = json.dumps({'question': job.spec.question, 'context': job.spec.context,
             'players': [{'id': c.id, 'label': c.label, 'role': c.role, 'hero': c.hero} for c in job.spec.clips]}, ensure_ascii=False)
@@ -199,9 +207,17 @@ def prepare_job(job):
             '\nEach povN-task.json identifies a real Stage A frame package. Inspect it before submitting a report. '
             'After all supplied reports, export the handoff, then prepare/import B, C and independently audit D. '
             'The web app publishes only a current passing D release. No synthetic result is substituted.\n')
+        if job.execution == 'codex':
+            (job.path / 'REVIEW.md').write_text('# Automated Codex review\n\nFresh CLI sessions run A, B, C and D. This is a separate AI evidence check, not a human audit.\nLocal input manifests, outputs and diagnostic logs are in runner/.\nOnly an existing passing D publication gate can release the report.\n')
+            review_job(job)
+            job.update('awaiting_review', 'Validating the checked report.')
+            refresh_report(job)
+            if job.state != 'complete' and not job.cancel.is_set():
+                raise ValueError('The review finished without a publishable report. See the local QA report.')
+            return
         job.update('awaiting_review', 'Frames are ready. A reviewer must inspect the evidence and submit the pipeline reports. No model is running automatically.')
     except Exception as exc:
-        job.update('failed', str(exc) if isinstance(exc, (ValueError, OSError, TimeoutError)) else 'Preparation failed. Check the local server log.')
+        job.update('failed', str(exc) if isinstance(exc, (ValueError, OSError, TimeoutError, RuntimeError)) else 'Preparation failed. Check the local server log.')
     finally:
         if job.cancel.is_set():
             shutil.rmtree(job.path, ignore_errors=True)
@@ -223,13 +239,18 @@ def refresh_report(job):
         verdict = pipeline.store.load_result('C')
         qa = pipeline.store.load_result('D')
         job.report = browser_report(verdict, qa, job.spec, job.duration, job.offsets)
+        if job.execution == 'codex':
+            job.report['limitations'] = list(dict.fromkeys(job.report['limitations'] + [AI_LIMITATION]))
         job.update('complete', 'Evidence review complete.')
     except (ValueError, OSError, KeyError) as exc:
         job.report = None
         job.update('awaiting_review', f'Report is not ready: {exc}')
 
 
-def create_app(storage=ROOT / '.local/reviews'):
+def create_app(storage=ROOT / '.local/reviews', execution=None):
+    execution = execution or os.getenv('REVIEW_EXECUTION', 'codex')
+    if execution not in {'codex', 'manual'}:
+        raise ValueError('REVIEW_EXECUTION must be codex or manual')
     storage = Path(storage)
     jobs = {}
     pool = ThreadPoolExecutor(max_workers=2)
@@ -265,7 +286,11 @@ def create_app(storage=ROOT / '.local/reviews'):
     @app.get('/api/health')
     def health():
         ready = bool(shutil.which('ffmpeg') and shutil.which('ffprobe'))
-        return {'ready': ready, 'execution': 'manual', 'message': 'Manual review pipeline connected.' if ready else 'Install FFmpeg and ffprobe, then restart the server.'}
+        if not ready:
+            return {'ready': False, 'execution': execution, 'message': 'Install FFmpeg and ffprobe, then restart the server.'}
+        if execution == 'codex':
+            return connection_status()
+        return {'ready': True, 'execution': 'manual', 'message': 'Manual review pipeline connected.'}
 
     @app.post('/api/reviews', status_code=201)
     def create(spec: ReviewSpec):
@@ -279,7 +304,7 @@ def create_app(storage=ROOT / '.local/reviews'):
             raise HTTPException(429, 'Four local reviews are already retained. Remove an old review before starting another.')
         path = storage / uuid4().hex
         path.mkdir(parents=True)
-        job = Job(path, spec)
+        job = Job(path, spec, execution)
         jobs[job.id] = job
         (path / 'session.json').write_text(spec.model_dump_json(indent=2))
         return job.snapshot()
@@ -324,6 +349,8 @@ def create_app(storage=ROOT / '.local/reviews'):
         job = get_job(job_id)
         if not shutil.which('ffmpeg') or not shutil.which('ffprobe'):
             raise HTTPException(503, 'Install FFmpeg and ffprobe before preparing a review.')
+        if execution == 'codex' and not connection_status()['ready']:
+            raise HTTPException(503, connection_status()['message'])
         with job.lock:
             if job.state != 'uploading' or job.uploaded != {c.id for c in job.spec.clips}:
                 raise HTTPException(409, 'Upload all selected recordings before starting')

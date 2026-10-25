@@ -78,6 +78,21 @@ describe('review lifecycle',()=>{
   expect(result.current.report).toBeNull();
   expect(result.current.notice).toContain('Review stopped');
  });
+ it('accepts automatic reviewer stages and cancels an active observation',async()=>{
+  const {result}=await ready();
+  vi.mocked(fetch).mockImplementation(async(path,options)=>
+   path==='/api/reviews'?json(job):String(path).endsWith('/start')?
+   json({...job,state:'observing',message:'Inspecting actual frames.'}):options?.method==='DELETE'?
+   json({...job,state:'cancelled'}):json({uploaded:'pov1'}));
+  let pending!:Promise<void>;
+  act(()=>{pending=result.current.analyze();});
+  await waitFor(()=>expect(result.current.job?.state).toBe('observing'));
+  act(()=>result.current.closeReview());
+  await act(async()=>{await pending;});
+  expect(result.current.busy).toBe(false);
+  expect(result.current.clips).toHaveLength(1);
+  expect(result.current.report).toBeNull();
+ });
  it('retains footage after failure, retries explicitly and validates completed reports',async()=>{
   const {result}=await ready();
   vi.mocked(fetch).mockResolvedValueOnce(json({detail:'Synthetic failure'},503));

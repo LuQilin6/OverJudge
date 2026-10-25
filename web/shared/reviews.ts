@@ -11,7 +11,7 @@ export const reviewReportSchema = z.object({
   limitations: z.array(z.string()).min(1),
 });
 export type ReviewReport = z.infer<typeof reviewReportSchema>;
-export const jobSchema = z.object({ id: z.string(), state: z.enum(['uploading', 'preparing', 'awaiting_review', 'complete', 'failed', 'cancelled']), message: z.string(), prepared: z.array(z.string()), total: z.number(), report: reviewReportSchema.nullable() });
+export const jobSchema = z.object({ id: z.string(), state: z.enum(['uploading', 'preparing', 'awaiting_review', 'queued', 'observing', 'comparing', 'judging', 'auditing', 'complete', 'failed', 'cancelled']), message: z.string(), prepared: z.array(z.string()), total: z.number(), report: reviewReportSchema.nullable() });
 export type ReviewJob = z.infer<typeof jobSchema>;
 export function validateReviewReport(value: unknown, clips: { id: string; duration: number | null }[]) {
   const report = reviewReportSchema.parse(value);

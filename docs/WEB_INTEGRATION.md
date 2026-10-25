@@ -23,8 +23,19 @@ FFmpeg and ffprobe on PATH before starting it. On this development machine,
 project-local FFmpeg 8 executables were downloaded with `static-ffmpeg==3.0` and
 linked in `.venv/bin`; those binaries are not committed or required Python packages.
 
-There are no model credentials or automatic model calls in this integration.
-The earlier Express/ChatGPT authentication prototype was deliberately not copied.
+The default reviewer now uses the installed **Codex CLI with ChatGPT login**.
+Install Codex CLI if needed, run `codex login`, choose ChatGPT, and verify with
+`codex login status`. Copy `.env.example` to `.env` if you want overrides, then
+restart `./dev.sh`. No API key is required. Reviews use your Codex allowance.
+The login check confirms local credentials, not remote service availability.
+
+The runner follows your `~/.codex/config.toml` model selection (currently
+`gpt-6-astra` on this machine); `CODEX_REVIEW_MODEL` overrides it. Other user
+hooks/plugins are disabled for the review sessions. Each stage uses a fresh,
+ephemeral, read-only CLI invocation with shell/browser/delegation tools disabled.
+
+Keep this service local and operated by the signed-in user. This is not a
+public, multi-user backend or a way to distribute subscription access.
 
 ## User experience
 
@@ -43,7 +54,9 @@ The earlier Express/ChatGPT authentication prototype was deliberately not copied
   `min(a_i) + min(d_i - a_i)` seconds long; recording `i` starts at
   `a_i - min(a_i)` in the original file.
 - Uploads go to this local computer. FFmpeg makes aligned, silent copies; the
-  pipeline prepares actual frame packages. It then waits for manual inspection.
+  pipeline prepares actual frame packages and automatically starts the Codex reviewer.
+  Selected frames, questions and context are sent to OpenAI through the CLI. Audio
+  is not analyzed. Local source files and diagnostic artifacts expire on cleanup.
 - Evidence links select the correct original browser video and add that
   perspective’s trim offset to the pipeline timestamp. No frame-window offsets
   are discarded. The report download includes the submitted metadata and report.
@@ -52,20 +65,45 @@ The earlier Express/ChatGPT authentication prototype was deliberately not copied
   Closing a completed result retains it. Removing/adding a perspective invalidates
   the old result and alignment confirmation.
 
-## What is automatic, and what is manual?
+## Automatic review and limitations
 
-Automatic: validation, local upload, overlap normalization, Stage A frame
-preparation, polling, validation of published artifacts, timestamp mapping, and
-report presentation.
+Stage A inspects each supplied perspective in a separate session, using the actual
+2fps JPEG frames (at most 180 per recording). B reconstructs the available views;
+C produces a structured verdict. D receives newly decoded frames from the exact
+cited evidence windows, in another fresh session, to check the proposed verdict.
+This is a **separate AI check, not a human audit**. Human-audit provenance remains
+PENDING, and limitations remain visible. One perspective cannot establish
+cross-perspective corroboration. Fast abilities can be missed between frames.
 
-Manual: actual Stage A observations, Stage B reconstruction/comparison, Stage C
-judgment, and independent Stage D audit. A one-perspective run still uses the
-neutral B reconstruction format, but cannot claim cross-perspective corroboration.
-No fabricated or example report is returned when a reviewer is absent.
+The existing artifact hashes, timestamp validation and publication gate remain.
+Only a current passing D release can appear in the browser. An audit failure blocks
+publication; the runner does not automatically weaken findings to get a pass.
+There is at most one format-repair attempt per stage, no automatic retry for
+connection/usage failures, and a default ten-minute timeout per invocation. One
+review runs at a time. A single clip needs four model calls; five clips need eight,
+plus any bounded format repairs. Usage varies with footage and reasoning.
 
-Only a current, published, passing Stage D release is displayed. An unpublished
-Stage C verdict does not appear in the UI. Editing upstream evidence revokes the
-release on the next status check. The original evidence/provenance gates remain.
+Closing or cancelling terminates the running CLI process. Server-side failed
+artifacts remain available for diagnosis until explicit cleanup/retry or expiry.
+`runner/` inside a review directory contains input manifests, model outputs and
+logs. Do not commit these files: they can contain user footage descriptions.
+
+If you see `workspace routing discovery failed`, the CLI could not reach its
+ChatGPT workspace. Test `codex exec "Reply only OK"` in your terminal; check your
+network and `codex login`. Run `codex doctor --summary --no-color` for diagnostics.
+On this Mac the actual cause was TLS `UnknownIssuer`: setting
+`CODEX_CA_CERTIFICATE=/etc/ssl/cert.pem` in the project-local `.env` fixed the
+secure connection using existing system trusted roots. Certificate verification
+remains enabled. This is a per-project setting, not a global trust-store change.
+Only use an existing trusted bundle appropriate to your machine; do not copy this
+Mac-specific path to other operating systems. A local login success alone cannot establish that a
+model request works. Restarting the web server cancels running jobs; retained
+browser clips must be explicitly submitted again.
+
+## Optional manual fallback
+
+Set `REVIEW_EXECUTION=manual` in `.env` and restart to use the original teammate
+handoff workflow below. This fallback is explicit, never automatic.
 
 ## Reviewer handoff
 
@@ -110,14 +148,15 @@ The existing workflow guide explains exact response formats and failure gates.
 
 | Endpoint | Purpose |
 | --- | --- |
-| `GET /api/health` | Tool availability and explicit `execution: manual` |
+| `GET /api/health` | Tool/login availability and `execution: codex` or `manual` |
 | `POST /api/reviews` | Validate clip metadata, question, alignment; create a job |
 | `PUT /api/reviews/{id}/clips/{povId}` | Stream one recording, with byte bounds |
-| `POST /api/reviews/{id}/start` | Queue real preparation after all uploads |
+| `POST /api/reviews/{id}/start` | Queue preparation and configured reviewer after all uploads |
 | `GET /api/reviews/{id}` | Actual state and audited report, when available |
 | `DELETE /api/reviews/{id}` | Cancel and remove job-owned local files |
 
-States: `uploading`, `preparing`, `awaiting_review`, `complete`, `failed`, `cancelled`.
+States: `uploading`, `preparing`, `queued`, `observing`, `comparing`, `judging`,
+`auditing`, `awaiting_review` (manual/publication), `complete`, `failed`, `cancelled`.
 No percentages are invented for review work. The count of prepared perspectives
 reflects finished frame packages.
 
@@ -172,3 +211,24 @@ New tests cover one through five POVs through real FFmpeg and the A/B/C/D gates,
 missing-supplied-report rejection, upload limits/cancellation, incomplete/corrupt
 video, missing tools, report publication/revocation, offset mapping, question/mode
 transitions, stale browser responses, retry, and perspective switching.
+
+
+### Codex runner verification
+
+- Automated checks cover the actual A/B/C/D import gates with mocked model
+  responses, a failed audit blocking release, cancellation/timeout terminating a
+  child process, bounded schema repair, ChatGPT-only login, and API-key exclusion.
+- A live 12-second labeled synthetic title card completed all four stages and
+  produced an inconclusive report with no asserted gameplay events. This verifies
+  the connection and workflow, not Overwatch coaching accuracy.
+- Local TLS diagnosis: the default CLI reported `UnknownIssuer`; the existing
+  macOS certificate bundle restored a verified WebSocket handshake and inference.
+
+- The supplied real 22.1-second Pharah clip completed through the browser, using
+  45 sampled frames. The checked verdict was inconclusive, with three timestamped
+  observations and a qualified concern about doorway exposure. Evidence seeking
+  to 8.5 seconds and JSON export were verified. This single sample is not an
+  accuracy benchmark. The run took about 236 seconds and used 5 model calls
+  (including one bounded format repair). Expect minutes, not instant results.
+- Full suite: 209 Python tests plus 132 subtests, 10 frontend tests, production
+  build, and whitespace checks passed.
