@@ -1,0 +1,61 @@
+{
+  "scope": "Local one-to-five perspective integration; synthetic footage only",
+  "python_tests": {
+    "passed": 203,
+    "subtests_passed": 132,
+    "skipped": 0,
+    "runtime": "Python 3.12.0; FFmpeg 8.0",
+    "warning": "Starlette TestClient recommends httpx2; current httpx tests pass"
+  },
+  "frontend_tests": {
+    "passed": 9,
+    "files": 3
+  },
+  "production_build": "passed",
+  "browser": {
+    "desktop": {
+      "viewport": [
+        1470,
+        745
+      ],
+      "modal_width": 882,
+      "horizontal_overflow": false
+    },
+    "tablet": {
+      "viewport": [
+        768,
+        1024
+      ],
+      "modal_width": 691.2,
+      "horizontal_overflow": false,
+      "alignment_confirmation_overflow": false
+    },
+    "phone": {
+      "viewport": [
+        375,
+        812
+      ],
+      "horizontal_overflow": false,
+      "alignment_confirmation_overflow": false
+    },
+    "checks": [
+      "one/two perspective mode transitions",
+      "default question changes on removal",
+      "actual local upload and FFmpeg frame preparation",
+      "manual waiting state is explicit",
+      "synthetic verdict passed through real A/B/C/D gates",
+      "evidence switches to Player 2 at original time 4 seconds for normalized window 1\u20132 with offset 3",
+      "JSON export inspected",
+      "close/reopen preserves completed report",
+      "closing active review cancels and preserves inputs",
+      "keyboard focus wrap, Escape and focus restoration"
+    ]
+  },
+  "limits": [
+    "No real gameplay accuracy claim; all end-to-end judgments were labeled synthetic fixtures.",
+    "No automatic model runner added.",
+    "No physical touch-device or screen-reader testing.",
+    "Existing full-team CLI remains strict unless allow_partial_povs is enabled."
+  ],
+  "preview": "http://127.0.0.1:5174/"
+}

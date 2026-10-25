@@ -10,7 +10,7 @@ import copy
 import re
 from typing import Any
 
-from .contracts import ContractError, POV_IDS, extract_evidence_refs, validate_references
+from .contracts import ContractError, POV_IDS, supplied_povs, extract_evidence_refs, validate_references
 
 
 SCHEMA_VERSION = "1.0"
@@ -167,7 +167,7 @@ def validate_result(payload: dict, manifest: dict, allowed_refs: set[str]) -> di
         finding["id"] = _text(finding["id"], path + ".id")
         if finding["id"] in findings:
             raise ContractError(f"duplicate finding id: {finding['id']}")
-        _enum(finding["pov_id"], tuple(POV_IDS), path + ".pov_id")
+        _enum(finding["pov_id"], tuple(supplied_povs(manifest)), path + ".pov_id")
         _enum(finding["level"], FINDING_LEVELS, path + ".level")
         for field in (
             "claim", "player_information", "alternative_action", "plausible_consequence",
@@ -180,9 +180,9 @@ def validate_result(payload: dict, manifest: dict, allowed_refs: set[str]) -> di
         if finding["level"] in ADVERSE_LEVELS:
             adverse.append(finding)
 
-    players = _object(result["player_findings"], tuple(POV_IDS), "player_findings")
+    players = _object(result["player_findings"], tuple(supplied_povs(manifest)), "player_findings")
     linked_findings = set()
-    for pov_id in POV_IDS:
+    for pov_id in supplied_povs(manifest):
         path = "player_findings." + pov_id
         player = _object(players[pov_id], ("status", "summary", "finding_ids"), path)
         _enum(player["status"], ("findings", "no_supported_mistake"), path + ".status")
@@ -244,7 +244,7 @@ def validate_result(payload: dict, manifest: dict, allowed_refs: set[str]) -> di
         _object(lesson, ("pov_ids", "lesson", "evidence_refs"), path)
         pov_ids = _list(lesson["pov_ids"], path + ".pov_ids", nonempty=True)
         for pov_id in pov_ids:
-            _enum(pov_id, tuple(POV_IDS), path + ".pov_ids")
+            _enum(pov_id, tuple(supplied_povs(manifest)), path + ".pov_ids")
         if len(set(pov_ids)) != len(pov_ids):
             raise ContractError(f"{path}.pov_ids contains duplicates")
         lesson["lesson"] = _text(lesson["lesson"], path + ".lesson", qualitative=True)
@@ -313,7 +313,7 @@ def render_report(payload: dict, metadata: dict) -> str:
     for finding in payload["findings"]:
         lines.append(f"- **{_inline(finding['id'])}**: {_inline(finding['alternative_explanation'])}")
     lines.extend(("", "## Player-by-Player Findings", ""))
-    for pov_id in POV_IDS:
+    for pov_id in payload["player_findings"]:
         player = payload["player_findings"][pov_id]
         lines.append(f"- **{pov_id}** — {player['status']}: {_inline(player['summary'])}")
         if player["finding_ids"]:
@@ -351,7 +351,7 @@ def render_report(payload: dict, metadata: dict) -> str:
     return "\n".join(lines)
 
 
-def example_response() -> dict:
+def example_response(pov_ids=POV_IDS) -> dict:
     """A complete abstention template, containing no invented gameplay evidence."""
     return {
         "schema_version": SCHEMA_VERSION,
@@ -368,7 +368,7 @@ def example_response() -> dict:
                 "summary": "Example only: no supported mistake is established for this player.",
                 "finding_ids": [],
             }
-            for pov_id in POV_IDS
+            for pov_id in pov_ids
         },
         "alternative_explanations": ["Missing or conflicting evidence could prevent reliable attribution."],
         "verdict": {
@@ -382,7 +382,7 @@ def example_response() -> dict:
     }
 
 
-def response_schema() -> dict:
+def response_schema(pov_ids=POV_IDS) -> dict:
     """JSON Schema for task-package authoring; validate_result adds cross-field gates."""
     text = {"type": "string", "minLength": 1}
     ref = {"type": "string", "description": "Exact canonical citation from the task's allowed_refs; no offsets or new intervals."}
@@ -405,7 +405,7 @@ def response_schema() -> dict:
         }),
         "confirmed_facts": array(obj({"id": text, "claim": text, "evidence_refs": references})),
         "findings": array(obj({
-            "id": text, "pov_id": enum(tuple(POV_IDS)), "level": enum(FINDING_LEVELS),
+            "id": text, "pov_id": enum(tuple(pov_ids)), "level": enum(FINDING_LEVELS),
             "claim": text, "evidence_refs": references, "player_information": text,
             "alternative_action": text, "plausible_consequence": text,
             "causal_reasoning": text, "alternative_explanation": text,
@@ -415,7 +415,7 @@ def response_schema() -> dict:
                 "status": enum(("findings", "no_supported_mistake")), "summary": text,
                 "finding_ids": array(text, uniqueItems=True),
             })
-            for pov_id in POV_IDS
+            for pov_id in pov_ids
         }),
         "alternative_explanations": array(text, 1),
         "verdict": obj({
@@ -424,7 +424,7 @@ def response_schema() -> dict:
         }),
         "top_evidence_clips": array(ref, maxItems=3, uniqueItems=True),
         "actionable_lessons": array(obj({
-            "pov_ids": array(enum(tuple(POV_IDS)), 1, uniqueItems=True),
+            "pov_ids": array(enum(tuple(pov_ids)), 1, uniqueItems=True),
             "lesson": text, "evidence_refs": references,
         })),
         "confidence": obj({"label": enum(("low", "medium", "high")), "rationale": text}),

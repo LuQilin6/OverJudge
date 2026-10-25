@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 import sys
 
-from .contracts import ContractError
+from .contracts import ContractError, ALLOWED_POV_IDS
 from .pipeline import DownstreamPipeline
 
 
@@ -22,7 +22,7 @@ def main(argv: list[str] | None = None) -> int:
             sub.add_argument("--accept-limitations", action="store_true", help="Coordinator has reviewed and accepts documented upstream limitations")
         if name in ("prepare", "run"):
             sub.add_argument("--stage", default="A", choices=("A", "B", "C", "D"))
-            sub.add_argument("--pov", default="tank", choices=("tank", "dps1", "dps2", "support1", "support2"))
+            sub.add_argument("--pov", default="tank", choices=ALLOWED_POV_IDS)
         if name == "validate":
             sub.add_argument("--stage", default="S0", choices=("S0", "B"), help="S0 probes all videos; B checks the verified A handoff")
         if name == "import-result":
@@ -33,7 +33,7 @@ def main(argv: list[str] | None = None) -> int:
             sub.add_argument("--request", type=Path, required=True)
             sub.add_argument("--response", type=Path, required=True)
         if name == "submit":
-            sub.add_argument("--pov", required=True, choices=("tank", "dps1", "dps2", "support1", "support2"))
+            sub.add_argument("--pov", required=True, choices=ALLOWED_POV_IDS)
             sub.add_argument("--job", type=Path, required=True)
             sub.add_argument("--report", type=Path, required=True)
             sub.add_argument("--review", type=Path, required=True)

@@ -11,7 +11,7 @@ import math
 import re
 from typing import Any
 
-from .contracts import ContractError, EvidenceRef, POV_IDS, extract_evidence_refs, validate_references
+from .contracts import ContractError, EvidenceRef, POV_IDS, supplied_povs, extract_evidence_refs, validate_references
 
 
 SCHEMA_VERSION = "1.0"
@@ -156,8 +156,8 @@ def validate_result(payload: dict, manifest: dict, allowed_refs: set[str]) -> di
         if phase_id not in phase_by_id or phase_id in covered_phases:
             raise ContractError("action matrix must have exactly one row per phase_id")
         covered_phases.add(phase_id)
-        _object(row["players"], f"{phase_id} players", set(POV_IDS))
-        for pov_id in POV_IDS:
+        _object(row["players"], f"{phase_id} players", set(supplied_povs(manifest)))
+        for pov_id in supplied_povs(manifest):
             row["players"][pov_id] = _claim(row["players"][pov_id], manifest, allowed_refs, f"{phase_id}/{pov_id}")
     if covered_phases != set(phase_by_id):
         raise ContractError("action matrix is missing a phase")
@@ -168,8 +168,8 @@ def validate_result(payload: dict, manifest: dict, allowed_refs: set[str]) -> di
     result["turning_points"] = turning_points
     if len(turning_points) != len(set(turning_points)) or not set(turning_points) <= set(event_by_id):
         raise ContractError("turning_points must contain unique known event IDs")
-    _object(result["player_knowledge_limits"], "player_knowledge_limits", set(POV_IDS))
-    for pov_id in POV_IDS:
+    _object(result["player_knowledge_limits"], "player_knowledge_limits", set(supplied_povs(manifest)))
+    for pov_id in supplied_povs(manifest):
         result["player_knowledge_limits"][pov_id] = _strings(result["player_knowledge_limits"][pov_id], f"{pov_id} knowledge limits", nonempty=True)
 
     conflicts = _list(result["conflicts"], "conflicts")
@@ -208,7 +208,7 @@ def validate_result(payload: dict, manifest: dict, allowed_refs: set[str]) -> di
         request["conflict_id"] = conflict_id
         if conflict_id not in conflict_by_id:
             raise ContractError("reinspection request must identify a known conflict")
-        if request["pov_id"] not in POV_IDS:
+        if request["pov_id"] not in supplied_povs(manifest):
             raise ContractError("reinspection request has unknown POV")
         _interval(request, manifest, "reinspection request")
         request["question"] = _text(request["question"], "reinspection question")
@@ -261,15 +261,15 @@ def render_report(payload: dict, metadata: dict) -> str:
     lines += ["### Fight Phases", ""]
     for phase in payload["phases"]:
         lines.append(f"- {phase['phase_id']} — {phase['name']} [{phase['start_timestamp']}–{phase['end_timestamp']} s]: {_claim_text(phase['summary'])}")
-    lines += ["", "## Five-Player Action Matrix", "", "| Phase | " + " | ".join(POV_IDS) + " |", "|---|" + "---|" * len(POV_IDS)]
+    lines += ["", ("## Five-Player Action Matrix" if len(payload["player_knowledge_limits"]) == 5 else "## Supplied-Perspective Action Matrix"), "", "| Phase | " + " | ".join(payload["player_knowledge_limits"]) + " |", "|---|" + "---|" * len(payload["player_knowledge_limits"])]
     for row in payload["action_matrix"]:
-        cells = [row["phase_id"]] + [_claim_text(row["players"][pov]) for pov in POV_IDS]
+        cells = [row["phase_id"]] + [_claim_text(row["players"][pov]) for pov in payload["player_knowledge_limits"]]
         lines.append("| " + " | ".join(_cell(cell) for cell in cells) + " |")
     lines += ["", "## Team Coordination", ""] + [f"- {_claim_text(claim)}" for claim in payload["team_coordination"]]
     lines += ["", "## Turning Points", ""]
     lines += [f"- {event_id}: {next(event['description'] for event in payload['events'] if event['event_id'] == event_id)}" for event_id in payload["turning_points"]] or ["- No supported turning point established."]
     lines += ["", "## Player Knowledge Limits", "", "Global reconstruction must not be treated as information each player possessed at the time."]
-    for pov_id in POV_IDS:
+    for pov_id in payload["player_knowledge_limits"]:
         lines.append(f"- {pov_id}: {'; '.join(payload['player_knowledge_limits'][pov_id])}")
     lines += ["", "## Conflicts and Uncertainties", ""]
     for conflict in payload["conflicts"]:
@@ -297,7 +297,7 @@ def render_report(payload: dict, metadata: dict) -> str:
     lines += ["", "## Evidence Index", ""] + [f"- {ref}" for ref in sorted(refs)]
     lines += ["", "## Neutral Summary", ""] + [f"- {_claim_text(claim)}" for claim in payload["neutral_summary"]]
     lines += ["", "## Agent Handoff", "", "- Stage: B", f"- Status: {payload['status']}",
-              "- Inputs consumed: five original POV reports and manifest; see task input hashes.",
+              "- Inputs consumed: supplied original POV reports and manifest; see task input hashes.",
               "- Outputs produced: fusion.json and fusion.md",
               f"- Prompt/model/tool versions: {metadata.get('prompt_version', PROMPT_VERSION)}; {metadata.get('model', 'manual Codex workflow')}",
               f"- Evidence coverage: {len(refs)} distinct source intervals; semantics require human/agent review.",
@@ -307,39 +307,39 @@ def render_report(payload: dict, metadata: dict) -> str:
     return "\n".join(lines)
 
 
-def example_response() -> dict:
+def example_response(pov_ids=POV_IDS) -> dict:
     """Synthetic shape example; it is not an analysis of any real recording."""
     unknown = {"description": "not observed; unknown", "epistemic_status": "unknown", "evidence_refs": []}
-    observed = {"description": "Synthetic example only: a visible movement is reported.", "epistemic_status": "observed", "evidence_refs": ["tank@1.0-2.0"]}
+    observed = {"description": "Synthetic example only: a visible movement is reported.", "epistemic_status": "observed", "evidence_refs": [f"{pov_ids[0]}@1.0-2.0"]}
     phases = [{"phase_id": f"p{index+1}", "name": name, "start_timestamp": float(index), "end_timestamp": float(index+1), "summary": deepcopy(unknown)} for index, name in enumerate(PHASE_NAMES)]
     return {
         "schema_version": SCHEMA_VERSION, "status": "PASS_WITH_LIMITATIONS",
         "shared_context": deepcopy(unknown),
-        "events": [{"event_id": "e1", "start_timestamp": 1.0, "end_timestamp": 2.0, "description": observed["description"], "epistemic_status": "observed", "source_status": "single_source", "evidence_refs": ["tank@1.0-2.0"]}],
+        "events": [{"event_id": "e1", "start_timestamp": 1.0, "end_timestamp": 2.0, "description": observed["description"], "epistemic_status": "observed", "source_status": "single_source", "evidence_refs": [f"{pov_ids[0]}@1.0-2.0"]}],
         "phases": phases,
-        "action_matrix": [{"phase_id": phase["phase_id"], "players": {pov: deepcopy(unknown) for pov in POV_IDS}} for phase in phases],
+        "action_matrix": [{"phase_id": phase["phase_id"], "players": {pov: deepcopy(unknown) for pov in pov_ids}} for phase in phases],
         "team_coordination": [deepcopy(unknown)], "turning_points": [],
-        "player_knowledge_limits": {pov: ["Only this player's visible/audible information may be attributed to them; other information is unknown."] for pov in POV_IDS},
+        "player_knowledge_limits": {pov: ["Only this player's visible/audible information may be attributed to them; other information is unknown."] for pov in pov_ids},
         "conflicts": [], "uncertainties": ["Synthetic example only; no video has been inspected."],
         "reinspection_requests": [], "revision_log": [], "neutral_summary": [deepcopy(observed)],
         "limitations": ["Synthetic example only; replace every field using the supplied Stage A reports."],
     }
 
 
-def response_schema() -> dict:
+def response_schema(pov_ids=POV_IDS) -> dict:
     """Machine-readable field guide included with every manual Stage B task."""
     return {
         "schema_version": SCHEMA_VERSION,
         "prompt_version": PROMPT_VERSION,
-        "response_fields": list(example_response()),
-        "example": example_response(),
+        "response_fields": list(example_response(pov_ids)),
+        "example": example_response(pov_ids),
         "claim": {"description": "nonempty neutral text", "epistemic_status": sorted(EPISTEMIC_STATES), "evidence_refs": "source POV@start-end list; required unless epistemic_status=unknown"},
         "phase_names": list(PHASE_NAMES),
         "event_source_status": sorted(SOURCE_STATES),
         "constraints": [
             "Return one JSON object with exactly the example's top-level fields; never return example facts as real observations.",
             "Every consequential event and non-unknown claim requires an exact citation from the original reports; preserve every supporting source.",
-            "Represent all five players in one matrix row per phase; use unknown, never infer inactivity from missing observations.",
+            "Represent every supplied perspective in one matrix row per phase; use unknown, never infer inactivity from missing observations.",
             "Every conflicting event must appear in the conflict ledger; unresolved critical conflicts require a targeted reinspection request and PASS_WITH_LIMITATIONS.",
             "Do not assign tactical grades, player blame, responsibility rankings or percentages.",
             "Do not shift or convert timestamps. Preserve observed/inferred/unknown/conflicted distinctions and player knowledge limits.",

@@ -16,7 +16,7 @@ from typing import Any
 
 from .artifacts import file_lock, save_json
 from .contracts import (
-    ContractError, POV_IDS, read_json, sha256_file, validate_manifest,
+    ContractError, POV_IDS, supplied_povs, read_json, sha256_file, validate_manifest,
     validate_pov_report,
 )
 
@@ -102,12 +102,14 @@ def _configuration(config: dict | Any) -> Any:
 def _validate_manifest_config(manifest: dict, config: Any, root: Path) -> None:
     validate_manifest(manifest)
     if manifest.get("status") != "PASS" or manifest.get("errors", []):
-        raise ContractError("A full Stage A handoff requires a passed five-POV S0 intake")
+        raise ContractError("A full Stage A handoff requires a passed intake for every supplied POV")
     for key in ("run_id", "fight_id", "game", "prealigned_input_assumed",
                 "fight_start_timestamp", "fight_end_timestamp"):
         if manifest.get(key) != getattr(config, key):
             raise ContractError(f"Stage A manifest {key} differs from current configuration")
     configured = {video.pov_id: video for video in config.videos}
+    if set(configured) != set(supplied_povs(manifest)) or manifest.get("allow_partial_povs", False) != config.allow_partial_povs:
+        raise ContractError("Manifest perspective selection differs from configuration")
     for video in manifest["videos"]:
         pov = video["pov_id"]
         current = configured[pov]
@@ -204,12 +206,12 @@ def _validate_bundle(bundle: dict, config: Any, root: Path) -> dict:
             or index.get("fight_id") != config.fight_id):
         raise ContractError("Stage A source index belongs to a different run or fight")
     selected = bundle.get("reports")
-    if (not isinstance(selected, dict) or set(selected) != set(POV_IDS)
-            or not isinstance(index.get("reports"), dict) or set(index["reports"]) != set(POV_IDS)):
-        raise ContractError("Stage A handoff requires exactly five explicitly selected POV reports")
+    if (not isinstance(selected, dict) or set(selected) != set(supplied_povs(manifest))
+            or not isinstance(index.get("reports"), dict) or set(index["reports"]) != set(supplied_povs(manifest))):
+        raise ContractError("Stage A handoff requires one report for every explicitly supplied POV")
     if selected != index["reports"]:
         raise ContractError("A Stage A report selection changed; export a fresh handoff")
-    reports = {pov: _validated_report(pov, selected[pov], config, root, output, manifest) for pov in POV_IDS}
+    reports = {pov: _validated_report(pov, selected[pov], config, root, output, manifest) for pov in supplied_povs(manifest)}
     hashes = {"manifest": manifest_hash, "stage_a_index": index_hash}
     limitations = list(bundle["limitations"])
     for pov, report in reports.items():
@@ -248,7 +250,7 @@ def load_stage_a_handoff(handoff_path: Path | str, config: dict | Any,
 
 
 def export_handoff(config_path: Path | str, project_root: Path | None = None) -> dict:
-    """Select five imported A revisions without granting an evidence-audit PASS."""
+    """Select supplied imported A revisions without granting an evidence-audit PASS."""
     from .intake import load_config
 
     config, inferred = load_config(config_path, project_root)
@@ -286,6 +288,6 @@ def export_handoff(config_path: Path | str, project_root: Path | None = None) ->
         save_json(pointer, bundle)
         return {
             "status": STATUS, "path": str(pointer), "snapshot_path": str(snapshot),
-            "sha256": digest, "report_count": len(POV_IDS),
+            "sha256": digest, "report_count": len(config.videos),
             "human_evidence_audit": AUDIT_STATUS, "limitations": bundle["limitations"],
         }

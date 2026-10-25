@@ -20,7 +20,7 @@ from typing import Any
 from . import audit, fusion, judge
 from .artifacts import ArtifactStore, compute_cache_key, file_lock
 from .contracts import (
-    ContractError, POV_IDS, STAGES, read_json, sha256_file,
+    ContractError, POV_IDS, supplied_povs, STAGES, read_json, sha256_file,
     validate_manifest, validate_pov_report,
 )
 from .handoff import load_stage_a_handoff
@@ -57,7 +57,7 @@ class DownstreamPipeline:
         try:
             if self.native_stage_a:
                 if not self.handoff_path.is_file():
-                    raise ContractError("Stage A needs an exported handoff: submit all five reports, then run 'python main.py handoff --config <config>'")
+                    raise ContractError("Stage A needs an exported handoff: submit all supplied reports, then run 'python main.py handoff --config <config>'")
                 self.upstream_handoff = load_stage_a_handoff(self.handoff_path, self.config, self.root)
                 self.manifest_path = Path(self.upstream_handoff["manifest_path"])
                 self.manifest = validate_manifest(self.upstream_handoff["manifest"])
@@ -74,10 +74,10 @@ class DownstreamPipeline:
                 raise ContractError(f"config.{key} must match the S0 manifest")
         if "videos" in self.config:
             videos = self.config["videos"]
-            if (not isinstance(videos, list) or len(videos) != len(POV_IDS)
+            if (not isinstance(videos, list) or len(videos) != len(self.manifest["videos"])
                     or any(not isinstance(video, dict) or not isinstance(video.get("pov_id"), str) for video in videos)
-                    or {video["pov_id"] for video in videos} != set(POV_IDS)):
-                raise ContractError("config.videos must map exactly the five POV IDs")
+                    or {video["pov_id"] for video in videos} != set(supplied_povs(self.manifest))):
+                raise ContractError("config.videos must map the supplied POV IDs")
             by_id = {video["pov_id"]: video for video in self.manifest["videos"]}
             for video in videos:
                 if self.resolve(video.get("path")) != self.resolve(by_id[video["pov_id"]]["path"]):
@@ -116,7 +116,7 @@ class DownstreamPipeline:
                 raise
         directory = self.resolve(self.config.get("pov_reports_directory") or "outputs/pov_reports")
         reports = {}
-        for pov in POV_IDS:
+        for pov in supplied_povs(self.manifest):
             path = directory / f"{pov}.md"
             try:
                 text = path.read_text(encoding="utf-8")
@@ -308,11 +308,11 @@ class DownstreamPipeline:
             _write_json(request_dir / "clip_index.json", {"clips": clips})
             _write_json(request_dir / "response_schema.json", {
                 "envelope": {"execution": {"tool": "actual tool name", "model": "actual model/version, or unknown", "operator": "reviewer/operator name"},
-                             "result": MODULES[stage].response_schema()},
+                             "result": (MODULES[stage].response_schema(supplied_povs(self.manifest)) if stage in ("B", "C") else MODULES[stage].response_schema())},
             })
             _write_json(request_dir / "response.example.json", {
                 "execution": {"tool": "REPLACE", "model": "REPLACE", "operator": "REPLACE"},
-                "result": MODULES[stage].example_response(),
+                "result": (MODULES[stage].example_response(supplied_povs(self.manifest)) if stage in ("B", "C") else MODULES[stage].example_response()),
             })
             import_command = [
                 "python", str(DEFAULT_ROOT / "main.py"), "import-result", "--stage", stage,

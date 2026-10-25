@@ -17,6 +17,13 @@ from typing import Any
 
 
 POV_IDS = ("tank", "dps1", "dps2", "support1", "support2")
+ALLOWED_POV_IDS = POV_IDS + tuple(f"pov{i}" for i in range(1, 6))
+
+
+def supplied_povs(manifest):
+    return tuple(video["pov_id"] for video in manifest["videos"])
+
+
 STAGES = ("B", "C", "D")
 REF_PATTERN = re.compile(
     r"(?<![\w@])([A-Za-z][A-Za-z0-9_]*)@"
@@ -83,7 +90,7 @@ def validate_manifest(manifest: dict[str, Any]) -> dict[str, Any]:
     if manifest["game"] != "Overwatch 2":
         raise ContractError("Only Overwatch 2 is supported")
     if manifest.get("prealigned_input_assumed") is not True:
-        raise ContractError("The five inputs must already be aligned")
+        raise ContractError("The supplied inputs must already be aligned")
     if manifest.get("status", "PASS") not in ("PASS", "PASS_WITH_LIMITATIONS"):
         raise ContractError("S0 is BLOCKED or FAIL")
     start = finite_number(manifest.get("fight_start_timestamp"), "fight_start_timestamp")
@@ -91,10 +98,10 @@ def validate_manifest(manifest: dict[str, Any]) -> dict[str, Any]:
     if end <= start:
         raise ContractError("fight_end_timestamp must exceed fight_start_timestamp")
     videos = manifest.get("videos")
-    if not isinstance(videos, list) or len(videos) != len(POV_IDS):
-        raise ContractError("manifest requires exactly five videos")
+    if not isinstance(videos, list) or not 1 <= len(videos) <= 5:
+        raise ContractError("manifest requires one to five videos")
     ids = [video.get("pov_id") for video in videos if isinstance(video, dict)]
-    if len(ids) != len(POV_IDS) or any(not isinstance(pov, str) for pov in ids) or set(ids) != set(POV_IDS):
+    if len(ids) != len(videos) or any(pov not in ALLOWED_POV_IDS for pov in ids) or len(set(ids)) != len(ids) or (manifest.get("allow_partial_povs") is not True and set(ids) != set(POV_IDS)):
         raise ContractError(f"manifest POV IDs must be exactly {POV_IDS}")
     paths = []
     for video in videos:
@@ -146,7 +153,7 @@ class EvidenceRef:
         if not isinstance(value, str):
             raise ContractError("Evidence reference must be a string")
         match = REF_PATTERN.fullmatch(value)
-        if not match or match[1] not in POV_IDS:
+        if not match or match[1] not in ALLOWED_POV_IDS:
             raise ContractError(f"Invalid evidence reference: {value!r}")
         start = finite_number(float(match[2]), "evidence start")
         end = finite_number(float(match[3]), "evidence end")
@@ -180,7 +187,7 @@ def extract_evidence_refs(text: str, manifest: dict[str, Any] | None = None) -> 
     # A malformed known-POV token must not quietly disappear from the ledger.
     # Other nonnumeric @ tokens can be ordinary file names or reviewer emails;
     # numeric citation-shaped tokens above still validate arbitrary/unknown IDs.
-    pov_pattern = "|".join(re.escape(pov) for pov in POV_IDS)
+    pov_pattern = "|".join(re.escape(pov) for pov in ALLOWED_POV_IDS)
     for token in re.findall(r"\b(?:" + pov_pattern + r")@[^\s`\]\[<>,;()]+", text):
         refs.append(EvidenceRef.parse(token.rstrip("."), manifest))
     return list(dict.fromkeys(refs))
@@ -243,7 +250,7 @@ def _neutral_observation(text: str, label: str) -> None:
 
 def validate_pov_report(text: str, pov_id: str, manifest: dict[str, Any]) -> dict[str, Any]:
     """Check the documented natural-language Stage A handoff, not event correctness."""
-    if not isinstance(text, str) or pov_id not in POV_IDS:
+    if not isinstance(text, str) or pov_id not in ALLOWED_POV_IDS:
         raise ContractError("A POV report requires text and a known POV ID")
     # Normalize line endings only. Do not silently rewrite source prose or its
     # timestamp/citation conventions while checking the handoff.

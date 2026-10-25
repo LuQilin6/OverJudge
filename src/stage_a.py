@@ -61,7 +61,7 @@ def _prompt_version(path: Path) -> str:
 
 
 def _key_data(config: RunConfig, root: Path, pov_id: str) -> dict:
-    if pov_id not in POVS:
+    if pov_id not in {video.pov_id for video in config.videos}:
         raise ContractError(f"Unknown POV ID: {pov_id}")
     video = next(video for video in config.videos if video.pov_id == pov_id)
     if "A" not in config.prompts:
@@ -97,7 +97,7 @@ def validate_job(job_path: Path | str, config: RunConfig, root: Path,
     This is also used by the A-to-B handoff loader. It validates immutable file
     provenance, not the reviewer's claim to have viewed a particular frame.
     """
-    if pov_id not in POVS:
+    if pov_id not in {video.pov_id for video in config.videos}:
         raise ContractError(f"Unknown POV ID: {pov_id}")
     root = Path(root).resolve()
     job = _resolve(root, job_path)
@@ -257,7 +257,7 @@ class StageAService:
         return manifest
 
     def prepare(self, pov_id: str, *, force: bool = False) -> dict:
-        if pov_id not in POVS:
+        if pov_id not in {video.pov_id for video in self.config.videos}:
             raise ContractError(f"Unknown POV ID: {pov_id}")
         manifest = self.validate()
         video = next(video for video in manifest["videos"] if video["pov_id"] == pov_id)

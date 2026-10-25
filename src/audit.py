@@ -407,7 +407,7 @@ def render_final_report(verdict, qa_result, metadata, clip_index):
         lines.extend(["", "## Confirmed Facts"])
         lines.extend(f"- {item['claim']} Evidence: {', '.join(item['evidence_refs'])}" for item in facts)
     lines.extend(["", "## Player-by-Player Findings"])
-    for pov_id in POV_IDS:
+    for pov_id in verdict["player_findings"]:
         item = verdict["player_findings"][pov_id]
         lines.append(f"### {pov_id}")
         if isinstance(item, dict):

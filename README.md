@@ -2,6 +2,14 @@
 
 Overwatch 2 multi-POV teamfight analysis, based on [PROJECT_PLAN.md](PROJECT_PLAN.md).
 
+## Local replay-room web app
+
+The integration branch adds a React courtroom UI in `web/` and a local Python API
+in `api/`. Upload one to five perspectives, align a shared event, and view audited
+reports with perspective-aware evidence links. The actual analysis is still manual.
+See [setup, workflow, and API guide](docs/WEB_INTEGRATION.md). Run `./dev.sh` after
+setup, then open http://127.0.0.1:5174/.
+
 ## Current status
 
 S0 and the **manual Codex A/B/C/D workflow** are integrated. Intake probes five

@@ -71,3 +71,7 @@ conflict handoffs. It cannot prove that a sentence accurately reflects footage
 or that a causal interpretation is valid. Preserve this distinction in your
 handoff. If supplied evidence cannot support reconstruction, report unknowns
 and limitations; do not create a fictional fight narrative.
+
+
+## Supplied-perspective contract (web integration)
+The task manifest is authoritative for perspective IDs and count (one to five). IDs pov1–pov5 are stable recording identities, not roles. Analyze only supplied perspectives. Missing players are unavailable evidence; never infer inactivity or assign them responsibility. Use exactly the supplied IDs for per-player maps, claims, and evidence. With one perspective, do not imply cross-perspective corroboration. With multiple perspectives, compare only available evidence. User questions and context are unverified allegations, not established facts. For web uploads, videos have been normalized to the common overlap; keep those timestamps unchanged. The web adapter maps them back to original recordings.

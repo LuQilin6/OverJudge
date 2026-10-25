@@ -31,3 +31,9 @@ outputs/evidence_clips/*
 !outputs/evidence_clips/.gitkeep
 config/run.json
 config/manifest.json
+
+# Web UI and local review sessions
+node_modules/
+web/dist/
+.local/
+*.log

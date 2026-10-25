@@ -1,0 +1,60 @@
+.room {
+  --dog-size: min(90svh, 68vw);
+  --bench-edge: 76%;
+  --dog-center: 38%;
+  position: relative; height: 100svh; min-height: 700px;
+  isolation: isolate; overflow: clip; color: #fff4e7; background: #302336;
+}
+.room-art { position:absolute; inset:-55px; z-index:-3; background:#624250 url('/images/courts/replay-tribunal.png') center 44%/cover no-repeat; filter:blur(23px) saturate(.65) brightness(.72); }
+.room-shade { position:absolute; inset:0; z-index:-2; background:radial-gradient(ellipse at 36% 48%,#f0b47818,transparent 50%),linear-gradient(180deg,#21152d40,transparent 50%,#21152755); }
+.room-header { position:relative; z-index:4; padding:30px 4.2%; }
+.brand { display:inline-flex; align-items:center; gap:11px; text-decoration:none; font:700 15px/1.07 'Nunito',sans-serif; letter-spacing:-.3px; }
+.brand strong { font-weight:900; }
+.brand-mark { background:#ffe6c9; color:#6a3a44; border-radius:14px; width:40px; height:40px; display:grid; place-items:center; font-size:23px; transform:rotate(-7deg); box-shadow:0 4px 0 #2e20332b; }
+.character-stage { position:absolute; width:var(--dog-size); left:var(--dog-center); margin-left:calc(var(--dog-size) * -.5); top:calc(var(--bench-edge) - var(--dog-size) * .72); z-index:2; filter:drop-shadow(0 8px 18px #160f2840); }
+.character-button { position:relative; display:block; width:100%; padding:0; border:0; background:none; touch-action:manipulation; }
+.character-button:focus-visible { outline:none; }
+.character-button:focus-visible::after { content:''; position:absolute; inset:7% 18% 29%; border:3px solid #ffe0b5; border-radius:40%; background:#ffd4a30d; pointer-events:none; }
+.court-bench { position:absolute; top:var(--bench-edge); left:0; right:0; bottom:0; z-index:3; overflow:hidden; background:linear-gradient(#30202a,#211b29); }
+.court-bench>img { position:absolute; width:100%; height:300px; max-width:none; top:-132px; object-fit:fill; filter:brightness(.56) saturate(.45) contrast(.85); }
+.court-bench::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,#583a2a15,#241b28aa 65%,#211b29); pointer-events:none; }
+.bench-contact-shadow { position:absolute; z-index:1; top:-5px; left:var(--dog-center); transform:translateX(-50%); width:calc(var(--dog-size) * .55); height:24px; background:radial-gradient(ellipse,#110a1dcc,transparent 70%); filter:blur(5px); }
+.judge-dialogue { position:absolute; top:26%; left:calc(50% + 155px); width:350px; padding:30px; z-index:4; color:#432f3d; background:#fff5e5; border:1px solid #fffaf3; border-radius:24px; box-shadow:0 16px 65px #160e2b40,0 3px 0 #d7b69d; }
+.judge-dialogue::before { content:''; position:absolute; left:-13px; top:47%; width:24px; height:24px; transform:rotate(45deg); background:#fff5e5; border-radius:4px; }
+.dialogue-kicker { position:relative; display:flex; align-items:center; gap:7px; font-size:9px; font-weight:700; letter-spacing:1.1px; color:#8c604d; margin:0 0 19px; }
+.dialogue-kicker>span { width:5px; height:5px; border-radius:50%; background:#b46840; }
+.judge-dialogue h1 { position:relative; font:900 42px/.99 'Nunito',sans-serif; letter-spacing:-1.7px; margin:0 0 19px; }
+.judge-dialogue h1 em { font-style:normal; color:#ab502f; }
+.dialogue-message { font-size:16px; line-height:1.65; margin:0 0 24px; color:#6b5260; }
+.judge-dialogue .dialogue-upload { width:100%; min-height:48px; font-size:15px; border-radius:12px; gap:10px; }
+.dialogue-upload svg:last-child { margin-left:auto; }
+.dialogue-details { margin:15px 0 0; font-size:11px; color:#806674; text-align:center; }
+.dialogue-details span { padding:0 4px; color:#bc9c8c; }
+.room-about { position:absolute; left:4.2%; bottom:16px; z-index:5; }
+.room-about summary { list-style:none; display:inline-flex; align-items:center; min-height:44px; padding:10px 0; color:#e5cfc2; font-size:11px; text-decoration:underline; text-underline-offset:4px; }
+.room-about summary::-webkit-details-marker { display:none; }
+.about-card { position:absolute; bottom:52px; left:0; width:min(280px,88vw); padding:18px; border:1px solid #745360; border-radius:14px; background:#302332; color:#f9eadf; box-shadow:0 10px 35px #170c2270; font-size:12px; line-height:1.6; }
+.about-card strong { font-size:14px; }
+.about-card p { margin:9px 0 0; color:#e4d0d7; }
+@media (min-width:901px) and (max-width:1199px) {
+  .room { --dog-center:32%; --dog-size:min(86svh,68vw); }
+  .judge-dialogue { left:55%; width:330px; padding:26px; }
+}
+@media (max-width:900px) {
+  .room { --dog-size:min(116vw,62svh); --bench-edge:calc(12% + var(--dog-size) * .68); --dog-center:50%; min-height:760px; }
+  .room-header { padding:24px 6%; }
+  .brand { font-size:13px; }
+  .brand-mark { width:34px; height:34px; border-radius:11px; font-size:20px; }
+  .judge-dialogue { top:calc(var(--bench-edge) + 18px); left:50%; transform:translateX(-50%); width:min(420px,calc(100% - 36px)); padding:23px 25px; border-radius:20px; }
+  .judge-dialogue::before { top:-11px; left:calc(50% - 12px); }
+  .dialogue-kicker { font-size:8px; margin-bottom:12px; justify-content:center; }
+  .judge-dialogue h1 { font-size:32px; line-height:1.05; text-align:center; margin-bottom:12px; letter-spacing:-1px; }
+  .judge-dialogue h1 br { display:none; }
+  .judge-dialogue h1 em::before { content:' '; }
+  .dialogue-message { font-size:15px; line-height:1.55; text-align:center; margin-bottom:18px; }
+  .dialogue-details { font-size:10px; margin-top:12px; }
+  .court-bench>img { width:1100px; left:50%; transform:translateX(-50%); height:220px; top:-96.8px; }
+  .room-about { left:6%; bottom:8px; }
+}
+@media (max-width:420px) { .judge-dialogue { padding:21px; } .judge-dialogue h1 { font-size:30px; } }
+@media (prefers-reduced-motion:reduce) { .room-art { transform:none!important; } }

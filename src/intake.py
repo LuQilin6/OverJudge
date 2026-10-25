@@ -11,14 +11,14 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from .contracts import read_json, sha256_file
+from .contracts import read_json, sha256_file, POV_IDS
 
-POVS = ('tank', 'dps1', 'dps2', 'support1', 'support2')
+POVS = POV_IDS
 
 
 class Video(BaseModel):
     model_config = ConfigDict(extra='forbid')
-    pov_id: Literal['tank', 'dps1', 'dps2', 'support1', 'support2']
+    pov_id: str = Field(pattern=r'^(tank|dps1|dps2|support1|support2|pov[1-5])$')
     path: str = Field(min_length=1)
     hero: str = Field(default='unknown', min_length=1)
 
@@ -52,6 +52,7 @@ class RunConfig(BaseModel):
     prealigned_input_assumed: Literal[True]
     fight_start_timestamp: float = Field(ge=0, strict=True)
     fight_end_timestamp: float = Field(gt=0, strict=True)
+    allow_partial_povs: bool = False
     videos: list[Video]
     prompts: dict[str, str]
     output_directory: str = Field(default='outputs', min_length=1)
@@ -80,7 +81,10 @@ class RunConfig(BaseModel):
     def check_contract(self):
         if self.fight_end_timestamp <= self.fight_start_timestamp:
             raise ValueError('fight end must be after start')
-        if sorted(v.pov_id for v in self.videos) != sorted(POVS):
+        ids = [v.pov_id for v in self.videos]
+        if not 1 <= len(ids) <= 5 or len(set(ids)) != len(ids):
+            raise ValueError("one to five unique POV IDs required")
+        if not self.allow_partial_povs and sorted(ids) != sorted(POVS[:5]):
             raise ValueError('exactly five unique POV IDs required')
         return self
 
@@ -143,8 +147,8 @@ def validate_inputs(config, root):
             errors.append(f'{video.pov_id}: {exc}')
         videos.append(item)
     return dict(run_id=config.run_id, game=config.game, fight_id=config.fight_id,
-                prealigned_input_assumed=True,
+                prealigned_input_assumed=True, allow_partial_povs=config.allow_partial_povs,
                 fight_start_timestamp=config.fight_start_timestamp,
                 fight_end_timestamp=config.fight_end_timestamp, videos=videos,
                 status='BLOCKED' if errors else 'PASS', errors=errors,
-                limitations=['Metadata does not verify synchronization, frozen frames, or complete decode integrity.'])
+                limitations=['Metadata does not verify synchronization, frozen frames, or complete decode integrity.'] + ([f'Only {len(videos)} perspectives supplied. Missing perspectives are unavailable evidence, not evidence of inactivity.'] if len(videos) < 5 else []))
