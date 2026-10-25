@@ -1,0 +1,189 @@
+{
+  "authentication": "ChatGPT",
+  "codex_version": "codex-cli 0.163.0-alpha.11.2",
+  "image_mapping": [
+    {
+      "attachment": 1,
+      "file": "frame_000000.jpg",
+      "timestamp": 0.0
+    },
+    {
+      "attachment": 2,
+      "file": "frame_000001.jpg",
+      "timestamp": 0.5
+    },
+    {
+      "attachment": 3,
+      "file": "frame_000002.jpg",
+      "timestamp": 1.0
+    },
+    {
+      "attachment": 4,
+      "file": "frame_000003.jpg",
+      "timestamp": 1.5
+    },
+    {
+      "attachment": 5,
+      "file": "frame_000004.jpg",
+      "timestamp": 2.0
+    },
+    {
+      "attachment": 6,
+      "file": "frame_000005.jpg",
+      "timestamp": 2.5
+    },
+    {
+      "attachment": 7,
+      "file": "frame_000006.jpg",
+      "timestamp": 3.0
+    },
+    {
+      "attachment": 8,
+      "file": "frame_000007.jpg",
+      "timestamp": 3.5
+    },
+    {
+      "attachment": 9,
+      "file": "frame_000008.jpg",
+      "timestamp": 4.0
+    },
+    {
+      "attachment": 10,
+      "file": "frame_000009.jpg",
+      "timestamp": 4.5
+    },
+    {
+      "attachment": 11,
+      "file": "frame_000010.jpg",
+      "timestamp": 5.0
+    },
+    {
+      "attachment": 12,
+      "file": "frame_000011.jpg",
+      "timestamp": 5.5
+    },
+    {
+      "attachment": 13,
+      "file": "frame_000012.jpg",
+      "timestamp": 6.0
+    },
+    {
+      "attachment": 14,
+      "file": "frame_000013.jpg",
+      "timestamp": 6.5
+    },
+    {
+      "attachment": 15,
+      "file": "frame_000014.jpg",
+      "timestamp": 7.0
+    },
+    {
+      "attachment": 16,
+      "file": "frame_000015.jpg",
+      "timestamp": 7.5
+    },
+    {
+      "attachment": 17,
+      "file": "frame_000016.jpg",
+      "timestamp": 8.0
+    },
+    {
+      "attachment": 18,
+      "file": "frame_000017.jpg",
+      "timestamp": 8.5
+    },
+    {
+      "attachment": 19,
+      "file": "frame_000018.jpg",
+      "timestamp": 9.0
+    },
+    {
+      "attachment": 20,
+      "file": "frame_000019.jpg",
+      "timestamp": 9.5
+    },
+    {
+      "attachment": 21,
+      "file": "frame_000020.jpg",
+      "timestamp": 10.0
+    },
+    {
+      "attachment": 22,
+      "file": "frame_000021.jpg",
+      "timestamp": 10.5
+    },
+    {
+      "attachment": 23,
+      "file": "frame_000022.jpg",
+      "timestamp": 11.0
+    },
+    {
+      "attachment": 24,
+      "file": "frame_000023.jpg",
+      "timestamp": 11.5
+    },
+    {
+      "attachment": 25,
+      "file": "frame_000024.jpg",
+      "timestamp": 12.0
+    },
+    {
+      "attachment": 26,
+      "file": "frame_000025.jpg",
+      "timestamp": 12.5
+    },
+    {
+      "attachment": 27,
+      "file": "frame_000026.jpg",
+      "timestamp": 13.0
+    },
+    {
+      "attachment": 28,
+      "file": "frame_000027.jpg",
+      "timestamp": 13.5
+    },
+    {
+      "attachment": 29,
+      "file": "frame_000028.jpg",
+      "timestamp": 14.0
+    },
+    {
+      "attachment": 30,
+      "file": "frame_000029.jpg",
+      "timestamp": 14.5
+    },
+    {
+      "attachment": 31,
+      "file": "frame_000030.jpg",
+      "timestamp": 15.0
+    },
+    {
+      "attachment": 32,
+      "file": "frame_000031.jpg",
+      "timestamp": 15.5
+    },
+    {
+      "attachment": 33,
+      "file": "frame_000032.jpg",
+      "timestamp": 16.0
+    },
+    {
+      "attachment": 34,
+      "file": "frame_000033.jpg",
+      "timestamp": 16.5
+    },
+    {
+      "attachment": 35,
+      "file": "frame_000034.jpg",
+      "timestamp": 17.0
+    },
+    {
+      "attachment": 36,
+      "file": "frame_000035.jpg",
+      "timestamp": 17.5
+    }
+  ],
+  "model": null,
+  "sandbox": "read-only",
+  "timeout_seconds": 900
+}

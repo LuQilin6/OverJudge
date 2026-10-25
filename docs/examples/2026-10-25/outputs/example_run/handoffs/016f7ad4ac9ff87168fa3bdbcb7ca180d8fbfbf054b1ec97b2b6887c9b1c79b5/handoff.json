@@ -1,0 +1,87 @@
+{
+  "fight_end_timestamp": 18.0,
+  "fight_id": "example_fight",
+  "fight_start_timestamp": 0.0,
+  "game": "Overwatch 2",
+  "human_evidence_audit": "PENDING",
+  "limitations": [
+    "Stage A reports are structurally accepted only; independent human evidence audit is PENDING.",
+    "Downstream execution requires the coordinator's explicit acceptance of these limitations.",
+    "Metadata does not verify synchronization, frozen frames, or complete decode integrity."
+  ],
+  "manifest_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/manifest.json",
+  "manifest_sha256": "375bfda2ab67ef6dab0f657e7aea0e8de0fecb4ea3b1c88ae6962a1ae813dcdd",
+  "prealigned_input_assumed": true,
+  "reports": {
+    "dps1": {
+      "job_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a/dps1/2d41b26d0751fd034ed85177ef30bdbfe8a7e363a28b2afd3d18755baa30dea4/20261025T030450.514068Z-90cd03c36fe8",
+      "job_sha256": "e8ce7fdb2715f7a8ac19129dd1f75179e53c2549866930b5f438cdbb31dcff3c",
+      "pov_id": "dps1",
+      "provenance_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/dps1/341c66783d1b85857d45ef0d67b2bbb4cd572d69554a1c7365b3fcbe093af420/provenance.json",
+      "provenance_sha256": "31cfff9d5ee46cea37d2483662f92d368dcfc0bf58afd059571bb67f98e95317",
+      "report_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/dps1/341c66783d1b85857d45ef0d67b2bbb4cd572d69554a1c7365b3fcbe093af420/report.md",
+      "report_sha256": "30122ca4242f048c0523684b9c680749a087912e4b67bf2c1be746f6de06e497",
+      "review_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/dps1/341c66783d1b85857d45ef0d67b2bbb4cd572d69554a1c7365b3fcbe093af420/review.json",
+      "review_sha256": "84e5f12a391854deaeefe9e3c556c7dc16cb9877203132d8205e9c06e5e85146",
+      "revision_id": "341c66783d1b85857d45ef0d67b2bbb4cd572d69554a1c7365b3fcbe093af420",
+      "status": "PASS_WITH_LIMITATIONS"
+    },
+    "dps2": {
+      "job_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a/dps2/900458a56c508736a2aa44343ceef2e0658c5e889c6483f80159a3e6072079fe/20261025T042755.148194Z-94da0159e8d1",
+      "job_sha256": "377c18d21c6e40bd058d064d298a3b8dba4d4dae5f54cecdfe82b92110e3a054",
+      "pov_id": "dps2",
+      "provenance_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/dps2/e7e53bf91b34321d5a024e8f7585daa24be8940ce2ecb6204eadd3a1d9a512ef/provenance.json",
+      "provenance_sha256": "848165b6cf3c2bf58f89641e2917f7d479c84d77750f239325dbfca307dfeebf",
+      "report_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/dps2/e7e53bf91b34321d5a024e8f7585daa24be8940ce2ecb6204eadd3a1d9a512ef/report.md",
+      "report_sha256": "23c77b17b9b1e39f1105a1813d9050399294591374715de14728eecb9c39b54a",
+      "review_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/dps2/e7e53bf91b34321d5a024e8f7585daa24be8940ce2ecb6204eadd3a1d9a512ef/review.json",
+      "review_sha256": "4e9b4eec06fe70e87648eafe89251d25101262c4c02f7e48bd9679dcbc713c4b",
+      "revision_id": "e7e53bf91b34321d5a024e8f7585daa24be8940ce2ecb6204eadd3a1d9a512ef",
+      "status": "PASS_WITH_LIMITATIONS"
+    },
+    "support1": {
+      "job_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a/support1/7043807ac1618f945b886e822def89fcc631d82fe14c20576dd8988b8caa4d25/20261025T051405.197258Z-039cddf93e14",
+      "job_sha256": "c07719a6ebf4c580d987b904c2969031e2fde2bfe475977fa6c836f481c75586",
+      "pov_id": "support1",
+      "provenance_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/support1/668996b65838656947f1fe328fb600aec63fef43d8edf5582afb4bdefbfcbc7b/provenance.json",
+      "provenance_sha256": "b328bfe6677f1f1bf64249653fe61529e490788ad207153677e2c0a01b8b5d72",
+      "report_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/support1/668996b65838656947f1fe328fb600aec63fef43d8edf5582afb4bdefbfcbc7b/report.md",
+      "report_sha256": "9e6adc022ad3b66275c0fe7af203c891b023bb10280d54fca928a0c0b99dbd6b",
+      "review_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/support1/668996b65838656947f1fe328fb600aec63fef43d8edf5582afb4bdefbfcbc7b/review.json",
+      "review_sha256": "364e6ce5765d65158209179a523713e293364336b9c36ac694d81e8b47898f81",
+      "revision_id": "668996b65838656947f1fe328fb600aec63fef43d8edf5582afb4bdefbfcbc7b",
+      "status": "PASS_WITH_LIMITATIONS"
+    },
+    "support2": {
+      "job_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a/support2/45054f810f0b837c43cd993e68a143811b72658ac7f4121bb0861c2d2da04da9/20261025T051513.633852Z-eeefec35a80c",
+      "job_sha256": "98d2e586458e3314c64300180ac49f00209f3fbbdf8e5ae3511c380757d0d440",
+      "pov_id": "support2",
+      "provenance_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/support2/c67bb3fa636c7c84fb5a020280421246f630ef16c7c1120ed87c6c2baea68183/provenance.json",
+      "provenance_sha256": "673178392338729814d529edde9181de2dcaeb0d71d1475a27681d7815542500",
+      "report_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/support2/c67bb3fa636c7c84fb5a020280421246f630ef16c7c1120ed87c6c2baea68183/report.md",
+      "report_sha256": "a7e72a3fd7850ca8cd81f567a38181496f311a93e441dfba1d6e8374bec78adb",
+      "review_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/support2/c67bb3fa636c7c84fb5a020280421246f630ef16c7c1120ed87c6c2baea68183/review.json",
+      "review_sha256": "68d9e8269c69a97eab48192869bc61da50e2ea974ef22253709709ba57f52594",
+      "revision_id": "c67bb3fa636c7c84fb5a020280421246f630ef16c7c1120ed87c6c2baea68183",
+      "status": "PASS_WITH_LIMITATIONS"
+    },
+    "tank": {
+      "job_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a/tank/c59a0bc354d2f4d4b2fdbc13cbe9fa2848caaec81864c79513796d09da789eb8/20261025T005353.001111Z-cb67fff2d5cb",
+      "job_sha256": "3f994b32df0da1c4503df06cce80b1208a1e02e94af43fc667ef97fa33e9fee9",
+      "pov_id": "tank",
+      "provenance_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/tank/3539518d7417fc4c4c89f1378b30c211d901f54bb73b3238080771263cd5c34c/provenance.json",
+      "provenance_sha256": "9ad0cdfe305ee1583722e28cd81705a92a49b7363a7bedb35871623bc3617184",
+      "report_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/tank/3539518d7417fc4c4c89f1378b30c211d901f54bb73b3238080771263cd5c34c/report.md",
+      "report_sha256": "ed67cecccfd65b6b8dc0094be5c35b2df4125cc8d040da11cc76465c9678d5f2",
+      "review_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/tank/3539518d7417fc4c4c89f1378b30c211d901f54bb73b3238080771263cd5c34c/review.json",
+      "review_sha256": "011b01f054251ecbb15003705229c4a5074317d38a6fe3a48b6e5ccb23352915",
+      "revision_id": "3539518d7417fc4c4c89f1378b30c211d901f54bb73b3238080771263cd5c34c",
+      "status": "PASS_WITH_LIMITATIONS"
+    }
+  },
+  "run_id": "example_run",
+  "schema_version": 1,
+  "source_index_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a_index.json",
+  "source_index_sha256": "86f6b6e53c49cde8ad75fa575a907597a9c3ae2a30923c4b5e7dc59e2097f40d",
+  "status": "PASS_WITH_LIMITATIONS"
+}

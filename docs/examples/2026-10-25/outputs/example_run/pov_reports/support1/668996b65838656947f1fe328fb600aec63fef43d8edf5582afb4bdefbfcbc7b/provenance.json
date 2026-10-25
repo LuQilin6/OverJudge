@@ -1,0 +1,23 @@
+{
+  "cache_key": "7043807ac1618f945b886e822def89fcc631d82fe14c20576dd8988b8caa4d25",
+  "fight_id": "example_fight",
+  "human_evidence_audit": "PENDING",
+  "job_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a/support1/7043807ac1618f945b886e822def89fcc631d82fe14c20576dd8988b8caa4d25/20261025T051405.197258Z-039cddf93e14",
+  "job_sha256": "c07719a6ebf4c580d987b904c2969031e2fde2bfe475977fa6c836f481c75586",
+  "limitations": [
+    "Structural validation does not establish factual accuracy or sufficient coverage; independent evidence audit is PENDING.",
+    "Reviewed 36 supplied still images at 0.5-second spacing, covering 0.0–17.5 seconds; no continuous video inspection.",
+    "The configured interval ends at 18.0 seconds, but no image at 18.0 seconds was supplied.",
+    "Audio was not supplied or inspected.",
+    "Combat effects and occlusion limit identification of individual projectiles, ability activations, and healing recipients.",
+    "The original video and its SHA-256 were supplied as metadata and were not independently verified.",
+    "Events between samples may be missed.",
+    "Frame extraction alone is not visual inspection; audio has not been inspected."
+  ],
+  "pov_id": "support1",
+  "report_sha256": "9e6adc022ad3b66275c0fe7af203c891b023bb10280d54fca928a0c0b99dbd6b",
+  "review_sha256": "364e6ce5765d65158209179a523713e293364336b9c36ac694d81e8b47898f81",
+  "run_id": "example_run",
+  "schema_version": 1,
+  "status": "PASS_WITH_LIMITATIONS"
+}

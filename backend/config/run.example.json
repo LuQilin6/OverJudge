@@ -8,7 +8,7 @@
   "videos": [
     {
       "pov_id": "tank",
-      "path": "inputs/videos/tank.mp4",
+      "path": "inputs/videos/tank.mov",
       "hero": "unknown"
     },
     {

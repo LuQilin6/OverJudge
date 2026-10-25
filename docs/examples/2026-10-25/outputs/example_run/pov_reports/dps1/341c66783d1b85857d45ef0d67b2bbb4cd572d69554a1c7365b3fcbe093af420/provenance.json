@@ -1,0 +1,24 @@
+{
+  "cache_key": "2d41b26d0751fd034ed85177ef30bdbfe8a7e363a28b2afd3d18755baa30dea4",
+  "fight_id": "example_fight",
+  "human_evidence_audit": "PENDING",
+  "job_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a/dps1/2d41b26d0751fd034ed85177ef30bdbfe8a7e363a28b2afd3d18755baa30dea4/20261025T030450.514068Z-90cd03c36fe8",
+  "job_sha256": "e8ce7fdb2715f7a8ac19129dd1f75179e53c2549866930b5f438cdbb31dcff3c",
+  "limitations": [
+    "Structural validation does not establish factual accuracy or sufficient coverage; independent evidence audit is PENDING.",
+    "Reviewed 36 supplied still frames at 0.5-second spacing; activity between samples is not established.",
+    "No frame was supplied at 18.0 seconds; the final inspected timestamp is 17.5 seconds.",
+    "Audio was not supplied or inspected.",
+    "Broadcast outlines and markers may expose information unavailable to the player.",
+    "Original video and supplied SHA-256 were not independently verified; exact model version is unknown.",
+    "Effects and overlapping characters obscure some targets, damage sources, and ability details.",
+    "Events between samples may be missed.",
+    "Frame extraction alone is not visual inspection; audio has not been inspected."
+  ],
+  "pov_id": "dps1",
+  "report_sha256": "30122ca4242f048c0523684b9c680749a087912e4b67bf2c1be746f6de06e497",
+  "review_sha256": "84e5f12a391854deaeefe9e3c556c7dc16cb9877203132d8205e9c06e5e85146",
+  "run_id": "example_run",
+  "schema_version": 1,
+  "status": "PASS_WITH_LIMITATIONS"
+}

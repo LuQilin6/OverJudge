@@ -1,0 +1,11 @@
+{
+  "cache_key": "c59a0bc354d2f4d4b2fdbc13cbe9fa2848caaec81864c79513796d09da789eb8",
+  "cached": false,
+  "intake_status": "BLOCKED",
+  "job": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a/tank/c59a0bc354d2f4d4b2fdbc13cbe9fa2848caaec81864c79513796d09da789eb8/20261025T005353.001111Z-cb67fff2d5cb",
+  "job_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a/tank/c59a0bc354d2f4d4b2fdbc13cbe9fa2848caaec81864c79513796d09da789eb8/20261025T005353.001111Z-cb67fff2d5cb",
+  "pov_id": "tank",
+  "reason": "Frames prepared; actual visual inspection and report submission are required.",
+  "stage": "A",
+  "status": "BLOCKED"
+}

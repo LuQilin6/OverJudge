@@ -1,0 +1,8 @@
+{
+  "execution_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/codex_execution/dps1/20261025T030455-887099b8f0cd42b09fb38d54177146ad",
+  "job_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a/dps1/2d41b26d0751fd034ed85177ef30bdbfe8a7e363a28b2afd3d18755baa30dea4/20261025T030450.514068Z-90cd03c36fe8",
+  "pov_id": "dps1",
+  "reason": "Codex CLI not found; install it and run codex login",
+  "stage": "A",
+  "status": "BLOCKED"
+}

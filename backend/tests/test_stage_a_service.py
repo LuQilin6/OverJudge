@@ -39,6 +39,7 @@ class StageAServiceTests(unittest.TestCase):
         data.update(run_id="stage-a-synthetic", fight_id="synthetic-fight", fight_start_timestamp=0.0, fight_end_timestamp=2.0)
         data["inspection_settings"] = {"method": "codex_manual", "frame_sampling_fps": 2, "inspect_audio": False}
         data["stage_tools"]["A"] = "codex_manual"
+        self.tank_path = next(video["path"] for video in data["videos"] if video["pov_id"] == "tank")
         self.config_path = self.root / "config/run.json"
         write_json(self.config_path, data)
         for video in data["videos"]:
@@ -68,7 +69,7 @@ class StageAServiceTests(unittest.TestCase):
         return report, review
 
     def test_prepare_preserves_original_timestamps_and_cache_provenance(self):
-        source = self.root / "inputs/videos/tank.mp4"
+        source = self.root / self.tank_path
         before = digest(source)
         job, first = self.prepare()
         data = validate_job(job, self.service.config, self.root, "tank")
@@ -136,7 +137,7 @@ class StageAServiceTests(unittest.TestCase):
             self.service.submit("tank", job, report, review)
         new_job, _ = self.prepare()
         report, review = self.input_report(new_job)
-        source = self.root / "inputs/videos/tank.mp4"
+        source = self.root / self.tank_path
         source.write_bytes(source.read_bytes() + b"changed source")
         with self.assertRaisesRegex(ContractError, "Stale Stage A"):
             self.service.submit("tank", new_job, report, review)
@@ -255,11 +256,11 @@ class StageAServiceTests(unittest.TestCase):
 
     def test_manifest_path_cannot_overwrite_inputs_configuration_or_history(self):
         original = read_json(self.config_path)
-        evidence = self.root / "inputs/videos/tank.mp4"
+        evidence = self.root / self.tank_path
         evidence_hash = digest(evidence)
         other_store = ArtifactStore(self.service.output.parent, "another-run")
         metadata_hash = digest(other_store.metadata_path)
-        for target in ("inputs/videos/tank.mp4", "config/run.json", "prompts/stage_a.md",
+        for target in (self.tank_path, "config/run.json", "prompts/stage_a.md",
                        "outputs/stage-a-synthetic/stage_a_index.json",
                        "outputs/stage-a-synthetic/pov_reports/history/report.md",
                        "outputs/runs/another-run/run_metadata.json",
