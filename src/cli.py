@@ -37,7 +37,13 @@ def main(argv: list[str] | None = None) -> int:
             sub.add_argument("--job", type=Path, required=True)
             sub.add_argument("--report", type=Path, required=True)
             sub.add_argument("--review", type=Path, required=True)
+        if name == "run":
+            sub.add_argument("--execute", action="store_true", help="Automatically analyze Stage A images using saved ChatGPT Codex login")
+            sub.add_argument("--model", help="Explicit Codex model; omitted uses CLI default")
+            sub.add_argument("--codex-timeout", type=int, default=900, help="Maximum Codex execution seconds")
     args = parser.parse_args(argv)
+    if args.command == "run" and args.execute and args.stage != "A":
+        parser.error("--execute currently supports Stage A only")
     try:
         is_upstream = (
             args.command in ("submit", "handoff")
@@ -50,7 +56,11 @@ def main(argv: list[str] | None = None) -> int:
             if args.command == "validate":
                 output = service.validate()
             elif args.command in ("prepare", "run"):
-                output = service.prepare(args.pov, force=args.force)
+                if args.command == "run" and args.execute:
+                    from .codex_runner import execute_stage_a
+                    output = execute_stage_a(service, args.pov, force=args.force, model=args.model, timeout=args.codex_timeout)
+                else:
+                    output = service.prepare(args.pov, force=args.force)
             elif args.command == "submit":
                 output = service.submit(args.pov, args.job, args.report, args.review)
             else:

@@ -100,3 +100,52 @@ extraction of synthetic video. Video tests skip when FFmpeg/ffprobe are absent.
 Synthetic observations and reviewer attestations do not establish gameplay
 accuracy. The plan's human-reviewed pilot and three-fight benchmark remain
 product acceptance work; no gameplay-quality result is claimed by these tests.
+
+## Automatic Stage A with Codex CLI
+
+Install the Codex CLI and run `codex login`, choosing **Sign in with ChatGPT**.
+Confirm `codex login status` says `Logged in using ChatGPT`. The runner requires
+this login and removes `OPENAI_API_KEY` / `CODEX_API_KEY` from its child environment;
+it does not fall back to API billing. Codex usage consumes your account allowance.
+
+```bash
+.venv/bin/python main.py run --stage A --pov tank --config config/run.json --execute
+```
+
+This prepares (or reuses) the assigned POV's frames, attaches them to a fresh
+non-interactive `codex exec`, and automatically imports its Markdown report and
+inspection attestation using the existing Stage A validators. You do not need to
+open another chat or manually submit a successful response. Other POVs use the
+same command with `--pov dps1`, `dps2`, `support1`, or `support2`.
+
+`prepare` and `run` without `--execute` retain the manual workflow. Automatic
+execution currently supports Stage A only. Each `--execute` invocation starts a
+new analysis even when preparation is cached; avoid rerunning completed analyses
+unless you want a new review. `--force` also regenerates the preparation job.
+
+Optional flags:
+
+- `--model MODEL`: select an available Codex model; otherwise the CLI default is
+  used (user config is ignored for reproducibility).
+- `--codex-timeout 900`: execution timeout in seconds (default 15 minutes).
+
+Every attempt retains its prompt, frame-to-timestamp mapping, CLI version, JSONL
+events, stderr, raw response (when produced), and status under
+`outputs/{run_id}/codex_execution/{pov}/{attempt}/`. Successful imports still have
+`PASS_WITH_LIMITATIONS` and independent evidence audit `PENDING`. Model attestations
+and structural checks do not prove visual accuracy. No audio is supplied.
+
+The model receives full-resolution image attachments, the one-POV prompt, and
+metadata in a fresh temporary working directory. The CLI uses a read-only sandbox,
+ephemeral sessions, and no user config. It is instructed not to use tools or read
+other files. This prevents repository context from being supplied automatically;
+it is not an OS security boundary that denies reading all other filesystem paths.
+There is no session resume or cross-POV prompt sharing.
+
+Automatic runs accept at most 100 sampled frames; shorten the configured interval
+or lower the sampling rate for larger jobs, preserving the sampling limitations.
+A missing login, timeout, nonzero process exit, blocked model response, or invalid
+report stops import and retains a BLOCKED attempt for inspection. No automatic
+retries are performed, avoiding duplicate account usage after uncertain failures.
+
+Codex execution options follow the [official non-interactive mode documentation](https://learn.chatgpt.com/docs/non-interactive-mode).
