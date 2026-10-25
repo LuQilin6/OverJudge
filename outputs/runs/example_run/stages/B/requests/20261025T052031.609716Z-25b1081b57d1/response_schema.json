@@ -1,0 +1,335 @@
+{
+  "envelope": {
+    "execution": {
+      "tool": "actual tool name",
+      "model": "actual model/version, or unknown",
+      "operator": "reviewer/operator name"
+    },
+    "result": {
+      "schema_version": "1.0",
+      "prompt_version": "stage-b-1.0",
+      "response_fields": [
+        "schema_version",
+        "status",
+        "shared_context",
+        "events",
+        "phases",
+        "action_matrix",
+        "team_coordination",
+        "turning_points",
+        "player_knowledge_limits",
+        "conflicts",
+        "uncertainties",
+        "reinspection_requests",
+        "revision_log",
+        "neutral_summary",
+        "limitations"
+      ],
+      "example": {
+        "schema_version": "1.0",
+        "status": "PASS_WITH_LIMITATIONS",
+        "shared_context": {
+          "description": "not observed; unknown",
+          "epistemic_status": "unknown",
+          "evidence_refs": []
+        },
+        "events": [
+          {
+            "event_id": "e1",
+            "start_timestamp": 1.0,
+            "end_timestamp": 2.0,
+            "description": "Synthetic example only: a visible movement is reported.",
+            "epistemic_status": "observed",
+            "source_status": "single_source",
+            "evidence_refs": [
+              "tank@1.0-2.0"
+            ]
+          }
+        ],
+        "phases": [
+          {
+            "phase_id": "p1",
+            "name": "setup",
+            "start_timestamp": 0.0,
+            "end_timestamp": 1.0,
+            "summary": {
+              "description": "not observed; unknown",
+              "epistemic_status": "unknown",
+              "evidence_refs": []
+            }
+          },
+          {
+            "phase_id": "p2",
+            "name": "initiation",
+            "start_timestamp": 1.0,
+            "end_timestamp": 2.0,
+            "summary": {
+              "description": "not observed; unknown",
+              "epistemic_status": "unknown",
+              "evidence_refs": []
+            }
+          },
+          {
+            "phase_id": "p3",
+            "name": "first_major_exchange",
+            "start_timestamp": 2.0,
+            "end_timestamp": 3.0,
+            "summary": {
+              "description": "not observed; unknown",
+              "epistemic_status": "unknown",
+              "evidence_refs": []
+            }
+          },
+          {
+            "phase_id": "p4",
+            "name": "turning_points",
+            "start_timestamp": 3.0,
+            "end_timestamp": 4.0,
+            "summary": {
+              "description": "not observed; unknown",
+              "epistemic_status": "unknown",
+              "evidence_refs": []
+            }
+          },
+          {
+            "phase_id": "p5",
+            "name": "outcome",
+            "start_timestamp": 4.0,
+            "end_timestamp": 5.0,
+            "summary": {
+              "description": "not observed; unknown",
+              "epistemic_status": "unknown",
+              "evidence_refs": []
+            }
+          }
+        ],
+        "action_matrix": [
+          {
+            "phase_id": "p1",
+            "players": {
+              "tank": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "dps1": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "dps2": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "support1": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "support2": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              }
+            }
+          },
+          {
+            "phase_id": "p2",
+            "players": {
+              "tank": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "dps1": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "dps2": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "support1": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "support2": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              }
+            }
+          },
+          {
+            "phase_id": "p3",
+            "players": {
+              "tank": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "dps1": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "dps2": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "support1": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "support2": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              }
+            }
+          },
+          {
+            "phase_id": "p4",
+            "players": {
+              "tank": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "dps1": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "dps2": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "support1": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "support2": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              }
+            }
+          },
+          {
+            "phase_id": "p5",
+            "players": {
+              "tank": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "dps1": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "dps2": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "support1": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              },
+              "support2": {
+                "description": "not observed; unknown",
+                "epistemic_status": "unknown",
+                "evidence_refs": []
+              }
+            }
+          }
+        ],
+        "team_coordination": [
+          {
+            "description": "not observed; unknown",
+            "epistemic_status": "unknown",
+            "evidence_refs": []
+          }
+        ],
+        "turning_points": [],
+        "player_knowledge_limits": {
+          "tank": [
+            "Only this player's visible/audible information may be attributed to them; other information is unknown."
+          ],
+          "dps1": [
+            "Only this player's visible/audible information may be attributed to them; other information is unknown."
+          ],
+          "dps2": [
+            "Only this player's visible/audible information may be attributed to them; other information is unknown."
+          ],
+          "support1": [
+            "Only this player's visible/audible information may be attributed to them; other information is unknown."
+          ],
+          "support2": [
+            "Only this player's visible/audible information may be attributed to them; other information is unknown."
+          ]
+        },
+        "conflicts": [],
+        "uncertainties": [
+          "Synthetic example only; no video has been inspected."
+        ],
+        "reinspection_requests": [],
+        "revision_log": [],
+        "neutral_summary": [
+          {
+            "description": "Synthetic example only: a visible movement is reported.",
+            "epistemic_status": "observed",
+            "evidence_refs": [
+              "tank@1.0-2.0"
+            ]
+          }
+        ],
+        "limitations": [
+          "Synthetic example only; replace every field using the supplied Stage A reports."
+        ]
+      },
+      "claim": {
+        "description": "nonempty neutral text",
+        "epistemic_status": [
+          "conflicted",
+          "inferred",
+          "observed",
+          "unknown"
+        ],
+        "evidence_refs": "source POV@start-end list; required unless epistemic_status=unknown"
+      },
+      "phase_names": [
+        "setup",
+        "initiation",
+        "first_major_exchange",
+        "turning_points",
+        "outcome"
+      ],
+      "event_source_status": [
+        "conflicting",
+        "corroborated",
+        "single_source",
+        "unresolved"
+      ],
+      "constraints": [
+        "Return one JSON object with exactly the example's top-level fields; never return example facts as real observations.",
+        "Every consequential event and non-unknown claim requires an exact citation from the original reports; preserve every supporting source.",
+        "Represent all five players in one matrix row per phase; use unknown, never infer inactivity from missing observations.",
+        "Every conflicting event must appear in the conflict ledger; unresolved critical conflicts require a targeted reinspection request and PASS_WITH_LIMITATIONS.",
+        "Do not assign tactical grades, player blame, responsibility rankings or percentages.",
+        "Do not shift or convert timestamps. Preserve observed/inferred/unknown/conflicted distinctions and player knowledge limits."
+      ]
+    }
+  }
+}

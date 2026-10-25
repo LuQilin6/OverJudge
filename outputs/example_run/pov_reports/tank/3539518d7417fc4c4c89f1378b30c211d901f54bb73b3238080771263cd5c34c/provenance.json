@@ -1,0 +1,23 @@
+{
+  "cache_key": "c59a0bc354d2f4d4b2fdbc13cbe9fa2848caaec81864c79513796d09da789eb8",
+  "fight_id": "example_fight",
+  "human_evidence_audit": "PENDING",
+  "job_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a/tank/c59a0bc354d2f4d4b2fdbc13cbe9fa2848caaec81864c79513796d09da789eb8/20261025T005353.001111Z-cb67fff2d5cb",
+  "job_sha256": "3f994b32df0da1c4503df06cce80b1208a1e02e94af43fc667ef97fa33e9fee9",
+  "limitations": [
+    "Structural validation does not establish factual accuracy or sufficient coverage; independent evidence audit is PENDING.",
+    "36 discrete frames at 2 fps; no continuous playback; intersample actions may be missed.",
+    "All frames reviewed scaled to 640x362 in labeled contact sheets; only 10.0, 15.0 and 17.5 additionally reviewed full resolution.",
+    "No audio inspected; HUD and actor details limited by scaling, effects and occlusion.",
+    "No sample after 17.5 seconds in configured 0.0–18.0 interval; overall fight outcome unknown.",
+    "Only tank POV consumed; alignment assumed and broadcast HUD does not establish player knowledge.",
+    "Events between samples may be missed.",
+    "Frame extraction alone is not visual inspection; audio has not been inspected."
+  ],
+  "pov_id": "tank",
+  "report_sha256": "ed67cecccfd65b6b8dc0094be5c35b2df4125cc8d040da11cc76465c9678d5f2",
+  "review_sha256": "011b01f054251ecbb15003705229c4a5074317d38a6fe3a48b6e5ccb23352915",
+  "run_id": "example_run",
+  "schema_version": 1,
+  "status": "PASS_WITH_LIMITATIONS"
+}

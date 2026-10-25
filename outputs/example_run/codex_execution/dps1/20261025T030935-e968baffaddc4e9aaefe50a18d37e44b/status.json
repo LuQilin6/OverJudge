@@ -1,0 +1,22 @@
+{
+  "execution_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/codex_execution/dps1/20261025T030935-e968baffaddc4e9aaefe50a18d37e44b",
+  "human_evidence_audit": "PENDING",
+  "imported": {
+    "job_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a/dps1/2d41b26d0751fd034ed85177ef30bdbfe8a7e363a28b2afd3d18755baa30dea4/20261025T030450.514068Z-90cd03c36fe8",
+    "job_sha256": "e8ce7fdb2715f7a8ac19129dd1f75179e53c2549866930b5f438cdbb31dcff3c",
+    "pov_id": "dps1",
+    "provenance_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/dps1/341c66783d1b85857d45ef0d67b2bbb4cd572d69554a1c7365b3fcbe093af420/provenance.json",
+    "provenance_sha256": "31cfff9d5ee46cea37d2483662f92d368dcfc0bf58afd059571bb67f98e95317",
+    "report_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/dps1/341c66783d1b85857d45ef0d67b2bbb4cd572d69554a1c7365b3fcbe093af420/report.md",
+    "report_sha256": "30122ca4242f048c0523684b9c680749a087912e4b67bf2c1be746f6de06e497",
+    "review_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/pov_reports/dps1/341c66783d1b85857d45ef0d67b2bbb4cd572d69554a1c7365b3fcbe093af420/review.json",
+    "review_sha256": "84e5f12a391854deaeefe9e3c556c7dc16cb9877203132d8205e9c06e5e85146",
+    "revision_id": "341c66783d1b85857d45ef0d67b2bbb4cd572d69554a1c7365b3fcbe093af420",
+    "status": "PASS_WITH_LIMITATIONS"
+  },
+  "job_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/example_run/stage_a/dps1/2d41b26d0751fd034ed85177ef30bdbfe8a7e363a28b2afd3d18755baa30dea4/20261025T030450.514068Z-90cd03c36fe8",
+  "pov_id": "dps1",
+  "reason": "Report imported; factual accuracy still requires independent evidence audit.",
+  "stage": "A",
+  "status": "PASS_WITH_LIMITATIONS"
+}

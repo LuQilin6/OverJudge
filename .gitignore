@@ -21,13 +21,12 @@ inputs/videos/*
 !inputs/videos/.gitkeep
 work/clips/*
 !work/clips/.gitkeep
-outputs/*
-!outputs/.gitkeep
-!outputs/pov_reports/
-outputs/pov_reports/*
-!outputs/pov_reports/.gitkeep
-!outputs/evidence_clips/
-outputs/evidence_clips/*
-!outputs/evidence_clips/.gitkeep
+# Round outputs are versioned; transient locks and temporary writes are not.
+outputs/**/*.lock
+outputs/**/*.tmp
+# Keep generated video clips local along with input recordings.
+outputs/**/*.mp4
+outputs/**/*.mov
+outputs/**/*.mkv
 config/run.json
 config/manifest.json
