@@ -131,3 +131,57 @@ def test_api_publishes_only_after_real_pipeline_gates_and_maps_timestamps(client
     pipeline.store.invalidate_from('C')
     revoked=client.get(f'/api/reviews/{job_id}').json()
     assert revoked['state']=='awaiting_review' and revoked['report'] is None
+
+@pytest.mark.skipif(not shutil.which('ffmpeg'), reason='requires FFmpeg')
+@pytest.mark.parametrize('count', [1, 2])
+def test_preparation_uses_actual_aligned_coverage_not_browser_rounding(client, tmp_path, count):
+    seed = tmp_path / 'fractional-duration.mp4'
+    subprocess.run(['ffmpeg', '-v', 'error', '-f', 'lavfi', '-i',
+                    'color=c=blue:s=64x64:r=30:d=12', '-c:v', 'libx264',
+                    '-pix_fmt', 'yuv420p', str(seed)], check=True)
+    data = spec(count, seed.stat().st_size)
+    # Browser/container duration can include a fraction beyond the video stream.
+    for clip in data['clips']:
+        clip['duration'] = 12.000833
+    job_id = client.post('/api/reviews', json=data).json()['id']
+    for clip in data['clips']:
+        client.put(f"/api/reviews/{job_id}/clips/{clip['id']}", content=seed.read_bytes())
+    client.post(f'/api/reviews/{job_id}/start')
+    job = client.app.state.jobs[job_id]
+    job.future.result(timeout=40)
+    assert job.state == 'awaiting_review', job.message
+    assert job.duration == 12.0
+    assert json.loads(job.config.read_text())['fight_end_timestamp'] == 12.0
+    manifest = json.loads((job.path / 'outputs' / job_id / 'manifest.json').read_text())
+    assert all(v['duration_seconds'] >= job.duration for v in manifest['videos'])
+    assert job.report is None
+
+
+def test_identical_submissions_do_not_reuse_a_previous_report(client):
+    data = spec()
+    old_id = client.post('/api/reviews', json=data).json()['id']
+    old = client.app.state.jobs[old_id]
+    old.state = 'complete'
+    old.report = {'summary': 'Previously completed synthetic result'}
+    new = client.post('/api/reviews', json=data).json()
+    assert new['id'] != old_id
+    assert new['state'] == 'uploading'
+    assert new['report'] is None
+    assert new['prepared'] == []
+    assert client.app.state.jobs[new['id']].path != old.path
+
+
+def test_real_truncation_is_blocked_before_any_agent_runs(tmp_path):
+    from api.app import Job, prepare_job
+    job = Job(tmp_path, ReviewSpec.model_validate(spec()), 'codex')
+    metadata = {'duration_seconds': 12., 'fps': 30.}
+    truncated = {'duration_seconds': 10., 'fps': 30.}
+    with patch('api.app.probe', side_effect=[metadata, truncated]), \
+         patch('api.app.run_process'), patch('api.app.review_job') as agent:
+        prepare_job(job)
+    assert job.state == 'failed'
+    assert 'converted recording is shorter' in job.message
+    agent.assert_not_called()
+    failure = json.loads((job.path / 'failure.json').read_text())
+    assert failure['stage'] == 'preparing'
+    assert failure['agent_inputs'] == []

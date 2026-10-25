@@ -124,3 +124,25 @@ def test_automatic_pipeline_uses_real_gates_and_blocks_failed_audit(tmp_path,mon
     else:
         assert job.report['verdict']=='inconclusive'
         assert runner.AI_LIMITATION in job.report['limitations']
+
+    # The same footage in a new web job must invoke every agent again.
+    previous = job
+    job = job_at(tmp_path / 'second-review')
+    shutil.copyfile(previous.path / 'pov1.mp4', job.path / 'pov1.mp4')
+    called.clear()
+    prepare_job(job)
+    assert called == ['A-pov1-1', 'B-1', 'C-1', 'D-1']
+    assert job.path != previous.path
+    assert job.state == ('failed' if failed_audit else 'complete'), job.message
+
+
+def test_existing_output_cannot_be_used_as_a_fresh_agent_response(tmp_path):
+    reviewer = reviewer_at(tmp_path)
+    output = reviewer.directory / 'A-pov1-1.json'
+    output.write_text(json.dumps({'payload': json.dumps({'old': True})}))
+    with patch.object(runner.subprocess, 'Popen', return_value=SimpleNamespace(
+            stdin=io.BytesIO(), poll=lambda: 0, returncode=0)) as launch:
+        with pytest.raises(RuntimeError, match='existing.*output'):
+            reviewer.call('A-pov1-1', 'A new request', [])
+        launch.assert_not_called()
+    assert json.loads(output.read_text())['payload'] == json.dumps({'old': True})

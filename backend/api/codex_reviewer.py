@@ -90,6 +90,8 @@ class CodexReviewer:
         if len(images) > 900:
             raise ValueError('Too many audit frames. Try shorter clips.')
         output = self.directory / f'{name}.json'
+        if output.exists():
+            raise RuntimeError('Refusing to reuse an existing agent output. Start a new review for a fresh execution.')
         schema = self.directory / 'output-schema.json'
         schema.write_text(json.dumps(OUTPUT_SCHEMA))
         command = ['codex', 'exec', '--ignore-user-config', '--ephemeral', '--skip-git-repo-check',

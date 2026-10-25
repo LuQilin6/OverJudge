@@ -165,6 +165,7 @@ def prepare_job(job):
         (job.path / 'aligned').mkdir()
         (job.path / 'submissions').mkdir()
         shutil.copytree(BACKEND_ROOT / 'prompts', job.path / 'prompts')
+        aligned_coverage = []
         for clip in job.spec.clips:
             if job.cancel.is_set():
                 return
@@ -177,6 +178,23 @@ def prepare_job(job):
                 '-ss', str(job.offsets[clip.id]), '-t', str(job.duration), '-an',
                 '-vf', r'scale=trunc(min(1280\,iw)/2)*2:-2', '-c:v', 'libx264', '-preset', 'veryfast',
                 '-crf', '18', '-pix_fmt', 'yuv420p', str(job.path / 'aligned' / f'{clip.id}.mp4')])
+            aligned = probe(job.path / 'aligned' / f'{clip.id}.mp4')
+            # Container/browser duration can extend fractionally beyond the last
+            # encoded video frame. Review only footage that actually exists;
+            # never relax the downstream evidence bounds or hide real truncation.
+            tolerance = min(.15, 1 / aligned['fps'] + .001)
+            if job.duration - aligned['duration_seconds'] > tolerance:
+                raise ValueError(f'{clip.label}: converted recording is shorter than the shared fight interval. Export the recording again and retry.')
+            aligned_coverage.append(aligned['duration_seconds'])
+        requested_duration = job.duration
+        job.duration = min(requested_duration, *aligned_coverage)
+        if job.duration < 2:
+            raise ValueError('Converted recordings share less than two seconds of footage. Adjust the markers or use longer recordings.')
+        (job.path / 'alignment.json').write_text(json.dumps({
+            'requested_duration': requested_duration, 'reviewed_duration': job.duration,
+            'aligned_durations': dict(zip((c.id for c in job.spec.clips), aligned_coverage)),
+            'offsets': job.offsets,
+        }, indent=2))
         config = {'run_id': job.id, 'fight_id': job.id, 'game': 'Overwatch 2',
             'allow_partial_povs': True, 'prealigned_input_assumed': True,
             'fight_start_timestamp': 0.0, 'fight_end_timestamp': job.duration,
@@ -218,6 +236,16 @@ def prepare_job(job):
             return
         job.update('awaiting_review', 'Frames are ready. A reviewer must inspect the evidence and submit the pipeline reports. No model is running automatically.')
     except Exception as exc:
+        # Preserve the failing stage with retained artifacts across server
+        # restarts; explicit cancellation/cleanup still deletes the whole job.
+        try:
+            (job.path / 'failure.json').write_text(json.dumps({
+                'review_id': job.id, 'stage': job.state,
+                'exception': type(exc).__name__, 'message': str(exc),
+                'agent_inputs': sorted(p.name for p in (job.path / 'runner').glob('*-input.json')),
+            }, indent=2))
+        except OSError:
+            pass
         job.update('failed', str(exc) if isinstance(exc, (ValueError, OSError, TimeoutError, RuntimeError)) else 'Preparation failed. Check the local server log.')
     finally:
         if job.cancel.is_set():

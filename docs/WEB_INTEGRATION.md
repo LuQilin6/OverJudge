@@ -232,3 +232,26 @@ transitions, stale browser responses, retry, and perspective switching.
   (including one bounded format repair). Expect minutes, not instant results.
 - Full suite: 209 Python tests plus 132 subtests, 10 frontend tests, production
   build, and whitespace checks passed.
+
+### Fresh reviews and duration diagnostics
+
+Each web submission creates a new UUID and review directory. Identical footage does
+not reuse another web review's result. Reopening a completed browser review retains
+its existing result; explicitly starting another review creates a new job. Stage A
+can cache prepared frames within a run, and the downstream manual pipeline can
+reuse matching validated stage artifacts within that run. Automatic web reviews
+use fresh ephemeral CLI invocations. An existing attempt output filename is now
+rejected rather than accepted as a new response.
+
+After transcoding, the web bridge probes every aligned video and uses the minimum
+of the requested overlap and actual video coverage. A discrepancy of at most one
+frame plus 1 ms (capped at 150 ms) can shorten the reviewed interval; larger loss
+blocks preparation. Downstream evidence bounds remain strict. `alignment.json`
+records the requested/effective durations and original-recording offsets.
+
+A failed worker writes `failure.json` with its stage, exception, message, and saved
+agent-input filenames. An input file establishes an attempted invocation, not a
+successful response: inspect the corresponding runner log and output as well.
+Failures during frame preparation can occur before any model call. A Stage D FAIL
+can instead be a successful model response rejecting publication. Explicit
+cancellation, retry cleanup, and expiry still remove job-owned diagnostics.
