@@ -6,7 +6,7 @@ import { useReview } from './useReview';
 import { formatTime } from './video';
 import { ReplayScene } from './components/ReplayScene';
 import { ReviewDialog } from './components/ReviewDialog';
-import { Mascot } from './components/Mascot';
+import { ReviewProgress } from './components/ReviewProgress';
 import { Verdict } from './components/Verdict';
 
 export default function App() {
@@ -16,8 +16,8 @@ export default function App() {
   const [dragging, setDragging] = useState(false);
   const reduced = useReducedMotion();
   const view = review.busy ? 'review' : review.report ? 'verdict' : review.step;
-  const heading = { upload: 'Court is in session.', context: 'Your defense, please.', review: review.job?.state === 'awaiting_review' ? 'Ready for a closer look.' : ['observing', 'comparing', 'judging', 'auditing'].includes(review.job?.state ?? '') ? 'Reviewing your case.' : 'Setting up the evidence.', verdict: 'Here’s what the evidence says.' }[view];
-  const subtitle = { upload: 'One Overwatch fight. Up to five views. Let’s open the case.', context: review.team ? 'Line up your evidence, then tell the court what happened.' : 'Tell your side. The footage gets a say, too.', review: review.availability.execution === 'manual' ? 'Evidence is being prepared for a manual reviewer.' : 'Codex inspects the footage, then a separate AI session checks the evidence.', verdict: 'A fair call, with the footage to back it up.' }[view];
+  const heading = { upload: 'Court is in session.', context: 'Your defense, please.', review: 'The court’s review.', verdict: 'Here’s what the evidence says.' }[view];
+  const subtitle = { upload: 'One Overwatch fight. Up to five views. Let’s open the case.', context: review.team ? 'Line up your evidence, then tell the court what happened.' : 'Tell your side. The footage gets a say, too.', review: review.availability.execution === 'manual' ? 'Follow preparation and the handoff to your reviewer.' : 'Follow your case from footage to a checked verdict. Each step updates as it happens.', verdict: 'A fair call, with the footage to back it up.' }[view];
   function drop(event: React.DragEvent) { event.preventDefault(); setDragging(false); review.addFiles(Array.from(event.dataTransfer.files)); }
   const choose = () => review.inputRef.current?.click();
   return <MotionConfig reducedMotion="user">
@@ -79,7 +79,7 @@ export default function App() {
             <div className="manual-notice"><strong>{review.availability.execution === 'manual' ? 'Manual review workflow' : 'Review with your Codex login'}</strong><p>{review.availability.message}</p><p>{review.availability.execution === 'manual' ? 'Submitting prepares evidence for a reviewer.' : 'Reviewing starts automatic Codex analysis and a separate AI evidence check. This is not a human audit, and fast events between sampled frames may be missed.'}</p>{!review.availability.ready && <button type="button" className="text-button" onClick={() => void review.checkConnection()}>Check connection again</button>}</div>
             <div className="form-actions"><button className="text-button" type="button" onClick={() => review.setStep('upload')}><ArrowLeft size={15} />Back</button><button className="primary-button" disabled={!review.ready || !review.question.trim() || !review.availability.ready || (review.team && !review.confirmed)}>{review.availability.execution === 'manual' ? 'Prepare review' : 'Call the judge'} <ArrowRight size={17} /></button></div>
           </form>}
-          {view === 'review' && <div className="working-state"><div className="working-mascot"><Mascot pose="examining" bob={review.job?.state !== 'awaiting_review'} /></div><div><span className="mini-label">{review.job?.state === 'awaiting_review' ? 'WAITING FOR A REVIEWER' : 'REVIEWING YOUR CASE'}</span><h3>{review.job?.state === 'awaiting_review' ? 'The evidence is ready.' : 'Let’s take a closer look.'}</h3><p role="status" aria-live="polite">{review.job?.message ?? 'Creating your local review.'}</p><ol className="stage-list"><li className={review.job?.state === 'uploading' ? 'current' : 'done'}>Send recordings locally</li><li className={review.job?.state === 'preparing' ? 'current' : ''}>Align recordings and prepare frames {review.job && `(${review.job.prepared.length}/${review.job.total})`}</li><li className={['queued', 'observing', 'comparing', 'judging', 'awaiting_review'].includes(review.job?.state ?? '') ? 'current' : ''}>{review.availability.execution === 'manual' ? 'Manual evidence review' : 'Inspect footage and weigh the evidence'}</li>{review.availability.execution !== 'manual' && <li className={review.job?.state === 'auditing' ? 'current' : ''}>Separate AI evidence check</li>}</ol>{review.job?.state === 'awaiting_review' && <details className="operator-details"><summary>Reviewer handoff</summary><p>Review ID: <code>{review.job.id}</code></p><p>Open <code>.local/reviews/{review.job.id}/REVIEW.md</code> in the integrated project. This window checks for the published result automatically.</p></details>}<p className="field-hint">Closing this window cancels the local review. Your selected recordings remain available for an explicit retry.</p><button className="text-button" onClick={review.stopReview}><X size={14} />Cancel review</button></div></div>}
+          {view === 'review' && <ReviewProgress job={review.job} execution={review.availability.execution} onCancel={review.stopReview} />}
           {view === 'verdict' && review.report && <><Verdict report={review.report} clips={review.clips} onSeek={review.seek} onExport={review.exportReport} /><button className="text-button" onClick={review.editReview}><ArrowLeft size={15} />Start another review with these clips</button></>}
         </motion.section>
       </div>
