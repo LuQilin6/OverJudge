@@ -1,99 +1,77 @@
-"""CLI for intake and explicitly human-reviewed Stage A jobs."""
-import hashlib
+"""Unified intake and manual Codex A/B/C/D command-line interface."""
+
+from __future__ import annotations
+
+import argparse
 import json
 from pathlib import Path
-import subprocess
-import typer
-from src.artifacts import digest, save_json
-from src.intake import POVS, load_config, validate_inputs
-from src.video_inspection import extract_frames
-from src.pov_analysis import validate_report
+import sys
 
-app = typer.Typer(pretty_exceptions_enable=False)
+from .contracts import ContractError
+from .pipeline import DownstreamPipeline
 
 
-def context(path):
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="OverJudge intake and Stage A/B/C/D manual Codex workflow")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    for name in ("validate", "prepare", "run", "submit", "handoff", "import-result", "status"):
+        sub = subparsers.add_parser(name)
+        sub.add_argument("--config", default="config/run.json", type=Path)
+        sub.add_argument("--project-root", type=Path, help="Base for relative paths; inferred from the config location when omitted")
+        if name not in ("status", "submit", "handoff"):
+            sub.add_argument("--accept-limitations", action="store_true", help="Coordinator has reviewed and accepts documented upstream limitations")
+        if name in ("prepare", "run"):
+            sub.add_argument("--stage", default="A", choices=("A", "B", "C", "D"))
+            sub.add_argument("--pov", default="tank", choices=("tank", "dps1", "dps2", "support1", "support2"))
+        if name == "validate":
+            sub.add_argument("--stage", default="S0", choices=("S0", "B"), help="S0 probes all videos; B checks the verified A handoff")
+        if name == "import-result":
+            sub.add_argument("--stage", required=True, choices=("B", "C", "D"))
+        if name in ("prepare", "run"):
+            sub.add_argument("--force", action="store_true", help="Prepare a fresh task even when the current result is cached")
+        if name == "import-result":
+            sub.add_argument("--request", type=Path, required=True)
+            sub.add_argument("--response", type=Path, required=True)
+        if name == "submit":
+            sub.add_argument("--pov", required=True, choices=("tank", "dps1", "dps2", "support1", "support2"))
+            sub.add_argument("--job", type=Path, required=True)
+            sub.add_argument("--report", type=Path, required=True)
+            sub.add_argument("--review", type=Path, required=True)
+    args = parser.parse_args(argv)
     try:
-        config, root = load_config(path)
-        return config, root, root / config.output_directory / config.run_id
-    except (OSError, ValueError) as exc:
-        typer.echo(f'BLOCKED: {exc}', err=True)
-        raise typer.Exit(1)
+        is_upstream = (
+            args.command in ("submit", "handoff")
+            or args.command == "validate" and args.stage == "S0"
+            or args.command in ("prepare", "run") and args.stage == "A"
+        )
+        if is_upstream:
+            from .stage_a import StageAService
+            service = StageAService(args.config, args.project_root)
+            if args.command == "validate":
+                output = service.validate()
+            elif args.command in ("prepare", "run"):
+                output = service.prepare(args.pov, force=args.force)
+            elif args.command == "submit":
+                output = service.submit(args.pov, args.job, args.report, args.review)
+            else:
+                output = service.export_handoff()
+            print(json.dumps(output, ensure_ascii=False, indent=2))
+            return 1 if output.get("status") in ("FAIL", "BLOCKED") else 0
+        pipeline = DownstreamPipeline(args.config, args.project_root)
+        if args.command == "validate":
+            output = pipeline.validate(args.accept_limitations)
+        elif args.command in ("prepare", "run"):
+            output = pipeline.prepare(args.stage, accept_limitations=args.accept_limitations, force=args.force)
+        elif args.command == "import-result":
+            output = pipeline.import_result(args.stage, args.request, args.response, accept_limitations=args.accept_limitations)
+        else:
+            output = pipeline.status()
+        print(json.dumps(output, ensure_ascii=False, indent=2))
+        return 1 if output.get("status") == "FAIL" else 0
+    except (ValueError, OSError) as exc:
+        print(f"OverJudge: {exc}", file=sys.stderr)
+        return 2
 
 
-@app.command()
-def validate(config: Path = typer.Option(...)):
-    cfg, root, output = context(config)
-    manifest = validate_inputs(cfg, root)
-    save_json(output / 'manifest.json', manifest)
-    typer.echo(json.dumps(manifest, indent=2))
-    if manifest['status'] != 'PASS':
-        raise typer.Exit(1)
-
-
-@app.command()
-def run(config: Path = typer.Option(...), stage: str = 'A', pov: str = 'tank'):
-    cfg, root, output = context(config)
-    if stage != 'A' or pov not in POVS:
-        typer.echo('Only Stage A and known POV IDs are supported', err=True)
-        raise typer.Exit(1)
-    manifest = validate_inputs(cfg, root)
-    save_json(output / 'manifest.json', manifest)
-    # Pilot mode allows one valid POV while preserving the failed five-POV intake gate.
-    video = next(v for v in manifest['videos'] if v['pov_id'] == pov)
-    metadata = dict(stage='A', pov_id=pov, status='BLOCKED', intake_status=manifest['status'])
-    try:
-        if video['coverage_status'] != 'PASS':
-            raise ValueError(video.get('error', 'Input blocked'))
-        prompt = root / cfg.prompts['A']
-        key_data = dict(video=video['sha256'], prompt=digest(prompt), settings=cfg.inspection_settings.model_dump(), interval=[cfg.fight_start_timestamp, cfg.fight_end_timestamp])
-        key = hashlib.sha256(json.dumps(key_data, sort_keys=True).encode()).hexdigest()
-        job = output / 'stage_a' / pov / key
-        if not (job / 'job.json').exists():
-            inspection = extract_frames(Path(video['path']), cfg.fight_start_timestamp, cfg.fight_end_timestamp, cfg.inspection_settings.frame_sampling_fps, job / 'frames')
-            job_data = dict(pov_id=pov, video=video, cache_key=key, prompt_hash=key_data['prompt'], inspection=inspection, interval=key_data['interval'], status='AWAITING_INSPECTION', tools={name: subprocess.run([name, '-version'], capture_output=True, text=True, check=True).stdout.splitlines()[0] for name in ('ffmpeg', 'ffprobe')})
-            (job / 'prompt.md').write_text(prompt.read_text())
-            save_json(job / 'job.json', job_data)
-        metadata.update(job=str(job), cache_key=key, reason='Frames prepared. Actual visual inspection and report submission required.')
-        typer.echo(f'BLOCKED pending visual inspection: {job}')
-    except (OSError, ValueError, KeyError, subprocess.SubprocessError) as exc:
-        metadata['reason'] = str(exc)
-        typer.echo(f'BLOCKED: {exc}', err=True)
-    save_json(output / f'stage_a_{pov}_status.json', metadata)
-    raise typer.Exit(1)
-
-
-@app.command()
-def submit(config: Path = typer.Option(...), pov: str = typer.Option(...), job: Path = typer.Option(...), report: Path = typer.Option(...), review: Path = typer.Option(...)):
-    """Import a report plus explicit inspection record; structural checks only."""
-    cfg, root, output = context(config)
-    try:
-        data = json.loads((job / 'job.json').read_text())
-        if pov not in POVS or data['pov_id'] != pov:
-            raise ValueError('POV mismatch')
-        video = next(v for v in cfg.videos if v.pov_id == pov)
-        if digest(root / video.path) != data['video']['sha256'] or digest(root / cfg.prompts['A']) != data['prompt_hash']:
-            raise ValueError('Stale input or prompt; prepare a new job')
-        if data['interval'] != [cfg.fight_start_timestamp, cfg.fight_end_timestamp]:
-            raise ValueError('Fight interval changed')
-        record = json.loads(review.read_text())
-        available = {f['timestamp'] for f in data['inspection']['frames']}
-        reviewed = record.get('reviewed_frame_timestamps', [])
-        if not record.get('reviewer') or not record.get('model_or_tool') or not reviewed or any(t not in available for t in reviewed):
-            raise ValueError('Review must identify reviewer/tool and actual reviewed frame timestamps')
-        if not record.get('limitations') or record.get('audio_inspected') is not False:
-            raise ValueError('Document limitations and audio_inspected=false')
-        text = report.read_text()
-        errors = validate_report(text, pov, *data['interval'])
-        if errors:
-            raise ValueError('; '.join(errors))
-        revision = digest(report)
-        target = output / 'pov_reports' / pov / revision
-        target.mkdir(parents=True, exist_ok=True)
-        (target / 'report.md').write_text(text)
-        save_json(target / 'review.json', record)
-        save_json(target / 'provenance.json', dict(job=str(job.resolve()), cache_key=data['cache_key'], status='PASS_WITH_LIMITATIONS', human_evidence_audit='PENDING', limitations=['Structural validation does not establish factual accuracy or sufficient coverage.']))
-        typer.echo(f'Imported for evidence audit: {target}')
-    except (OSError, ValueError, KeyError, StopIteration) as exc:
-        typer.echo(f'BLOCKED: {exc}', err=True)
-        raise typer.Exit(1)
+if __name__ == "__main__":
+    sys.exit(main())

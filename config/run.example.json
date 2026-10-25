@@ -43,9 +43,9 @@
   "stage_tools": {
     "S0": null,
     "A": "codex_manual",
-    "B": null,
-    "C": null,
-    "D": null
+    "B": {"method": "manual", "tool": "Codex"},
+    "C": {"method": "manual", "tool": "Codex"},
+    "D": {"method": "manual", "tool": "Codex"}
   },
   "inspection_settings": {
     "method": "codex_manual",

@@ -1,36 +1,65 @@
-from copy import deepcopy
-import json
+"""S0/A handoff validation; these are not S0 video-inspection tests."""
+
+import copy
 from pathlib import Path
-import pytest
-from src.intake import RunConfig, validate_inputs
+import tempfile
+import unittest
+
+from src.contracts import ContractError, read_json, validate_manifest, validate_pov_report
+from src.pipeline import DownstreamPipeline
+from tests.downstream_support import create_project, source_report, write_json
 
 
-def config_data():
-    data = json.loads(Path('config/run.example.json').read_text())
-    data['fight_end_timestamp'] = 30
-    return data
+class HandoffTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.pipeline = create_project(Path(self.temp.name))
+        self.manifest = self.pipeline.manifest
 
+    def tearDown(self):
+        self.temp.cleanup()
 
-def test_duplicate_pov_rejected():
-    data = config_data()
-    data['videos'][1]['pov_id'] = 'tank'
-    with pytest.raises(ValueError):
-        RunConfig.model_validate(data)
+    def test_all_five_reports_validate_and_cite_only_their_pov(self):
+        output = self.pipeline.validate()
+        self.assertEqual(output["status"], "PASS")
+        self.assertEqual(output["evidence_reference_count"], 5)
+        with self.assertRaises(ContractError):
+            validate_pov_report(source_report("dps1"), "tank", self.manifest)
 
+    def test_missing_pov_coverage_and_bad_interval_block(self):
+        for mutate in (lambda m: m["videos"].pop(), lambda m: m.update(fight_end_timestamp=None),
+                       lambda m: m["videos"][0].update(duration_seconds=1.0),
+                       lambda m: m["videos"][0].update(sha256="not-a-hash"),
+                       lambda m: m.update(prealigned_input_assumed=False)):
+            manifest = copy.deepcopy(self.manifest)
+            mutate(manifest)
+            with self.assertRaises(ContractError):
+                validate_manifest(manifest)
 
-def test_missing_inputs_block(tmp_path):
-    result = validate_inputs(RunConfig.model_validate(config_data()), tmp_path)
-    assert result['status'] == 'BLOCKED'
-    assert len(result['errors']) == 5
+    def test_missing_section_or_blocked_handoff_cannot_start_b(self):
+        for text in (source_report("tank").replace("## Player Information State", "## Other"),
+                     source_report("tank").replace("- Status: PASS", "- Status: BLOCKED"),
+                     source_report("tank").replace("- Stage: A", "- Stage: B"),
+                     source_report("tank").replace("- Evidence coverage:", "- Missing field:"),
+                     source_report("tank").replace("- prompt_version:", "- ignored_version:")):
+            with self.assertRaises(ContractError):
+                validate_pov_report(text, "tank", self.manifest)
 
+    def test_config_recording_changes_require_new_manifest(self):
+        config = copy.deepcopy(self.pipeline.config)
+        config["videos"] = [{"pov_id": video["pov_id"], "path": video["path"]} for video in self.manifest["videos"]]
+        config["videos"][0]["path"] = "inputs/videos/new-tank.mp4"
+        write_json(self.pipeline.config_path, config)
+        with self.assertRaises(ContractError):
+            DownstreamPipeline(self.pipeline.config_path, self.pipeline.root)
 
-def test_short_video_records_gap(tmp_path, monkeypatch):
-    cfg = RunConfig.model_validate(config_data())
-    for video in cfg.videos:
-        path = tmp_path / video.path
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(b'fixture')
-    monkeypatch.setattr('src.intake.probe', lambda p: dict(duration_seconds=20, fps=30, width=640, height=480, audio_present=False))
-    result = validate_inputs(cfg, tmp_path)
-    assert result['status'] == 'BLOCKED'
-    assert result['videos'][0]['missing_intervals'] == [[20, 30]]
+    def test_failed_or_unevidenced_timeline_does_not_silently_pass(self):
+        with self.assertRaises(ContractError):
+            validate_pov_report(source_report("tank").replace("- Evidence: tank@1.0-2.0", "- Evidence: unavailable"), "tank", self.manifest)
+
+    def test_json_rejects_duplicate_keys_and_nan(self):
+        path = Path(self.temp.name) / "bad.json"
+        for text in ('{"run_id":"one","run_id":"two"}', '{"value":NaN}'):
+            path.write_text(text)
+            with self.assertRaises(ContractError):
+                read_json(path)

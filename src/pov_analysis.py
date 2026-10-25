@@ -1,31 +1,27 @@
-"""Prepare isolated manual analysis jobs and validate submitted reports."""
-import re
+"""Single-POV report contract shared with downstream handoff validation.
 
-HEADINGS = ('Metadata', 'Gameplay Context', 'Timestamped Behavioral Timeline', 'Player Information State', 'Cross-POV Verification Questions', 'Neutral Behavioral Summary', 'Coverage and Limitations', 'Agent Handoff')
-REF = re.compile(r'\b(tank|dps1|dps2|support1|support2)@(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)\b')
+The public list-of-errors interface is preserved for Stage A submission callers.
+Structural acceptance is not an assertion of visual accuracy or sufficient
+coverage; the review/provenance record retains that distinction.
+"""
+
+from .contracts import ContractError, POV_HEADINGS, REF_PATTERN, validate_pov_report
+
+
+HEADINGS = POV_HEADINGS
+REF = REF_PATTERN
 
 
 def validate_report(text, pov, start, end):
-    errors = []
-    for heading in HEADINGS:
-        if f'## {heading}' not in text.splitlines():
-            errors.append(f'Missing section: {heading}')
-    refs = list(REF.finditer(text))
-    if not refs:
-        errors.append('No evidence references')
-    for match in refs:
-        actor, a, b = match.groups()
-        if actor != pov or not start <= float(a) < float(b) <= end:
-            errors.append(f'Invalid evidence reference: {match.group()}')
-    if re.search(r'\b(bad play|throw|blame)\b', text, re.I):
-        errors.append('Judgment language requires revision')
-    timeline = text.partition('## Timestamped Behavioral Timeline')[2].partition('\n## ')[0]
-    events = re.split(r'^### ', timeline, flags=re.M)[1:]
-    if not events:
-        errors.append('No timestamped events')
-    for event in events:
-        if not REF.search(event) or any(label not in event for label in ('Observed:', 'Immediate outcome:', 'Evidence quality:', 'Inference/unknown:')):
-            errors.append('Event lacks evidence or required observation fields')
-    if 'prompt_version:' not in text:
-        errors.append('Missing prompt_version')
-    return errors
+    # This standalone interface knows only the report's POV and requested
+    # interval. Intake and the Stage A service separately validate video files.
+    manifest = {
+        'fight_start_timestamp': start,
+        'fight_end_timestamp': end,
+        'videos': [{'pov_id': pov, 'duration_seconds': end, 'missing_intervals': []}],
+    }
+    try:
+        validate_pov_report(text, pov, manifest)
+    except (ContractError, TypeError) as exc:
+        return [str(exc)]
+    return []
