@@ -68,9 +68,11 @@ public, multi-user backend or a way to distribute subscription access.
 ## Automatic review and limitations
 
 Stage A inspects each supplied perspective in a separate session, using the actual
-2fps JPEG frames (at most 180 per recording). B reconstructs the available views;
+4fps JPEG frames (at most 360 per recording). B reconstructs the available views;
 C produces a structured verdict. D receives newly decoded frames from the exact
-cited evidence windows, in another fresh session, to check the proposed verdict.
+cited evidence windows at the same configured sampling rate, in another fresh
+session, to check the proposed verdict. The 900-image limit per model invocation
+remains in place; exceeding it fails explicitly rather than dropping evidence.
 This is a **separate AI check, not a human audit**. Human-audit provenance remains
 PENDING, and limitations remain visible. One perspective cannot establish
 cross-perspective corroboration. Fast abilities can be missed between frames.
@@ -164,8 +166,19 @@ Reports contain qualitative verdict/confidence, observed facts, interpreted
 findings, player summaries, supported coaching, and limitations. `not_established`
 findings are explicitly labeled as unestablished hypotheses. Evidence references
 carry `{povId, start, end}` in original recording seconds. Backend and browser both
-validate evidence availability. There are no blame percentages or mandatory guilty
-player. The existing pipeline does not have a separate positive-play field; no
+validate evidence availability. Stage C now supplies `responsibility_percent` for
+each player, mapped to browser `players[].responsibilityPercent`. The UI ranks
+these estimates and displays the model's numbers unchanged, without a range,
+sum, or normalization gate. Older reports without this field still render.
+
+For one POV, the judge estimates personal responsibility (not automatically 100)
+and prioritizes coaching. For two to five POVs, the prompt asks for a 100% split
+among submitted players, differentiated by visible contributions. These are
+subjective estimates of this clip moment, not observed facts, confidence scores,
+or responsibility for the match. An unknown fight outcome no longer forces an
+inconclusive decision assessment. Stage D checks factual support and honest
+inference labels, not the arithmetic or numerical accuracy of these estimates.
+ The existing pipeline does not have a separate positive-play field; no
 positive play is invented to fill one.
 
 ## Pipeline compatibility

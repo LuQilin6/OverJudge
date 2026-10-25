@@ -6,7 +6,7 @@ export const reviewReportSchema = z.object({
   confidence: z.object({ label: z.enum(['low', 'medium', 'high']), rationale: z.string() }),
   evidence: z.array(z.object({ observation: z.string(), refs: z.array(ref) })),
   decisions: z.array(z.object({ pov_id: z.string(), level: z.enum(['primary', 'secondary', 'shared', 'not_established']), claim: z.string(), player_information: z.string(), alternative_action: z.string(), causal_reasoning: z.string(), alternative_explanation: z.string(), refs: z.array(ref) })),
-  players: z.array(z.object({ povId: z.string(), summary: z.string(), status: z.enum(['findings', 'no_supported_mistake']) })),
+  players: z.array(z.object({ povId: z.string(), summary: z.string(), status: z.enum(['findings', 'no_supported_mistake']), responsibilityPercent: z.number().optional() })),
   coaching: z.array(z.object({ povIds: z.array(z.string()), lesson: z.string(), refs: z.array(ref) })),
   limitations: z.array(z.string()).min(1),
 });

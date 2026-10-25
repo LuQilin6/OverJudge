@@ -82,11 +82,6 @@ def _text(value: Any, path: str, *, qualitative: bool = False) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ContractError(f"{path} must be a nonempty string")
     value = value.strip()
-    if qualitative and _PERCENTAGE.search(value):
-        raise ContractError(
-            f"{path} must use qualitative responsibility/confidence; "
-            "put observed HUD percentages in confirmed_facts"
-        )
     return value
 
 
@@ -184,7 +179,11 @@ def validate_result(payload: dict, manifest: dict, allowed_refs: set[str]) -> di
     linked_findings = set()
     for pov_id in supplied_povs(manifest):
         path = "player_findings." + pov_id
-        player = _object(players[pov_id], ("status", "summary", "finding_ids"), path)
+        # Legacy reports may omit the estimate. No percentage range or sum gate.
+        fields = ("status", "summary", "finding_ids")
+        if "responsibility_percent" in players[pov_id]:
+            fields += ("responsibility_percent",)
+        player = _object(players[pov_id], fields, path)
         _enum(player["status"], ("findings", "no_supported_mistake"), path + ".status")
         player["summary"] = _text(player["summary"], path + ".summary", qualitative=True)
         ids = _list(player["finding_ids"], path + ".finding_ids")
@@ -215,8 +214,6 @@ def validate_result(payload: dict, manifest: dict, allowed_refs: set[str]) -> di
     verdict["limitations"] = _texts(verdict["limitations"], "verdict.limitations", nonempty=True)
     if verdict["outcome"] == "inconclusive" and adverse:
         raise ContractError("inconclusive must not establish adverse findings; use not_established")
-    if summary["outcome"] == "unknown" and verdict["outcome"] != "inconclusive":
-        raise ContractError("an unknown fight outcome requires an inconclusive verdict")
     if verdict["outcome"] == "shared":
         if any(finding["level"] == "primary" for finding in adverse):
             raise ContractError("shared verdict must not single out a primary finding")
@@ -316,6 +313,8 @@ def render_report(payload: dict, metadata: dict) -> str:
     for pov_id in payload["player_findings"]:
         player = payload["player_findings"][pov_id]
         lines.append(f"- **{pov_id}** — {player['status']}: {_inline(player['summary'])}")
+        if player.get("responsibility_percent") is not None:
+            lines.append(f"  - Estimated responsibility for this moment: {player['responsibility_percent']}% (subjective estimate, not a measured fact).")
         if player["finding_ids"]:
             lines.append("  - Findings: " + ", ".join(_inline(item) for item in player["finding_ids"]))
     lines.extend(("", "## Verdict or Inconclusive", "", f"**{verdict['outcome']}**", "", _inline(verdict["summary"])))
@@ -367,6 +366,7 @@ def example_response(pov_ids=POV_IDS) -> dict:
                 "status": "no_supported_mistake",
                 "summary": "Example only: no supported mistake is established for this player.",
                 "finding_ids": [],
+                "responsibility_percent": 0,  # Template placeholder, never a completed estimate.
             }
             for pov_id in pov_ids
         },
@@ -414,6 +414,7 @@ def response_schema(pov_ids=POV_IDS) -> dict:
             pov_id: obj({
                 "status": enum(("findings", "no_supported_mistake")), "summary": text,
                 "finding_ids": array(text, uniqueItems=True),
+                "responsibility_percent": {"type": "number", "description": "Subjective responsibility for this moment. Single POV: personal estimate, not automatically 100. Multiple POVs: allocate 100 across supplied players. Not confidence."},
             })
             for pov_id in pov_ids
         }),
@@ -433,7 +434,7 @@ def response_schema(pov_ids=POV_IDS) -> dict:
     schema["title"] = "OverJudge Stage C manual response"
     schema["description"] = (
         "Qualitative evidence-grounded judgment. Every finding is linked to its player. "
-        "An unknown fight outcome requires an inconclusive verdict. "
+        "An unknown fight outcome does not prevent a judgment about a visible decision. "
         "Inconclusive establishes no adverse findings; shared requires at least two players and no primary. "
         "Confidence labels are not calibrated probabilities. Program validation also enforces citation and verdict consistency."
     )

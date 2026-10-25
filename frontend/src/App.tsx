@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Agentation } from 'agentation';
 import { motion, MotionConfig, useReducedMotion } from 'motion/react';
 import { ArrowLeft, ArrowRight, Check, CircleHelp, FileVideo, Film, FolderOpen, Gavel, MessageSquareText, Plus, Upload, X } from 'lucide-react';
 import { useReview } from './useReview';
@@ -12,7 +11,6 @@ import { Verdict } from './components/Verdict';
 export default function App() {
   const review = useReview();
   const [open, setOpen] = useState(false);
-  const [annotationContainer, setAnnotationContainer] = useState<HTMLDialogElement | null>(null);
   const [dragging, setDragging] = useState(false);
   const reduced = useReducedMotion();
   const view = review.busy ? 'review' : review.report ? 'verdict' : review.step;
@@ -22,7 +20,7 @@ export default function App() {
   const choose = () => review.inputRef.current?.click();
   return <MotionConfig reducedMotion="user">
     <ReplayScene onOpen={() => setOpen(true)} hasClip={review.clips.length > 0} />
-    <ReviewDialog open={open} onDialogElementChange={import.meta.env.DEV ? setAnnotationContainer : undefined} onClose={() => { review.closeReview(); setOpen(false); }} title={heading} subtitle={subtitle} pose={view === 'review' ? 'examining' : view === 'verdict' ? 'presenting' : 'greeting'} step={view}>
+    <ReviewDialog open={open} onClose={() => { review.closeReview(); setOpen(false); }} title={heading} subtitle={subtitle} pose={view === 'review' ? 'examining' : view === 'verdict' ? 'presenting' : 'greeting'} step={view}>
       <div className="review-mode" role="status"><span><FolderOpen size={17} aria-hidden="true" />Evidence on file</span><span>{review.clips.length} of 5 recordings attached</span></div>
       <ol className="flow-steps" aria-label="Case progress">{[
         { label: 'The evidence', detail: 'Upload your clips', Icon: FileVideo },
@@ -84,6 +82,5 @@ export default function App() {
         </motion.section>
       </div>
     </ReviewDialog>
-    {import.meta.env.DEV && <Agentation portalContainer={annotationContainer} />}
   </MotionConfig>;
 }

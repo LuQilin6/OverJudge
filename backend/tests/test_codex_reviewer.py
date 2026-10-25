@@ -104,13 +104,17 @@ def test_automatic_pipeline_uses_real_gates_and_blocks_failed_audit(tmp_path,mon
     def call(self,name,prompt,images):
         called.append(name)
         if name.startswith('A-'):
-            assert len(images)==24 and all(Path(p).is_file() for p in images)
+            assert len(images)==48 and all(Path(p).is_file() for p in images)
             package=Path(read_json(job.path/'pov1-task.json')['job_path'])
             data=read_json(package/'job.json')
             return {'report_markdown':source_report('pov1').replace('synthetic-test-a-v1',data['prompt_version']).replace('0.0–6.0','0.0–12.0'), 'review':{'reviewer':'synthetic','model_or_tool':'none','reviewed_frame_timestamps':[1.0], 'audio_inspected':False,'limitations':['Synthetic software test; no gameplay analyzed.']}}
         if name.startswith('B-'):return fusion.example_response(('pov1',))
         if name.startswith('C-'):return judge.example_response(('pov1',))
         assert images and all(Path(p).is_file() for p in images)
+        mappings = json.loads(prompt.split('Attached audit images (one-based index):\n')[1].split('\nInspect the attached pixels')[0])
+        assert all(m['sample_rate'] == 4 and '0.25 seconds' in m['timing_note'] for m in mappings)
+        assert sum(m['count'] for m in mappings) == len(images)
+        assert all(m['count'] == 4 for m in mappings)  # Each synthetic citation spans one second.
         from overjudge.pipeline import DownstreamPipeline
         # Locate the immutable D bundle without depending on the store layout.
         indexes=list(job.path.glob('outputs/**/clip_index.json'))

@@ -9,7 +9,7 @@ supported. A mechanically valid citation is not proof that a claim is true.
 
 ## Allowed inputs
 
-- The immutable task package, manifest, five original POV reports, Stage B
+- The immutable task package, manifest, the supplied one to five original POV reports, Stage B
   fusion, Stage C structured result and report, and the generated clip index.
 - The original pre-aligned videos and the exact evidence clips named by that
   index. Open actual frames/clips with available tools; inspect HUD/audio
@@ -71,8 +71,13 @@ All five check flags are booleans; the notes explain each significant check.
 The software may downgrade your requested status after mechanical checks.
 `FAIL` blocks `final_report.md`; `qa_report.md` remains the issue artifact.
 Reviewing file hashes or reference syntax alone never justifies a visual
-inspection attestation. Report qualitative evidence and limitations; do not
-invent numerical responsibility percentages or calibrated confidence scores.
+inspection attestation. Stage C's responsibility percentages are subjective
+estimates for this moment. Preserve them; do not validate their arithmetic,
+require numerical proof, or fail publication merely because the split is bold.
+Audit the cited observations and whether hypotheses are labeled honestly.
+An inconclusive verdict can include an explicitly speculative estimate. Do not
+interpret the estimate as a confirmed fact or a calibrated confidence score.
+A match outcome is not required to review a visible local decision.
 
 ## Rendered artifact sections
 
@@ -97,3 +102,12 @@ whole-clip sample count. Assess only claims within the indexed interval.
 Do not invent an audit requirement for full-video playback when the conclusion
 only describes supplied samples or abstains from gameplay judgment. Still fail
 unsupported claims, missing visual evidence, and unresolved substantive issues.
+
+
+## Short-clip scope
+Judge only the supplied moment and the user's question, not the final match result.
+A clip may end mid-fight. An unknown fight or match outcome does not prevent
+assessment of a visible positioning, timing, resource, or engagement decision.
+Use only the one to five supplied POV IDs from the manifest; never require five.
+One POV means personal coaching; two to five means comparison of those players
+within the shared recorded moment. Missing players remain unavailable context.

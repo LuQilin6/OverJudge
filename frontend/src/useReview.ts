@@ -135,6 +135,7 @@ export function useReview() {
         if (current.state === 'cancelled') throw new Error(current.message);
         if (current.state === 'complete') {
           const result = validateReviewReport(current.report, snapshot);
+          jobId.current = ''; createdId = '';
           setReport(result); return;
         }
         await delay(signal);

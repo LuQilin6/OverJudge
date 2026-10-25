@@ -115,13 +115,14 @@ class StageCContractTests(unittest.TestCase):
                 with self.assertRaises(ContractError):
                     self.validate(payload)
 
-    def test_responsibility_percentages_rejected(self):
-        for claim in ("Tank carries 70% of the blame.", "该玩家负百分之七十责任。", "置信度为90％。"):
-            with self.subTest(claim=claim):
-                payload = supported_response()
-                payload["findings"][0]["claim"] = claim
-                with self.assertRaises(ContractError):
-                    self.validate(payload)
+    def test_subjective_responsibility_estimates_are_preserved_without_sum_gate(self):
+        payload = supported_response()
+        payload["findings"][0]["claim"] = "Estimate: tank carries 70% of responsibility for this moment."
+        payload["player_findings"]["tank"]["responsibility_percent"] = 70
+        payload["player_findings"]["dps1"]["responsibility_percent"] = 12
+        result = self.validate(payload)
+        self.assertEqual(result["player_findings"]["tank"]["responsibility_percent"], 70)
+        self.assertIn("70%", render_report(result, {}))
 
     def test_percentage_cannot_be_extra_field(self):
         payload = supported_response()
@@ -228,18 +229,13 @@ class StageCContractTests(unittest.TestCase):
         with self.assertRaises(ContractError):
             self.validate(payload)
 
-    def test_unknown_outcome_requires_inconclusive_verdict(self):
+    def test_unknown_outcome_allows_judging_a_visible_decision(self):
         payload = supported_response()
         payload["fight_summary"] = {
-            "outcome": "unknown", "summary": "The supplied evidence does not establish an outcome.",
+            "outcome": "unknown", "summary": "The clip ends before the fight outcome.",
             "evidence_refs": [],
         }
-        with self.assertRaisesRegex(ContractError, "unknown fight outcome"):
-            self.validate(payload)
-        payload["verdict"]["outcome"] = "inconclusive"
-        payload["findings"][0]["level"] = "not_established"
-        payload["player_findings"]["tank"]["status"] = "no_supported_mistake"
-        self.assertEqual(self.validate(payload)["fight_summary"]["outcome"], "unknown")
+        self.assertEqual(self.validate(payload)["verdict"]["outcome"], "supported")
 
     def test_narrative_cannot_hide_new_or_malformed_citation(self):
         for citation in ("tank@3.0-4.0", "tank@19.0-22.0", "tank@2.0-1.0", "tank@bad"):

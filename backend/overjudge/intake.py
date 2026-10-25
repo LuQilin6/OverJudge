@@ -33,7 +33,7 @@ class Video(BaseModel):
 class Inspection(BaseModel):
     model_config = ConfigDict(extra='forbid', allow_inf_nan=False)
     method: Literal['codex_manual', 'codex_cli'] = 'codex_manual'
-    frame_sampling_fps: float = Field(default=2.0, gt=0, le=30, strict=True)
+    frame_sampling_fps: float = Field(default=4.0, gt=0, le=30, strict=True)
     inspect_audio: Literal[False] = False
 
     @field_validator('inspect_audio', mode='before')

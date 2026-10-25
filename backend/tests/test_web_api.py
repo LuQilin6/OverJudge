@@ -185,3 +185,34 @@ def test_real_truncation_is_blocked_before_any_agent_runs(tmp_path):
     failure = json.loads((job.path / 'failure.json').read_text())
     assert failure['stage'] == 'preparing'
     assert failure['agent_inputs'] == []
+
+
+def test_responsibility_estimates_reach_browser_without_sum_gate():
+    parsed = ReviewSpec.model_validate(spec(2))
+    verdict = judge.example_response(('pov1', 'pov2'))
+    for pov, value in [('pov1', 73), ('pov2', 26)]:
+        verdict['player_findings'][pov]['responsibility_percent'] = value
+    result = browser_report(verdict, {'limitations': []}, parsed, 12., {'pov1': 0, 'pov2': 0})
+    assert [p['responsibilityPercent'] for p in result['players']] == [73, 26]
+
+
+def test_report_uses_player_names_in_prose_and_preserves_evidence_ids():
+    data = spec(2)
+    data['clips'][0]['label'] = 'Alice'
+    data['clips'][1]['label'] = 'Zoë $1'
+    parsed = ReviewSpec.model_validate(data)
+    verdict = judge.example_response(('pov1', 'pov2'))
+    original = 'POV 1 followed pov2; POV-2 and POV_1. pov10 stayed unknown.'
+    expected = 'Alice followed Zoë $1; Zoë $1 and Alice. pov10 stayed unknown.'
+    verdict['verdict']['summary'] = original
+    verdict['fight_summary']['summary'] = original
+    verdict['confidence']['rationale'] = original
+    verdict['confirmed_facts'] = [{'claim': original, 'evidence_refs': ['pov1@1.0-2.0']}]
+    verdict['verdict']['limitations'] = [original]
+    report = browser_report(verdict, {'limitations': [original]}, parsed, 12., {'pov1': 0., 'pov2': 0.})
+    assert report['summary'] == report['fightSummary'] == report['confidence']['rationale'] == expected
+    assert report['evidence'][0]['observation'] == expected
+    assert report['evidence'][0]['refs'][0]['povId'] == 'pov1'
+    assert expected in report['limitations']
+    assert {p['povId'] for p in report['players']} == {'pov1', 'pov2'}
+    assert verdict['verdict']['summary'] == original  # Audited artifacts remain unchanged.

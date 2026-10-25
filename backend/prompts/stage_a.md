@@ -109,3 +109,12 @@ the 10.0-second image can use an interval ending at 10.5, not 10.0. At the final
 sample use the configured video end (for example, 22.1 for a frame at 22.0).
 Apply the same bound to the event heading. Do not place an endpoint observation
 outside its cited window. This does not establish activity between samples.
+
+
+## Short-clip scope
+Judge only the supplied moment and the user's question, not the final match result.
+A clip may end mid-fight. An unknown fight or match outcome does not prevent
+assessment of a visible positioning, timing, resource, or engagement decision.
+Use only the one to five supplied POV IDs from the manifest; never require five.
+One POV means personal coaching; two to five means comparison of those players
+within the shared recorded moment. Missing players remain unavailable context.
