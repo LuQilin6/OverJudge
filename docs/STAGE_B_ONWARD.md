@@ -1,51 +1,64 @@
-# Stage B/C/D development and upstream handoff
+# Integrated A/B/C/D workflow and handoff
 
-This branch implements the downstream part of `PROJECT_PLAN.md`. The operator
-uses Codex manually; the program does not choose a model provider or call an API.
-Each stage gets a saved task, returns JSON, and passes contract/provenance checks.
-Stage D additionally requires actual independent video inspection. A passing
-software gate cannot prove that a reviewer watched the footage or that a causal
-hypothesis is correct.
+This branch integrates S0/A with B/C/D from `PROJECT_PLAN.md`. The operator uses
+Codex manually. The application does not select a model provider or call an API.
+Software checks structure, provenance and release gates; actual observation and
+independent evidence review remain necessary.
 
 ## Ownership and interfaces
 
-| Owner | Modules and artifacts |
+| Area | Modules and artifacts |
 | --- | --- |
-| S0/A teammate | `intake.py`, `video_inspection.py`, `pov_analysis.py`, Stage A prompt, original recordings, S0 manifest, five neutral Markdown reports |
-| B/C/D branch | `contracts.py`, `fusion.py`, `judge.py`, `audit.py`, `artifacts.py`, `pipeline.py`, CLI, B/C/D prompts and downstream tests |
+| S0/A | `intake.py`, `video_inspection.py`, `pov_analysis.py`, `stage_a.py`, A prompt, recordings, manifest, report/review/provenance revisions |
+| Shared boundary | `contracts.py`, `handoff.py`, common configuration, CLI and atomic artifact helpers |
+| B/C/D | `pipeline.py`, `fusion.py`, `judge.py`, `audit.py`, `artifacts.py`, B/C/D prompts and result revisions |
 
-`contracts.py` describes the boundary; changes to this file or the handoff format
-must be coordinated. Input reports and videos are read only. A reinspection
-requires a revised upstream artifact, not an edit made by B/C/D. All paths in the
-configuration and manifest are relative to the repository root unless absolute;
-`--project-root` selects another root for fixtures or another checkout.
+Coordinate contract changes with the other stage owners. B/C/D read A's original
+artifacts; reinspection creates a new upstream revision. Relative paths resolve
+from the project containing `config/`; a config outside that directory uses its
+containing directory. `--project-root` explicitly selects a project root.
 
-## Upstream requirements
+## Shared configuration and S0
 
-Copy `config/run.example.json` to `config/run.json`. Fill in the real run/fight IDs
-and common fight interval. The configuration and manifest must agree on `run_id`,
-`fight_id`, `game`, alignment assumption, and start/end timestamps. The example's
-null end time deliberately does not pass validation. Defaults:
+Copy `config/run.example.json` to `config/run.json`. Fill in the real run/fight IDs,
+common fight interval and the five paths. The example's null end timestamp is
+intentionally invalid. Defaults are:
 
-- `manifest_path`: `config/manifest.json`
-- `pov_reports_directory`: `outputs/pov_reports`
 - `output_directory`: `outputs`
+- `manifest_path`: `outputs/{run_id}/manifest.json` (optional override)
+- `stage_a_handoff_path`: `outputs/{run_id}/handoff.json` (optional override)
+- A inspection: `codex_manual`, 2 sampled frames/second, audio inspection disabled
 - B/C/D `stage_tools`: `{"method":"manual","tool":"Codex"}`
 
-The manifest follows the fields in PROJECT_PLAN §5. It must contain exactly
-`tank`, `dps1`, `dps2`, `support1`, `support2`, unique recording paths, SHA-256,
-positive duration/fps/dimensions, boolean audio presence, and a hero or `unknown`.
-This implementation makes these previously unspecified values explicit:
+```bash
+source .venv/bin/activate
+python main.py validate --config config/run.json
+```
 
-- `coverage_status`: `complete` or `limited`. Blocked/unreadable input must not
-  be handed off as passed. Complete means the full common interval is covered.
-- `missing_intervals`: a list of `{start_timestamp, end_timestamp}` in original
-  aligned-video seconds; optional when empty. A citation overlapping a gap fails.
-- Optional top-level `status`: `PASS` or `PASS_WITH_LIMITATIONS` (default `PASS`).
-- Inputs are already aligned: `prealigned_input_assumed` must be `true`. No
-  synchronization, timestamp offsets, or automatic realignment occurs here.
+S0 requires exactly `tank`, `dps1`, `dps2`, `support1`, `support2`, distinct resolved
+video paths and a common interval covered by all five recordings. It saves hashes,
+ffprobe metadata, hero names (or `unknown`), errors and limitations. Successful
+`coverage_status` is `complete`; unusable coverage is `blocked`. Missing intervals
+use `{start_timestamp, end_timestamp}`. Native handoff requires all five complete.
 
-Each `{pov_id}.md` must have these nonempty level-two headings:
+S0 top-level status is PASS or BLOCKED. Metadata does not establish synchronization,
+frozen-frame absence or full decode integrity. Inputs must already be aligned;
+no automatic offsets or timestamp transformations are performed.
+
+## Prepare and inspect Stage A
+
+```bash
+python main.py run --stage A --pov tank --config config/run.json
+```
+
+The command prints `job_path`, prepares timestamped images, and exits 1 / BLOCKED
+until actual visual inspection is completed. Its job has only the assigned POV,
+the shared prompt, source metadata and a sampling manifest. A one-POV pilot can
+prepare a valid input while full intake remains blocked; it cannot export a
+five-report handoff until S0 passes.
+
+Open a separate Codex context for each POV. Read its `prompt.md`, inspect the
+actual frames/video, and write neutral Markdown with these nonempty headings:
 
 1. Metadata
 2. Gameplay Context
@@ -56,48 +69,82 @@ Each `{pov_id}.md` must have these nonempty level-two headings:
 7. Coverage and Limitations
 8. Agent Handoff
 
-Metadata must contain `- prompt_version: ...` and
-`- Inspection coverage / method: ...` describing actual coverage/tools. Each
-timeline event is a `###` entry with a source citation. A report cites only its
-own POV, and its handoff explicitly includes `- Status: PASS` or
-`- Status: PASS_WITH_LIMITATIONS`. Other handoff fields follow PROJECT_PLAN §16.
-Unknowns are allowed; unavailable video inspection must be `BLOCKED`, never a
-fictional observation.
+The versioned A prompt gives the exact Metadata and Handoff bullet fields. Every
+event has a real `### [start–end s]` heading, observed action, immediate outcome,
+evidence, quality and inference/unknown fields. The report cites only its assigned
+POV and explicitly records coverage and unavailable information. Unknowns are
+allowed; unavailable visual access must be BLOCKED rather than a fictional report.
 
-Evidence is `POV_ID@start-end`, for example `tank@12.0-13.4`. Windows must have
-positive duration, lie inside the common interval and available recording, and
-avoid missing coverage. B/C/D retain exact original source intervals; they
-cannot invent a narrower or shifted citation. Numeric spelling is normalized
-(`tank@12-13.40` becomes `tank@12.0-13.4`) without changing the timestamp.
+Evidence is `POV_ID@start-end`, for example `tank@12.0-13.4`, always original
+aligned-video seconds. Each window is positive, inside the common fight interval
+and available recording, and avoids missing coverage. B/C/D retain exact original
+source windows. Numeric spelling is normalized without shifting time.
 
-## Manual workflow
+Record only frame timestamps you actually inspected. Review JSON has exactly:
 
-Use the project Python 3.11 environment. B/C/D have no additional Python package
-requirements. D needs FFmpeg and ffprobe on PATH.
-
-```bash
-source .venv/bin/activate
-python main.py validate --config config/run.json
-python main.py prepare --stage B --config config/run.json
+```json
+{
+  "reviewer": "actual reviewer name",
+  "model_or_tool": "actual model/tool and version",
+  "reviewed_frame_timestamps": [12.0, 12.5],
+  "audio_inspected": false,
+  "limitations": ["Sampled frames only; audio unavailable."]
+}
 ```
 
-`prepare` prints `request_path`. That directory contains:
+Replace example timestamps with available frames. Every event and its cited
+window must overlap a reviewed frame. This minimum provenance check cannot prove
+continuous coverage or that the reviewer watched it. Request denser sampling for
+fast or ambiguous events. Audio inspection is currently unsupported.
 
-- `task.md` and the versioned `prompt.md`
-- `context.json`: manifest, original A reports, source hashes and passed upstream results
-- `response_schema.json`: response field guide or JSON Schema and envelope instructions
-- `response.example.json`: **format only**, with explicit example/placeholder content
-- `clip_index.json`: D's extracted windows and source/clip hashes; empty for B/C
-- Request metadata, bundle hashes, and D's evidence clips
+```bash
+python main.py submit --config config/run.json --pov tank \
+  --job /absolute/job_path --report /absolute/report.md --review /absolute/review.json
+```
 
-Open a fresh Codex context for each stage. Ask it to follow `task.md`, read the
-inputs, and save one `response.json` outside the immutable task inputs. The
-response envelope is:
+Repeat for all five POVs. Submission stores immutable report, review and provenance
+files. Reusing the same report text with a different review produces a new
+revision. Structural import remains `PASS_WITH_LIMITATIONS` with human evidence
+audit `PENDING`; it does not establish event accuracy or sufficient coverage.
+
+## Export A to B
+
+```bash
+python main.py handoff --config config/run.json
+python main.py validate --stage B --config config/run.json --accept-limitations
+python main.py prepare --stage B --config config/run.json --accept-limitations
+```
+
+`handoff` fixes five selected report revisions from `stage_a_index.json`. It checks
+the full S0 gate, original recordings, job/settings/prompt snapshots, frame hashes,
+review timestamps, report structure and provenance sidecars. It saves an immutable
+snapshot and the current handoff pointer. It preserves all source restrictions
+and audit PENDING, and grants no independent audit PASS.
+
+The coordinator reviews those restrictions and passes `--accept-limitations` to
+B/C/D prepare and import when proceeding. B consumes original Markdown together
+with review/provenance and their hashes, rather than relying on a self-reported
+Markdown PASS. Updated A reports/reviews revoke downstream current pointers and
+make the old handoff stale. Export a fresh handoff before preparing a new task.
+
+## Execute B/C/D manually
+
+Their `prepare` commands print `request_path`, containing:
+
+- `task.md`, versioned `prompt.md` and immutable request metadata
+- `context.json`: manifest, original A reports, review/provenance, dependency hashes and prior results
+- `response_schema.json`: field guide or JSON Schema and envelope instructions
+- `response.example.json`: format only, with explicit placeholders/example content
+- `clip_index.json`: D's real extracted windows and hashes; empty for B/C
+- D evidence clips and bundle hashes
+
+Use a fresh Codex context per stage. Follow `task.md`, read the actual inputs and
+save a response outside immutable task files. The envelope is:
 
 ```json
 {
   "execution": {
-    "tool": "actual tool name and version",
+    "tool": "actual tool and version",
     "model": "actual model/version, or unknown",
     "operator": "actual operator/reviewer name"
   },
@@ -105,83 +152,88 @@ response envelope is:
 }
 ```
 
-Replace `result` with the stage-specific fields from its task. Do not submit the
-example unchanged or describe unseen footage. B is neutral fusion; C is a
-separate tactical assessment; D is a separate independent review. For D, Codex or
-the reviewer must actually open the indexed clips/frames, evaluate identity,
-timing, abilities, player knowledge and source consistency, then record those
-checks and exact hashes. Software can verify the files and attestations' shape,
-not whether the reviewer actually performed those actions.
+Populate `result` using the stage-specific contract; the example is not an
+analysis. B reconstructs events neutrally while preserving source conflicts. C
+considers all five players with evidence, player knowledge, alternatives and
+uncertainty; it may return `inconclusive`. D independently opens the indexed video
+windows and verifies identity, timestamps, abilities, hindsight and source
+consistency. Reviewer attestations are not independently machine-verifiable.
 
 ```bash
 python main.py import-result --stage B --config config/run.json \
-  --request /absolute/request_path --response /absolute/response.json
-python main.py prepare --stage C --config config/run.json
-# Execute and import C with its own task, then:
-python main.py prepare --stage D --config config/run.json
-# Inspect and import D with its own task, then:
+  --request /absolute/B_request --response /absolute/B_response.json --accept-limitations
+python main.py prepare --stage C --config config/run.json --accept-limitations
+# Execute and import C with its own request and response, then:
+python main.py prepare --stage D --config config/run.json --accept-limitations
+# Actually inspect and import D, then:
 python main.py status --config config/run.json
 ```
 
-`run --stage B|C|D` is an alias for preparing a manual task; it does not silently
-claim model execution. Commands return 0 on successful preparation/import,
-1 for an imported failed audit, and 2 for invalid/blocked inputs. A semantic QA
-failure is saved with its issue log and does not publish a final report.
+`run --stage B|C|D` aliases task preparation. Successful imports/handoffs and B/C/D
+preparation return 0. A inspection-pending preparation, blocked S0 intake and an
+imported failed D audit return 1. Malformed or blocked handoffs return 2.
 
-If S0/A/B formally handed off `PASS_WITH_LIMITATIONS`, the coordinator must review
-the recorded restrictions and explicitly pass `--accept-limitations` at prepare
-and import. Required scientific uncertainty and a justified `inconclusive`
-verdict are not execution failures. Final reports retain A coverage statements,
-B limitations/conflicts and C/D qualifications even if a downstream author
-omits them. Critical unresolved B conflicts carry targeted A reinspection
-requests; they must remain visible to the judge and auditor.
+Scientific uncertainty and a justified inconclusive verdict are valid outputs.
+Final reports retain A coverage restrictions, B unresolved conflicts and C/D
+qualifications. If C establishes no cited claim, D explicitly reviews abstention
+against existing A observation intervals (`audit_scope`) without inventing C facts.
 
-An entirely uncited C abstention is allowed. D then explicitly reviews that
-abstention against A's existing observation intervals, labeled `audit_scope` in
-its context, without turning those intervals into invented C factual claims.
+## Storage and invalidation
 
-## Artifacts, caching and release gates
+A preserves upstream paths under `outputs/{run_id}/`:
 
-Artifacts are under `outputs/runs/{run_id}/`, rather than overwriting the plan's
-single-run example paths. `run_metadata.json` points to current records. Each
-stage request/result and each release has a unique revision directory; result
-reports are `fusion.md`, `verdict.md`, `qa_report.md`, and `final_report.md`.
+- `manifest.json`
+- `stage_a/{pov}/{cache_key}/{job_revision}/`
+- `pov_reports/{pov}/{report_review_job_hash}/`
+- `stage_a_index.json`
+- `handoffs/{hash}/handoff.json` plus current `handoff.json`
 
-Cache keys include the current stage, manifest and A hashes, upstream result and
-metadata hashes, current prompt, and tool configuration. A changed C prompt
-preserves B while invalidating C/D; changed A reports or input manifest invalidate
-their descendants. A pending rerun revokes the old release pointer immediately.
-Imports reject modified tasks, changed source dependencies and superseded
-requests. Successful imports atomically revoke descendant pointers while keeping
-all historical files. Concurrent imports/publication compare request and stage
-revisions to prevent publishing a superseded result.
+Changed input, prompt, sampling or missing/modified frames require a new job; old
+evidence is retained. Unique atomic temp files and per-run locks protect concurrent
+POV writes and submissions. An identical repeated submission is idempotent.
 
-D verifies original SHA-256 values, probes actual video duration, extracts
-original-time windows (clip local zero is the original interval's start), fully
-decodes them, and records FFmpeg/ffprobe versions. On import, on D cache reuse,
-and in `status`, evidence source and clip hashes are checked again. Changed or
-missing evidence revokes the current release. Every primary, secondary and shared
-finding requires the same review gate. Any unreviewed required evidence, failed
-identity/time check, unsupported finding, or open critical/major issue yields
-`FAIL`. A failed review remains inspectable but has no current final report.
+B/C/D requests/results/releases are under `outputs/runs/{run_id}/`.
+`run_metadata.json` indexes current revisions; report names are `fusion.md`,
+`verdict.md`, `qa_report.md`, `final_report.md`. All historical files remain intact.
+Cache keys include manifest, A report/review/provenance/job/frame hashes, upstream
+result/metadata hashes, current prompt and tool configuration. Changing C's prompt
+preserves B but invalidates C/D. Imports reject altered tasks, stale dependencies
+and superseded requests.
 
-If QA fails, revise the owning upstream stage and prepare/import its descendants
-again. Automatic model retries are not applicable to this manual workflow;
-transient local tool errors are surfaced, not hidden. Historical final reports
-remain on disk for provenance and must not be mistaken for the current release;
-consult the index or `status`.
+Result commits and releases hold A's selection lock through final source checks,
+save and publication, then compare downstream revisions. A changed selection
+revokes B/C/D pointers under the same lock. This prevents concurrent A submission
+from reviving or publishing results based on superseded evidence.
 
-## Validation and remaining product evaluation
+For explicitly supplied legacy flat reports, `manifest_path` and
+`pov_reports_directory` remain supported when no native A run exists. Native A
+jobs/index require their verified handoff. Old upstream jobs lacking frame hashes
+or full provenance must be re-prepared and resubmitted; migration never fabricates
+missing inspection evidence or destroys their history.
+
+## Audit and validation
+
+D checks original hashes, probes actual video durations, extracts original-time
+windows, fully decodes them and records FFmpeg/ffprobe versions. Clip local zero
+corresponds to the cited window's original start. Import, cache reuse and `status`
+recheck original/clip hashes. Missing or changed evidence revokes the current
+release. Primary, secondary and shared adverse findings all require review.
+Unreviewed required evidence, identity/timing failures, unsupported findings or
+open critical/major issues yield FAIL. A failed review is saved without a current
+final report. Revise its owning stage and rerun descendants.
+
+Manual model work has no automatic API retries. Tool errors remain visible.
+Historical final reports are retained for provenance; consult the current index
+or `status` rather than treating an archived final as the current verdict.
 
 ```bash
 python --version
-python -m unittest discover -s tests -v
+python -m pytest -q
 git diff --check
 ```
 
-Tests cover provenance, malformed references, five-player representation,
-conflicts, abstention, hindsight fields, immutable revisions, stale caches,
-concurrent publication gates, and actual FFmpeg extraction with synthetic video.
-They do not measure observation recall, event precision, timing accuracy on
-gameplay, or tactical correctness. S0/A implementation and the plan's three-fight
-human-labeled benchmark remain separate work; no benchmark result is claimed.
+Tests cover the full synthetic A-to-D workflow, provenance, stale dependencies,
+malformed references, five-player coverage, conflicts, abstention, concurrency
+and release gates with actual FFmpeg extraction. They do not measure gameplay
+event recall/precision, timing accuracy or tactical correctness. The plan's
+human-reviewed pilot and three-fight benchmark remain product acceptance work.

@@ -70,6 +70,50 @@ def _check_credentials(value: Any, location: str = "artifact") -> None:
         raise ContractError(f"A recognizable credential is not allowed in {location}")
 
 
+def digest(path: Path | str) -> str:
+    """Public Stage A compatibility helper for an original file's SHA-256."""
+    return sha256_file(path)
+
+
+def save_json(path: Path | str, data: Any) -> None:
+    """Atomically replace one JSON file using a private temporary file.
+
+    Multiple POV processes may save the same manifest concurrently. Every
+    writer owns a separate temporary file, so a rename cannot remove another
+    writer's pending file. Compound read/update operations must additionally
+    use ``file_lock`` around the entire operation.
+    """
+    content = _json_bytes(data)
+    _check_credentials(data, "JSON artifact")
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary = tempfile.mkstemp(prefix=".writing-", dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+@contextmanager
+def file_lock(path: Path | str) -> Iterator[None]:
+    """Serialize a complete Stage A index read/update on macOS and Linux."""
+    import fcntl
+
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a+b") as handle:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
 def _stage(stage: str) -> str:
     if not isinstance(stage, str) or stage.upper() not in STAGES:
         raise ContractError("Artifact stage must be B, C, or D")

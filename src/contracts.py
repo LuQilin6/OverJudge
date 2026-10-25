@@ -177,8 +177,11 @@ class EvidenceRef:
 
 def extract_evidence_refs(text: str, manifest: dict[str, Any] | None = None) -> list[EvidenceRef]:
     refs = [EvidenceRef.parse(match[0], manifest) for match in REF_PATTERN.finditer(text)]
-    # A malformed token must not quietly disappear from the citation ledger.
-    for token in re.findall(r"\b[A-Za-z][A-Za-z0-9_]*@[^\s`\]\[<>,;()]+", text):
+    # A malformed known-POV token must not quietly disappear from the ledger.
+    # Other nonnumeric @ tokens can be ordinary file names or reviewer emails;
+    # numeric citation-shaped tokens above still validate arbitrary/unknown IDs.
+    pov_pattern = "|".join(re.escape(pov) for pov in POV_IDS)
+    for token in re.findall(r"\b(?:" + pov_pattern + r")@[^\s`\]\[<>,;()]+", text):
         refs.append(EvidenceRef.parse(token.rstrip("."), manifest))
     return list(dict.fromkeys(refs))
 
@@ -207,27 +210,62 @@ POV_HEADINGS = (
     "Neutral Behavioral Summary", "Coverage and Limitations", "Agent Handoff",
 )
 
+_EVENT_HEADING = re.compile(
+    r"\[[ \t]*(\d+(?:\.\d+)?)[ \t]*[-\u2013\u2014][ \t]*"
+    r"(\d+(?:\.\d+)?)[ \t]*s[ \t]*\](?:[ \t]+[^\n]+)?"
+)
+_EVENT_FIELDS = ("Observed", "Immediate outcome", "Evidence", "Evidence quality", "Inference/unknown")
+_JUDGMENT_LABEL = re.compile(
+    r"\b(?:bad play|to blame|blame|primary responsibility|secondary responsibility|scapegoat|"
+    r"throw(?:ing)? (?:the |this )?(?:fight|game))\b|背锅|甩锅|主要责任|次要责任|操作评分|送人头",
+    re.I,
+)
+
+
+def _report_field(section: str, name: str, label: str) -> str:
+    """Read one nonempty bullet value without letting whitespace cross lines."""
+    matches = re.findall(r"^- " + re.escape(name) + r":[ \t]*([^\n]*)$", section, re.M)
+    if len(matches) != 1 or not matches[0].strip():
+        raise ContractError(f"{label}: expected exactly one nonempty '- {name}: ...' field")
+    return matches[0].strip()
+
+
+def _neutral_observation(text: str, label: str) -> None:
+    # Declining to assign blame is permitted. This small lexical check catches
+    # overt grading labels; it cannot determine whether a narrative is neutral.
+    without_negations = re.sub(
+        r"\b(?:no|without|not assigning|do not assign|does not assign)[ \t]+(?:tactical[ \t]+)?(?:blame|judgment)\b",
+        "", text, flags=re.I,
+    )
+    if _JUDGMENT_LABEL.search(without_negations) or without_negations.strip().lower() in {"throw", "throwing"}:
+        raise ContractError(f"{label}: Stage A observations must remain neutral; tactical grading belongs to Stage C")
+
 
 def validate_pov_report(text: str, pov_id: str, manifest: dict[str, Any]) -> dict[str, Any]:
     """Check the documented natural-language Stage A handoff, not event correctness."""
-    sections = dict(re.findall(r"^## ([^\n]+)\n(.*?)(?=^## |\Z)", text, re.M | re.S))
+    if not isinstance(text, str) or pov_id not in POV_IDS:
+        raise ContractError("A POV report requires text and a known POV ID")
+    # Normalize line endings only. Do not silently rewrite source prose or its
+    # timestamp/citation conventions while checking the handoff.
+    text = text.replace("\r\n", "\n")
+    parsed_sections = re.findall(r"^## ([^\n]+)\n(.*?)(?=^## |\Z)", text, re.M | re.S)
+    sections = dict(parsed_sections)
     for heading in POV_HEADINGS:
+        if sum(1 for name, _ in parsed_sections if name == heading) > 1:
+            raise ContractError(f"{pov_id}: duplicate heading '## {heading}'")
         if not sections.get(heading, "").strip():
             raise ContractError(f"{pov_id}: missing or empty heading '## {heading}'")
     handoff = sections["Agent Handoff"]
-    if not re.search(r"^- Stage:\s*A\s*$", handoff, re.M):
+    if _report_field(handoff, "Stage", pov_id) != "A":
         raise ContractError(f"{pov_id}: expected an independent Stage A handoff")
     for field in ("Inputs consumed", "Outputs produced", "Prompt/model/tool versions", "Evidence coverage", "Unresolved questions", "Known limitations", "Recommended next action"):
-        if not re.search(r"^- " + re.escape(field) + r":\s*\S[^\n]*", handoff, re.M):
-            raise ContractError(f"{pov_id}: missing Agent Handoff field '{field}'")
-    status_match = re.search(r"^- Status:\s*(PASS_WITH_LIMITATIONS|PASS|BLOCKED|FAIL)\s*$", sections["Agent Handoff"], re.M)
-    if not status_match or status_match[1] not in ("PASS", "PASS_WITH_LIMITATIONS"):
+        _report_field(handoff, field, pov_id)
+    status = _report_field(handoff, "Status", pov_id)
+    if status not in ("PASS", "PASS_WITH_LIMITATIONS"):
         raise ContractError(f"{pov_id}: Stage A must explicitly hand off PASS or PASS_WITH_LIMITATIONS")
-    prompt_match = re.search(r"^- prompt_version:\s*(\S[^\n]*)", sections["Metadata"], re.M)
-    if not prompt_match:
-        raise ContractError(f"{pov_id}: Metadata needs '- prompt_version: ...'")
-    method_match = re.search(r"^- Inspection coverage / method:\s*(\S[^\n]*)", sections["Metadata"], re.M)
-    if not method_match or method_match[1].strip().lower() in ("unknown", "none", "...", "todo"):
+    prompt_version = _report_field(sections["Metadata"], "prompt_version", pov_id)
+    method = _report_field(sections["Metadata"], "Inspection coverage / method", pov_id)
+    if method.lower() in ("unknown", "none", "...", "todo"):
         raise ContractError(f"{pov_id}: actual inspection coverage / method is required")
     refs = extract_evidence_refs(text, manifest)
     if not refs or any(ref.pov_id != pov_id for ref in refs):
@@ -236,10 +274,32 @@ def validate_pov_report(text: str, pov_id: str, manifest: dict[str, Any]) -> dic
     events = re.split(r"^### ", timeline, flags=re.M)[1:]
     if not events:
         raise ContractError(f"{pov_id}: timeline requires timestamped ### event entries")
+    event_intervals = []
     for event in events:
-        if not extract_evidence_refs(event, manifest):
-            raise ContractError(f"{pov_id}: every timeline event needs an evidence reference")
+        heading, separator, body = event.partition("\n")
+        match = _EVENT_HEADING.fullmatch(heading.strip())
+        if not match or not separator:
+            raise ContractError(f"{pov_id}: event heading must be '### [start\u2013end s]'")
+        start = finite_number(float(match[1]), "event start")
+        end = finite_number(float(match[2]), "event end")
+        if not manifest["fight_start_timestamp"] <= start < end <= manifest["fight_end_timestamp"]:
+            raise ContractError(f"{pov_id}: event heading lies outside the fight interval")
+        fields = {field: _report_field(body, field, f"{pov_id} event {heading}") for field in _EVENT_FIELDS}
+        if fields["Evidence quality"].lower() not in {"high", "medium", "low"}:
+            raise ContractError(f"{pov_id}: Evidence quality must be high, medium, or low")
+        evidence = extract_evidence_refs(fields["Evidence"], manifest)
+        if not evidence:
+            raise ContractError(f"{pov_id}: every timeline event needs an Evidence field with a source reference")
+        for ref in extract_evidence_refs(event, manifest):
+            if ref.end_timestamp <= start or ref.start_timestamp >= end:
+                raise ContractError(f"{pov_id}: event citation must overlap its heading interval")
+        for field in ("Observed", "Immediate outcome"):
+            _neutral_observation(fields[field], f"{pov_id} {field}")
+        event_intervals.append({"start_timestamp": start, "end_timestamp": end,
+                                "evidence_refs": [str(ref) for ref in evidence]})
+    _neutral_observation(sections["Neutral Behavioral Summary"], f"{pov_id} summary")
     return {
-        "pov_id": pov_id, "status": status_match[1], "prompt_version": prompt_match[1],
-        "inspection_method": method_match[1], "evidence_refs": [str(ref) for ref in refs],
+        "pov_id": pov_id, "status": status, "prompt_version": prompt_version,
+        "inspection_method": method, "evidence_refs": [str(ref) for ref in refs],
+        "event_intervals": event_intervals,
     }

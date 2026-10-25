@@ -4,27 +4,20 @@ Overwatch 2 multi-POV teamfight analysis, based on [PROJECT_PLAN.md](PROJECT_PLA
 
 ## Current status
 
-Stage B/C/D now support a **manual Codex workflow**: prepare a task package,
-inspect its inputs in Codex, import a structured JSON response, and render
-versioned reports. Stage D extracts real video windows with FFmpeg and requires
-an explicit independent review before releasing the final report. No model API
-is called by the application. See [the development and handoff guide](docs/STAGE_B_ONWARD.md).
+S0 and the **manual Codex A/B/C/D workflow** are integrated. Intake probes five
+pre-aligned recordings. A prepares isolated timestamped frames and imports neutral
+observation reports with review records. An explicit handoff selects five immutable
+report revisions for B's fusion and C's tactical assessment. D extracts evidence
+windows and requires independent review before publishing the final report.
 
-S0 intake and Stage A video observation remain unimplemented. This branch
-consumes their manifest and five independent Markdown reports. The `validate`
-command checks **downstream input contracts**, not video integrity, alignment,
-or observation correctness. No real gameplay evaluation has been performed.
+Actual observations and audits are performed manually in Codex; the application
+calls no model API. Software validates structure, provenance and release gates.
+Real gameplay benchmarking remains open. See the [workflow and handoff guide](docs/STAGE_B_ONWARD.md).
 
 ## Local environment
 
-A local `.venv/` is not distributed through Git. After creating one:
-
-```bash
-source .venv/bin/activate
-python --version
-```
-
-To recreate it:
+The shared baseline is Python **3.11.9** (`.python-version`). Local environments
+and recordings are not distributed through Git:
 
 ```bash
 python3.11 -m venv .venv
@@ -33,44 +26,77 @@ python -m pip install -r requirements.txt
 python -m pip check
 ```
 
-The shared baseline is Python **3.11.9** (`.python-version`). `requirements.txt` pins all resolved direct and transitive dependencies; install it for the same Python package versions. `requirements.in` records direct dependencies and their purposes: Pydantic for validation, Typer for CLI, python-dotenv for local environment loading, Pillow for frame images, and pytest for tests. The same environment includes runtime and test dependencies.
+`requirements.txt` pins the shared runtime/test environment; `requirements.in`
+records its direct dependencies. Intake uses Pydantic and the unified CLI uses
+argparse. The shared environment retains the original upstream packages.
+Update both dependency files together after resolving in a clean Python 3.11.9
+environment and reviewing `pip freeze` output.
 
-To update dependencies, use a clean Python 3.11.9 environment, install `requirements.in`, run `python -m pip check`, and regenerate `requirements.txt` with `python -m pip freeze`. Review and commit both files together. Wheel availability can differ across platforms; the initial environment was verified on macOS ARM64.
+FFmpeg and ffprobe are external executables. Install with `brew install ffmpeg`
+on macOS or `sudo apt install ffmpeg` on Debian/Ubuntu. A and D record their actual
+tool versions. The Python lock does not pin these system tools. No provider
+credentials are required for the manual workflow.
 
-FFmpeg and ffprobe are external executables and are not installed by pip. On macOS, install them with `brew install ffmpeg`; on Debian/Ubuntu, use `sudo apt install ffmpeg`. Check `ffmpeg -version` and `ffprobe -version`. They were not available on PATH during initial setup; record their versions when video processing is implemented. This Python lock does not pin system tools.
+## Run one fight
 
-Model SDKs, OpenCV, and audio/transcription packages remain deferred until the inspection workflow is selected. No provider credentials are required for the manual workflow.
-
-The B/C/D manual workflow uses Python's standard library and requires no new
-packages. Its tests also run without installing pytest:
+Copy `config/run.example.json` to `config/run.json`, fill in the common interval
+and paths, and preserve the original aligned recordings. The example's null end
+time deliberately prevents an accidental run.
 
 ```bash
-python -m unittest discover -s tests -v
-python main.py --help
+python main.py validate --config config/run.json
+python main.py run --stage A --pov tank --config config/run.json
 ```
 
-Video extraction integration tests require FFmpeg and ffprobe; they are skipped
-when those executables are unavailable. Test recordings and reviewer statements
-are explicitly synthetic and do not establish gameplay-analysis accuracy.
+Repeat A for the other four POVs in separate Codex contexts. Each prepared job
+contains its assigned video metadata, prompt snapshot and hashed timestamped
+frames. Preparation exits 1 / BLOCKED while actual inspection is pending. After
+viewing the frames, submit the Markdown report and actual review JSON:
+
+```bash
+python main.py submit --config config/run.json --pov tank \
+  --job /absolute/job_path --report /absolute/report.md --review /absolute/review.json
+# After all five reports are submitted:
+python main.py handoff --config config/run.json
+python main.py prepare --stage B --config config/run.json --accept-limitations
+```
+
+The handoff preserves `PASS_WITH_LIMITATIONS` and human evidence audit `PENDING`.
+`--accept-limitations` records the coordinator's decision to proceed with the
+restrictions. Execute and import B, then C, then independently review D using
+its task package. The [guide](docs/STAGE_B_ONWARD.md) contains the exact response
+formats, commands and publication gates.
+
+`validate` probes S0 inputs. `validate --stage B` checks downstream handoffs.
+`run` and `prepare` support A/B/C/D; A defaults to `tank` when `--pov` is omitted.
 
 ## Structure
 
-- `main.py`, `src/cli.py`, `src/pipeline.py`: downstream CLI and manual task orchestration.
-- `src/contracts.py`: shared manifest, evidence-reference and Stage A handoff validation.
-- `src/fusion.py`, `src/judge.py`, `src/audit.py`: B/C/D result contracts and report rendering; D also extracts evidence clips and enforces the publication gate.
-- `src/artifacts.py`: per-run artifact history, hashes, dependency invalidation and release indexes.
-- `src/intake.py`, `src/video_inspection.py`, `src/pov_analysis.py`: S0/A placeholders owned by upstream development.
-- `config/run.example.json`: copy to `config/run.json`, fill in the common interval, and supply a real S0 manifest and A reports. S0/A tool choices remain undecided.
-- `prompts/stage_{b,c,d}.md`: versioned manual Codex instructions. `stage_a.md` remains a placeholder.
-- `inputs/videos/`: location for five original, pre-aligned recordings (`tank`, `dps1`, `dps2`, `support1`, `support2`); recordings are not included.
-- `work/clips/`: derived clips.
-- `tests/`: contracts, provenance, conflict, abstention, cache, concurrency and release tests with synthetic inputs.
-- `outputs/pov_reports/`: expected upstream Stage A handoffs, configurable with `pov_reports_directory`.
-- `outputs/runs/{run_id}/`: immutable B/C/D requests, result revisions, evidence clips, release revisions and `run_metadata.json`.
+- `main.py`, `src/cli.py`: one CLI for intake, A preparation/submission, handoff, B/C/D and status.
+- `src/stage_a.py`, `src/intake.py`, `src/video_inspection.py`, `src/pov_analysis.py`: input validation and manual observation jobs.
+- `src/contracts.py`, `src/handoff.py`: shared report/evidence contracts and provenance-checked five-report handoffs.
+- `src/pipeline.py`, `src/fusion.py`, `src/judge.py`, `src/audit.py`: downstream orchestration, report rendering and evidence audit.
+- `src/artifacts.py`: atomic writes, per-run history, dependency invalidation and release indexes.
+- `prompts/stage_{a,b,c,d}.md`: versioned manual Codex instructions.
+- `inputs/videos/`: five original recordings; files are not included.
+- `outputs/{run_id}/`: S0 manifest, A jobs/report revisions, source index and verified handoffs.
+- `outputs/runs/{run_id}/`: B/C/D task/result revisions, evidence clips, releases and `run_metadata.json`.
 
-S0 must supply `config/manifest.json`. The downstream pipeline does not fabricate
-it or generate observations on behalf of Stage A. Recordings, generated artifacts,
-local configuration, secrets, and `.venv/` are ignored by Git.
+Recordings, outputs, secrets, local configuration, `.python-runtime/` and `.venv/`
+are ignored by Git. A source revision is never silently overwritten. Updated
+review records invalidate the old handoff and downstream current results.
 
-The original versioned plan is preserved alongside `PROJECT_PLAN.md`. This branch
-does not complete upstream M0/M1 or the real-gameplay M5 evaluation gate.
+## Validation
+
+```bash
+python -m pytest -q
+python main.py --help
+git diff --check
+```
+
+Tests cover contracts, provenance, five-player coverage, conflicts, abstention,
+concurrent writes/publication and the full A-to-D workflow with real FFmpeg
+extraction of synthetic video. Video tests skip when FFmpeg/ffprobe are absent.
+Synthetic observations and reviewer attestations do not establish gameplay
+accuracy. The plan's human-reviewed pilot and three-fight benchmark remain
+product acceptance work; no gameplay-quality result is claimed by these tests.

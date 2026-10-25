@@ -97,7 +97,7 @@ class PipelineTests(unittest.TestCase):
             self.assertEqual(process.returncode, 0, process.stderr)
             return json.loads(process.stdout)
 
-        self.assertEqual(run("validate")["status"], "PASS")
+        self.assertEqual(run("validate", "--stage", "B")["status"], "PASS")
         request = run("prepare", "--stage", "B")["request_path"]
         task = (Path(request) / "task.md").read_text()
         self.assertIn("--project-root", task)

@@ -1,7 +1,7 @@
 # Direct dependencies; requirements.txt pins the complete resolved environment.
 # Resolve updates in a clean Python 3.11.9 virtual environment, then freeze.
 pydantic>=2,<3          # Configuration and manifest validation
-typer>=0.12,<1          # CLI
+typer>=0.12,<1          # Retained shared upstream tooling baseline
 python-dotenv>=1,<2     # Local environment variables
 Pillow>=11,<14          # Extracted frame/image inspection
 pytest>=8,<10          # Tests (shared development environment)

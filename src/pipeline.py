@@ -7,6 +7,7 @@ video correctness still requires the explicit Stage D visual review.
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -17,11 +18,12 @@ import shlex
 from typing import Any
 
 from . import audit, fusion, judge
-from .artifacts import ArtifactStore, compute_cache_key
+from .artifacts import ArtifactStore, compute_cache_key, file_lock
 from .contracts import (
     ContractError, POV_IDS, STAGES, read_json, sha256_file,
     validate_manifest, validate_pov_report,
 )
+from .handoff import load_stage_a_handoff
 
 
 MODULES = {"B": fusion, "C": judge, "D": audit}
@@ -34,11 +36,39 @@ def _write_json(path: Path, value: Any) -> None:
 
 class DownstreamPipeline:
     def __init__(self, config_path: Path | str, project_root: Path | None = None):
-        self.root = Path(project_root or DEFAULT_ROOT).resolve()
-        self.config_path = self.resolve(config_path)
+        if project_root is None:
+            candidate = Path(config_path).resolve()
+            self.root = candidate.parent.parent if candidate.parent.name == "config" else candidate.parent
+            self.config_path = candidate
+        else:
+            self.root = Path(project_root).resolve()
+            self.config_path = self.resolve(config_path)
         self.config = read_json(self.config_path)
-        self.manifest_path = self.resolve(self.config.get("manifest_path", "config/manifest.json"))
-        self.manifest = validate_manifest(read_json(self.manifest_path))
+        output = self.config.get("output_directory", "outputs")
+        if not isinstance(output, str) or not output:
+            raise ContractError("output_directory must be a path string")
+        self.store = ArtifactStore(self.resolve(output), self.config.get("run_id"))
+        self.stage_a_output = self.resolve(output) / self.config["run_id"]
+        self.handoff_path = self.resolve(self.config.get("stage_a_handoff_path") or self.stage_a_output / "handoff.json")
+        self.native_stage_a = bool(self.config.get("stage_a_handoff_path")) or any(
+            path.exists() for path in (self.handoff_path, self.stage_a_output / "stage_a_index.json", self.stage_a_output / "stage_a")
+        )
+        self.upstream_handoff = None
+        try:
+            if self.native_stage_a:
+                if not self.handoff_path.is_file():
+                    raise ContractError("Stage A needs an exported handoff: submit all five reports, then run 'python main.py handoff --config <config>'")
+                self.upstream_handoff = load_stage_a_handoff(self.handoff_path, self.config, self.root)
+                self.manifest_path = Path(self.upstream_handoff["manifest_path"])
+                self.manifest = validate_manifest(self.upstream_handoff["manifest"])
+            else:
+                # Existing, explicitly supplied S0/A fixtures retain their documented
+                # flat-report interface. Native A runs must export a verified handoff.
+                self.manifest_path = self.resolve(self.config.get("manifest_path") or "config/manifest.json")
+                self.manifest = validate_manifest(read_json(self.manifest_path))
+        except (ContractError, OSError):
+            self.store.invalidate_from("B")
+            raise
         for key in ("run_id", "fight_id", "game", "prealigned_input_assumed", "fight_start_timestamp", "fight_end_timestamp"):
             if self.config.get(key) != self.manifest[key]:
                 raise ContractError(f"config.{key} must match the S0 manifest")
@@ -52,10 +82,6 @@ class DownstreamPipeline:
             for video in videos:
                 if self.resolve(video.get("path")) != self.resolve(by_id[video["pov_id"]]["path"]):
                     raise ContractError("config video paths differ from the S0 manifest; regenerate the manifest")
-        output = self.config.get("output_directory", "outputs")
-        if not isinstance(output, str) or not output:
-            raise ContractError("output_directory must be a path string")
-        self.store = ArtifactStore(self.resolve(output), self.manifest["run_id"])
 
     def resolve(self, path: Path | str) -> Path:
         if not isinstance(path, (str, Path)):
@@ -78,7 +104,17 @@ class DownstreamPipeline:
         return text, version[1].strip()
 
     def _source_reports(self) -> dict[str, dict]:
-        directory = self.resolve(self.config.get("pov_reports_directory", "outputs/pov_reports"))
+        if self.native_stage_a:
+            try:
+                current = load_stage_a_handoff(self.handoff_path, self.config, self.root)
+                if current["manifest"] != self.manifest:
+                    raise ContractError("The S0 manifest changed; reload the run configuration")
+                self.upstream_handoff = current
+                return current["reports"]
+            except (ContractError, OSError):
+                self.store.invalidate_from("B")
+                raise
+        directory = self.resolve(self.config.get("pov_reports_directory") or "outputs/pov_reports")
         reports = {}
         for pov in POV_IDS:
             path = directory / f"{pov}.md"
@@ -92,10 +128,10 @@ class DownstreamPipeline:
             }
         return reports
 
-    def _context(self, stage: str) -> dict:
+    def _context(self, stage: str, reports: dict | None = None) -> dict:
         if stage not in STAGES:
             raise ContractError("Only downstream stages B, C and D are implemented here")
-        reports = self._source_reports()
+        reports = self._source_reports() if reports is None else reports
         context = {
             "schema_version": "1.0", "stage": stage,
             "run_id": self.manifest["run_id"], "fight_id": self.manifest["fight_id"],
@@ -104,6 +140,13 @@ class DownstreamPipeline:
             "tool_config": {"method": "manual", "tool": "Codex"},
             "upstream": {},
         }
+        if self.upstream_handoff is not None:
+            context["stage_a_handoff"] = {
+                "path": str(self.handoff_path), "status": self.upstream_handoff["status"],
+                "source_hashes": self.upstream_handoff["source_hashes"],
+                "limitations": self.upstream_handoff["limitations"],
+                "human_evidence_audit": "PENDING",
+            }
         stage_tools = self.config.get("stage_tools", {})
         if not isinstance(stage_tools, dict):
             raise ContractError("stage_tools must be an object")
@@ -116,7 +159,7 @@ class DownstreamPipeline:
             record = self.store.latest(previous)
             if not record or record["status"] not in ("PASS", "PASS_WITH_LIMITATIONS"):
                 raise ContractError(f"Stage {stage} requires a passed Stage {previous}")
-            previous_context = self._context(previous)
+            previous_context = self._context(previous, reports)
             previous_prompt, _ = self._prompt(previous)
             if record["cache_key"] != compute_cache_key(previous, previous_context, previous_prompt):
                 # Preserve historical evidence but revoke stale descendants and release pointers.
@@ -158,12 +201,16 @@ class DownstreamPipeline:
         for stage, upstream in context["upstream"].items():
             if upstream["status"] == "PASS_WITH_LIMITATIONS":
                 limitations.append(f"Stage {stage}: passed with limitations")
+        if "stage_a_handoff" in context:
+            limitations.extend(context["stage_a_handoff"]["limitations"])
+            limitations.append("Stage A human evidence audit is PENDING; imported observations are provisional")
         return limitations
 
     @staticmethod
     def _source_limitations(context: dict) -> list[str]:
         """Preserve original qualifications even when a later analyst omits them."""
         result = DownstreamPipeline._limitations(context)
+        result.extend("S0 limitation: " + value for value in context["manifest"].get("limitations", []))
         for pov, report in context["pov_reports"].items():
             match = re.search(r"^## Coverage and Limitations\n(.*?)(?=^## |\Z)", report["text"], re.M | re.S)
             if match:
@@ -193,6 +240,29 @@ class DownstreamPipeline:
                                         self._allowed_refs(context), self._audit_verdict(context), clips)
         if checked["qa_status"] != record["status"]:
             raise ContractError("The current evidence no longer supports the stored audit gate")
+
+    @contextmanager
+    def _source_commit_guard(self, context: dict):
+        """Serialize publication with Stage A selection changes.
+
+        All cooperating writers acquire A's index lock before the downstream
+        metadata lock. The selected A revisions cannot change between the final
+        provenance check, result save and release pointer update.
+        """
+        if not self.native_stage_a:
+            yield
+            return
+        with file_lock(self.stage_a_output / ".stage_a_index.lock"):
+            try:
+                if read_json(self.config_path) != self.config:
+                    raise ContractError("Run configuration changed during result import; prepare a fresh task")
+                current = load_stage_a_handoff(self.handoff_path, self.config, self.root, already_locked=True)
+                if current["source_hashes"] != context["stage_a_handoff"]["source_hashes"]:
+                    raise ContractError("Stage A sources changed during result import; export and prepare a fresh task")
+            except (ContractError, OSError):
+                self.store.invalidate_from("B")
+                raise
+            yield
 
     @staticmethod
     def _approve(context: dict, accept_limitations: bool) -> list[str]:
@@ -344,7 +414,8 @@ class DownstreamPipeline:
             "started_at": request_metadata["created_at"], "ended_at": datetime.now(timezone.utc).isoformat(),
             "input_hashes": {"manifest": context["manifest_sha256"],
                              **{pov: item["sha256"] for pov, item in context["pov_reports"].items()},
-                             **{s: item["result_sha256"] for s, item in context["upstream"].items()}},
+                             **{s: item["result_sha256"] for s, item in context["upstream"].items()},
+                             **{f"stage_a:{name}": value for name, value in context.get("stage_a_handoff", {}).get("source_hashes", {}).items()}},
             "accepted_upstream_limitations": limitations,
             "upstream_limitations": self._source_limitations(context),
             "inspection": {pov: item["handoff"]["inspection_method"] for pov, item in context["pov_reports"].items()},
@@ -352,16 +423,17 @@ class DownstreamPipeline:
         renderer = audit.render_qa_report if stage == "D" else MODULES[stage].render_report
         report = renderer(result, metadata)
         # Validation finishes before revoking an existing accepted result.
-        record = self.store.save_result(stage, result, report, metadata)
-        output = {"stage": stage, "status": status, "record": record}
-        if stage == "D":
-            metadata["expected_stage_revisions"] = {
-                **metadata["expected_stage_revisions"], "D": record["revision_id"],
-            }
-            final = None
-            if status != "FAIL":
-                final = audit.render_final_report(context["upstream"]["C"]["result"], result, metadata, clips)
-            output["release"] = self.store.write_release(report, final, metadata)
+        with self._source_commit_guard(context):
+            record = self.store.save_result(stage, result, report, metadata)
+            output = {"stage": stage, "status": status, "record": record}
+            if stage == "D":
+                metadata["expected_stage_revisions"] = {
+                    **metadata["expected_stage_revisions"], "D": record["revision_id"],
+                }
+                final = None
+                if status != "FAIL":
+                    final = audit.render_final_report(context["upstream"]["C"]["result"], result, metadata, clips)
+                output["release"] = self.store.write_release(report, final, metadata)
         return output
 
     def status(self) -> dict:
