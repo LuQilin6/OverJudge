@@ -1,0 +1,80 @@
+{
+  "errors": [],
+  "fight_end_timestamp": 20.0,
+  "fight_id": "new_set",
+  "fight_start_timestamp": 0.0,
+  "game": "Overwatch 2",
+  "limitations": [
+    "Metadata does not verify synchronization, frozen frames, or complete decode integrity."
+  ],
+  "prealigned_input_assumed": true,
+  "run_id": "new_set",
+  "status": "PASS",
+  "videos": [
+    {
+      "audio_present": true,
+      "coverage_status": "complete",
+      "duration_seconds": 20.000833,
+      "fps": 30.0,
+      "height": 686,
+      "hero": "unknown",
+      "missing_intervals": [],
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/new_set/Tank.mp4",
+      "pov_id": "tank",
+      "sha256": "53f7068cb4a8d1af180e9419d85d93c6db4c3e548de11b6a29fb0cdfd66ed5f5",
+      "width": 1166
+    },
+    {
+      "audio_present": true,
+      "coverage_status": "complete",
+      "duration_seconds": 20.1787,
+      "fps": 30.0,
+      "height": 686,
+      "hero": "unknown",
+      "missing_intervals": [],
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/new_set/dps1.mp4",
+      "pov_id": "dps1",
+      "sha256": "18931de15e2bb9ce5d476d40b9d8b7b9a8c1abccf64bfb6e38200b6b24e4a590",
+      "width": 1166
+    },
+    {
+      "audio_present": true,
+      "coverage_status": "complete",
+      "duration_seconds": 20.326333,
+      "fps": 30.0,
+      "height": 686,
+      "hero": "unknown",
+      "missing_intervals": [],
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/new_set/dps2.mp4",
+      "pov_id": "dps2",
+      "sha256": "1f808dd552921d8d675359b94678d0b7fe0fd15d78d2be2ad51f8800150f6836",
+      "width": 1166
+    },
+    {
+      "audio_present": true,
+      "coverage_status": "complete",
+      "duration_seconds": 20.078133,
+      "fps": 30.0,
+      "height": 686,
+      "hero": "unknown",
+      "missing_intervals": [],
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/new_set/support1.mp4",
+      "pov_id": "support1",
+      "sha256": "d3c11d89d344757ea6dcdbeaa83e99ab6109575390a055eed3617aec9a314763",
+      "width": 1166
+    },
+    {
+      "audio_present": true,
+      "coverage_status": "complete",
+      "duration_seconds": 20.894633,
+      "fps": 30.0,
+      "height": 686,
+      "hero": "unknown",
+      "missing_intervals": [],
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/new_set/support2.mp4",
+      "pov_id": "support2",
+      "sha256": "6af41f08d171e5a6e175bebeb2631031999d1c1c07559cd2929b133906bcd3ad",
+      "width": 1166
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"player_id\": \"dps1\",\n  \"events\": [\n    {\n      \"event_id\": \"dps1_E001\",\n      \"start_sec\": 0.0,\n      \"end_sec\": 2.0,\n      \"observation\": \"Player navigates near the contested objective, takes incoming damage, and is eliminated.\",\n      \"confidence\": \"high\",\n      \"evidence\": \"Health decreases from 150 to 0 on the HUD, followed by the elimination banner reading 'YOU WERE ELIMINATED BY KRIERSPRENZ'.\"\n    },\n    {\n      \"event_id\": \"dps1_E002\",\n      \"start_sec\": 2.0,\n      \"end_sec\": 11.5,\n      \"observation\": \"Player remains in the spectating/respawn phase after elimination.\",\n      \"confidence\": \"high\",\n      \"evidence\": \"First-person control is absent while spectating allied positioning until respawn.\"\n    },\n    {\n      \"event_id\": \"dps1_E003\",\n      \"start_sec\": 11.5,\n      \"end_sec\": 16.5,\n      \"observation\": \"Player respawns inside the base and moves forward through the exit onto the exterior snow-covered area.\",\n      \"confidence\": \"high\",\n      \"evidence\": \"First-person view restores with full 250 HP inside spawn, navigating through the doorway outdoors.\"\n    },\n    {\n      \"event_id\": \"dps1_E004\",\n      \"start_sec\": 16.5,\n      \"end_sec\": 18.0,\n      \"observation\": \"Player engages an ability targeting overlay showing allied indicators before returning to normal movement.\",\n      \"confidence\": \"high\",\n      \"evidence\": \"On-screen prompts display 'CANCEL' with blue targeting reticles over teammates, followed by return to primary weapon stance.\"\n    },\n    {\n      \"event_id\": \"dps1_E005\",\n      \"start_sec\": 18.0,\n      \"end_sec\": 20.0,\n      \"observation\": \"Player proceeds up the snowy ramp toward the contested objective.\",\n      \"confidence\": \"high\",\n      \"evidence\": \"Player advances along the walkway past the delivery truck facing the stairs toward the objective.\"\n    }\n  ],\n  \"summary\": \"Player dps1 is eliminated early in the engagement, undergoes the respawn countdown, and moves back from spawn toward the objective area.\",\n  \"limitations\": \"Observation is restricted to the provided video sample; off-screen teammate positions, exact opponent actions during spectating, and audio-based cues cannot be verified.\"\n}",
+            "thoughtSignature": "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"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "modelVersion": "gemini-3.8-flash",
+  "responseId": "wcvdau2kHPLO_uMPyryS0Q8",
+  "usageMetadata": {
+    "candidatesTokenCount": 623,
+    "promptTokenCount": 3337,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 437
+      },
+      {
+        "modality": "VIDEO",
+        "tokenCount": 2900
+      }
+    ],
+    "serviceTier": "standard",
+    "thoughtsTokenCount": 639,
+    "totalTokenCount": 4599
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "createTime": "2026-10-25T09:30:35.975544Z",
+  "displayName": "support1",
+  "expirationTime": "2026-10-27T09:30:35.613335512Z",
+  "mimeType": "video/mp4",
+  "name": "files/u4gwv0fbf9l7",
+  "sha256Hash": "ZDNjMTFkODlkMzQ0NzU3ZWE2ZGNkYmVhYTgzZTk5YWI2MTA5NTc1MzkwYTA1NWVlZDM2MTdhZWM5YTMxNDc2Mw==",
+  "sizeBytes": "8872471",
+  "source": "UPLOADED",
+  "state": "PROCESSING",
+  "updateTime": "2026-10-25T09:30:35.975544Z",
+  "uri": "https://generativelanguage.googleapis.com/v1beta/files/u4gwv0fbf9l7"
+}

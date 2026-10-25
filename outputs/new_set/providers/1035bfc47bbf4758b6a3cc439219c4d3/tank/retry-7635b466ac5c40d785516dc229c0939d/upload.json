@@ -1,0 +1,13 @@
+{
+  "createTime": "2026-10-25T09:43:38.112659Z",
+  "displayName": "tank",
+  "expirationTime": "2026-10-27T09:43:37.711705942Z",
+  "mimeType": "video/mp4",
+  "name": "files/ki8ivfai5qgx",
+  "sha256Hash": "NTNmNzA2OGNiNGE4ZDFhZjE4MGU5NDE5ZDg1ZDkzYzZkYjRjM2U1NDhkZTExYjZhMjlmYjBjZGZkNjZlZDVmNQ==",
+  "sizeBytes": "8638347",
+  "source": "UPLOADED",
+  "state": "PROCESSING",
+  "updateTime": "2026-10-25T09:43:38.112659Z",
+  "uri": "https://generativelanguage.googleapis.com/v1beta/files/ki8ivfai5qgx"
+}

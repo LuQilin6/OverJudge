@@ -1,0 +1,47 @@
+{
+  "events": [
+    {
+      "confidence": "high",
+      "end_sec": 1.5,
+      "event_id": "tank_E001",
+      "evidence": "Defense Matrix cone effect is visible on screen with the 'CANCEL' prompt active on the HUD.",
+      "observation": "Deploys Defense Matrix toward the objective courtyard while observing enemy positions.",
+      "start_sec": 0.0
+    },
+    {
+      "confidence": "high",
+      "end_sec": 6.5,
+      "event_id": "tank_E002",
+      "evidence": "Primary fire is directed at the jumping Genji, Micro Missiles ability enters cooldown on the HUD around 00:03.5, and wound visual effects appear on screen as health drops.",
+      "observation": "Enters the objective area and engages an airborne enemy Genji using Fusion Cannons and Micro Missiles.",
+      "start_sec": 1.5
+    },
+    {
+      "confidence": "high",
+      "end_sec": 12.5,
+      "event_id": "tank_E003",
+      "evidence": "'CAPTURING' progress bar is active on the HUD while the Defense Matrix projection is maintained towards the right opening.",
+      "observation": "Holds Defense Matrix toward the choke point while contesting/capturing the control point.",
+      "start_sec": 8.5
+    },
+    {
+      "confidence": "high",
+      "end_sec": 15.5,
+      "event_id": "tank_E004",
+      "evidence": "An enemy Reinhardt charges directly into the player, 'STUNNED' overlay appears on screen, and mech health drops to critical.",
+      "observation": "Suffers a pin and stun from an enemy Reinhardt.",
+      "start_sec": 12.5
+    },
+    {
+      "confidence": "high",
+      "end_sec": 20.0,
+      "event_id": "tank_E005",
+      "evidence": "'SAVED BY ALIQVABILE' notification is displayed as health drops to 97 HP, and the camera navigates through the corridor away from the capture point.",
+      "observation": "Disengages from the objective and retreats into a side hallway at low health.",
+      "start_sec": 15.5
+    }
+  ],
+  "limitations": "Only first-person perspective data is available; actions occurring behind the player or outside the field of view cannot be directly observed.",
+  "player_id": "tank",
+  "summary": "The D.Va player engages on the capture point with Defense Matrix and primary weapons against an enemy Genji, holds matrix during point capture, gets pinned by an enemy Reinhardt, and retreats into cover upon surviving at critical health."
+}

@@ -1,0 +1,13 @@
+{
+  "createTime": "2026-10-25T09:35:08.389337Z",
+  "displayName": "dps2",
+  "expirationTime": "2026-10-27T09:35:08.119726854Z",
+  "mimeType": "video/mp4",
+  "name": "files/dp6ew06lhsin",
+  "sha256Hash": "MWY4MDhkZDU1MjkyMWQ4ZDY3NTM1OWI5NDY3OGQwYjdmZTBmZDE1ZDc4ZDJiZTJhZDUxZjg4MDAxNTBmNjgzNg==",
+  "sizeBytes": "8746844",
+  "source": "UPLOADED",
+  "state": "PROCESSING",
+  "updateTime": "2026-10-25T09:35:08.389337Z",
+  "uri": "https://generativelanguage.googleapis.com/v1beta/files/dp6ew06lhsin"
+}

@@ -41,10 +41,32 @@ def main(argv: list[str] | None = None) -> int:
             sub.add_argument("--execute", action="store_true", help="Automatically analyze Stage A images using saved ChatGPT Codex login")
             sub.add_argument("--model", help="Explicit Codex model; omitted uses CLI default")
             sub.add_argument("--codex-timeout", type=int, default=900, help="Maximum Codex execution seconds")
+    provider = subparsers.add_parser("analyze-fight", help="Analyze five videos with Gemini and start asynchronous CREAO judgment")
+    provider.add_argument("--config", type=Path, default=Path("config/run.json"))
+    provider.add_argument("--project-root", type=Path)
+    provider.add_argument("--model", required=True, help="Gemini model available to your account")
+    provider.add_argument("--concurrency", type=int, default=2)
+    provider.add_argument("--fps", type=float, default=2.0)
+    provider.add_argument("--retry-model", help="Use a different Gemini model for missing POVs while preserving completed analyses")
+    provider.add_argument("--resume-attempt", type=Path, help="Reuse completed POVs and retry only missing analyses")
+    provider.add_argument("--gemini-timeout", type=int, default=600, help="Generation read timeout in seconds")
+    for command in ("poll-judge", "resume-judge"):
+        provider = subparsers.add_parser(command)
+        provider.add_argument("--attempt", type=Path, required=True)
     args = parser.parse_args(argv)
     if args.command == "run" and args.execute and args.stage != "A":
         parser.error("--execute currently supports Stage A only")
     try:
+        if args.command in ("analyze-fight", "poll-judge", "resume-judge"):
+            from .provider_pipeline import analyze_fight, poll_judge, start_judge
+            if args.command == "analyze-fight":
+                output = analyze_fight(args.config, args.project_root, args.model, args.concurrency, args.fps, args.resume_attempt, args.gemini_timeout, args.retry_model)
+            elif args.command == "poll-judge":
+                output = poll_judge(args.attempt)
+            else:
+                output = start_judge(args.attempt)
+            print(json.dumps(output, ensure_ascii=False, indent=2))
+            return 1 if output.get("status") in ("failed", "cancelled") else 0
         is_upstream = (
             args.command in ("submit", "handoff")
             or args.command == "validate" and args.stage == "S0"

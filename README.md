@@ -149,3 +149,11 @@ report stops import and retains a BLOCKED attempt for inspection. No automatic
 retries are performed, avoiding duplicate account usage after uncertain failures.
 
 Codex execution options follow the [official non-interactive mode documentation](https://learn.chatgpt.com/docs/non-interactive-mode).
+
+## Gemini + CREAO provider workflow
+
+An opt-in automatic path now analyzes all five original videos with Gemini, then
+starts an asynchronous CREAO investigation. The existing Codex workflow remains
+available. Set provider credentials and a saved agent ID, then see the
+[setup and commands](docs/GEMINI_CREAO.md). Live provider and gameplay validation
+remain pending; generated reports retain independent audit status PENDING.

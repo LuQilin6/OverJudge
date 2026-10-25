@@ -1,0 +1,55 @@
+{
+  "run_id": "new_set",
+  "game": "Overwatch 2",
+  "fight_id": "new_set",
+  "prealigned_input_assumed": true,
+  "fight_start_timestamp": 0.0,
+  "fight_end_timestamp": 20.0,
+  "videos": [
+    {
+      "pov_id": "tank",
+      "path": "inputs/videos/new_set/Tank.mp4",
+      "hero": "unknown"
+    },
+    {
+      "pov_id": "dps1",
+      "path": "inputs/videos/new_set/dps1.mp4",
+      "hero": "unknown"
+    },
+    {
+      "pov_id": "dps2",
+      "path": "inputs/videos/new_set/dps2.mp4",
+      "hero": "unknown"
+    },
+    {
+      "pov_id": "support1",
+      "path": "inputs/videos/new_set/support1.mp4",
+      "hero": "unknown"
+    },
+    {
+      "pov_id": "support2",
+      "path": "inputs/videos/new_set/support2.mp4",
+      "hero": "unknown"
+    }
+  ],
+  "prompts": {
+    "A": "prompts/stage_a.md",
+    "B": "prompts/stage_b.md",
+    "C": "prompts/stage_c.md",
+    "D": "prompts/stage_d.md"
+  },
+  "output_directory": "outputs",
+  "max_retries": 2,
+  "stage_tools": {
+    "S0": null,
+    "A": "codex_manual",
+    "B": null,
+    "C": null,
+    "D": null
+  },
+  "inspection_settings": {
+    "method": "codex_manual",
+    "frame_sampling_fps": 2,
+    "inspect_audio": false
+  }
+}

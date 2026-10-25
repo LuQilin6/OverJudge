@@ -1,0 +1,47 @@
+{
+  "events": [
+    {
+      "confidence": "high",
+      "end_sec": 2.0,
+      "event_id": "dps1_E001",
+      "evidence": "Health decreases from 150 to 0 on the HUD, followed by the elimination banner reading 'YOU WERE ELIMINATED BY KRIERSPRENZ'.",
+      "observation": "Player navigates near the contested objective, takes incoming damage, and is eliminated.",
+      "start_sec": 0.0
+    },
+    {
+      "confidence": "high",
+      "end_sec": 11.5,
+      "event_id": "dps1_E002",
+      "evidence": "First-person control is absent while spectating allied positioning until respawn.",
+      "observation": "Player remains in the spectating/respawn phase after elimination.",
+      "start_sec": 2.0
+    },
+    {
+      "confidence": "high",
+      "end_sec": 16.5,
+      "event_id": "dps1_E003",
+      "evidence": "First-person view restores with full 250 HP inside spawn, navigating through the doorway outdoors.",
+      "observation": "Player respawns inside the base and moves forward through the exit onto the exterior snow-covered area.",
+      "start_sec": 11.5
+    },
+    {
+      "confidence": "high",
+      "end_sec": 18.0,
+      "event_id": "dps1_E004",
+      "evidence": "On-screen prompts display 'CANCEL' with blue targeting reticles over teammates, followed by return to primary weapon stance.",
+      "observation": "Player engages an ability targeting overlay showing allied indicators before returning to normal movement.",
+      "start_sec": 16.5
+    },
+    {
+      "confidence": "high",
+      "end_sec": 20.0,
+      "event_id": "dps1_E005",
+      "evidence": "Player advances along the walkway past the delivery truck facing the stairs toward the objective.",
+      "observation": "Player proceeds up the snowy ramp toward the contested objective.",
+      "start_sec": 18.0
+    }
+  ],
+  "limitations": "Observation is restricted to the provided video sample; off-screen teammate positions, exact opponent actions during spectating, and audio-based cues cannot be verified.",
+  "player_id": "dps1",
+  "summary": "Player dps1 is eliminated early in the engagement, undergoes the respawn countdown, and moves back from spawn toward the objective area."
+}
