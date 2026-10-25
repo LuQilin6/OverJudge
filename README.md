@@ -14,6 +14,9 @@ Actual observations and audits are performed manually in Codex; the application
 calls no model API. Software validates structure, provenance and release gates.
 Real gameplay benchmarking remains open. See the [workflow and handoff guide](docs/STAGE_B_ONWARD.md).
 
+For reusable role assignments and replacement-agent rules, read the
+[shared workflow](docs/WORKFLOW_HANDOFF.md) and [AGENTS.md](AGENTS.md).
+
 ## Local environment
 
 The shared baseline is Python **3.11.9** (`.python-version`). Local environments
