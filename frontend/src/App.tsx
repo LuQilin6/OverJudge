@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Agentation } from 'agentation';
 import { motion, MotionConfig, useReducedMotion } from 'motion/react';
-import { ArrowLeft, ArrowRight, Check, CircleHelp, Film, Plus, Upload, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, CircleHelp, FileVideo, Film, FolderOpen, Gavel, MessageSquareText, Plus, Upload, X } from 'lucide-react';
 import { useReview } from './useReview';
 import { formatTime } from './video';
 import { ReplayScene } from './components/ReplayScene';
@@ -12,20 +12,28 @@ import { Verdict } from './components/Verdict';
 export default function App() {
   const review = useReview();
   const [open, setOpen] = useState(false);
+  const [annotationContainer, setAnnotationContainer] = useState<HTMLDialogElement | null>(null);
   const [dragging, setDragging] = useState(false);
   const reduced = useReducedMotion();
   const view = review.busy ? 'review' : review.report ? 'verdict' : review.step;
-  const heading = { upload: 'Let’s see the fight.', context: review.team ? 'Same fight. Different perspectives.' : 'What’s your side of the story?', review: review.job?.state === 'awaiting_review' ? 'Ready for a closer look.' : ['observing', 'comparing', 'judging', 'auditing'].includes(review.job?.state ?? '') ? 'Reviewing your case.' : 'Setting up the evidence.', verdict: 'Here’s what the evidence says.' }[view];
-  const subtitle = { upload: 'One recording or the whole squad. Add up to five perspectives of the same fight.', context: review.team ? 'Match a shared moment, then tell me what you want to understand.' : 'Your question helps. The footage still gets the final say.', review: review.availability.execution === 'manual' ? 'Evidence is being prepared for a manual reviewer.' : 'Codex inspects the footage, then a separate AI session checks the evidence.', verdict: 'A fair call, with the footage to back it up.' }[view];
+  const heading = { upload: 'Court is in session.', context: 'Your defense, please.', review: review.job?.state === 'awaiting_review' ? 'Ready for a closer look.' : ['observing', 'comparing', 'judging', 'auditing'].includes(review.job?.state ?? '') ? 'Reviewing your case.' : 'Setting up the evidence.', verdict: 'Here’s what the evidence says.' }[view];
+  const subtitle = { upload: 'One Overwatch fight. Up to five views. Let’s open the case.', context: review.team ? 'Line up your evidence, then tell the court what happened.' : 'Tell your side. The footage gets a say, too.', review: review.availability.execution === 'manual' ? 'Evidence is being prepared for a manual reviewer.' : 'Codex inspects the footage, then a separate AI session checks the evidence.', verdict: 'A fair call, with the footage to back it up.' }[view];
   function drop(event: React.DragEvent) { event.preventDefault(); setDragging(false); review.addFiles(Array.from(event.dataTransfer.files)); }
   const choose = () => review.inputRef.current?.click();
   return <MotionConfig reducedMotion="user">
     <ReplayScene onOpen={() => setOpen(true)} hasClip={review.clips.length > 0} />
-    <ReviewDialog open={open} onClose={() => { review.closeReview(); setOpen(false); }} title={heading} subtitle={subtitle} pose={view === 'review' ? 'examining' : view === 'verdict' ? 'presenting' : 'greeting'} step={view}>
-      <div className="review-mode" role="status"><span className="mode-pill">{review.team ? 'Teamfight review' : 'Your play review'}</span><span>{review.clips.length}/5 perspectives</span></div>
-      <ol className="flow-steps" aria-label="Review steps">{['The footage', 'Your question', 'The review'].map((label, i) => {
+    <ReviewDialog open={open} onDialogElementChange={import.meta.env.DEV ? setAnnotationContainer : undefined} onClose={() => { review.closeReview(); setOpen(false); }} title={heading} subtitle={subtitle} pose={view === 'review' ? 'examining' : view === 'verdict' ? 'presenting' : 'greeting'} step={view}>
+      <div className="review-mode" role="status"><span><FolderOpen size={17} aria-hidden="true" />Evidence on file</span><span>{review.clips.length} of 5 recordings attached</span></div>
+      <ol className="flow-steps" aria-label="Case progress">{[
+        { label: 'The evidence', detail: 'Upload your clips', Icon: FileVideo },
+        { label: 'Your defense', detail: 'Tell your side', Icon: MessageSquareText },
+        { label: view === 'verdict' ? 'The verdict' : 'Judge’s review', detail: 'Follow the evidence', Icon: Gavel },
+      ].map(({ label, detail, Icon }, i) => {
         const current = view === 'upload' ? 0 : view === 'context' ? 1 : 2;
-        return <li key={label} className={i === current ? 'current' : i < current ? 'complete' : ''} aria-current={i === current ? 'step' : undefined}><span>{i < current ? <Check size={12} /> : `0${i + 1}`}</span>{label}</li>;
+        return <li key={i} className={i === current ? 'current' : i < current ? 'complete' : ''} aria-current={i === current ? 'step' : undefined}>
+          <span className="step-icon" aria-hidden="true">{i < current ? <Check size={18} /> : <Icon size={18} />}</span>
+          <div><strong>{label}</strong><small>{detail}</small></div>
+        </li>;
       })}</ol>
       {review.error && <div className="error-message" role="alert"><CircleHelp size={18} /><span>{review.error}</span><button className="icon-button" aria-label="Dismiss error" onClick={() => review.setError('')}><X size={16} /></button></div>}
       {review.notice && !review.busy && <p className="notice" role="status">{review.notice}</p>}
@@ -37,30 +45,45 @@ export default function App() {
             <div className="clip-preview"><video key={review.clip.url} ref={review.videoRef} src={review.clip.url} controls preload="metadata" playsInline onLoadedMetadata={review.applySeek} onError={() => review.setError('This recording cannot be played. Remove it and export an H.264 MP4 or WebM.')} /></div>
             <div className="clip-info"><span title={review.clip.file.name}><Film size={14} />{review.clip.file.name}</span><span>{review.clip.duration ? formatTime(review.clip.duration) : review.clip.error ? 'Invalid clip' : 'Loading…'}</span></div>
             {view === 'context' && review.team && <div className="alignment-panel"><strong>Mark the same visible event</strong><p>For example, the instant an ultimate starts. Find it in each video and set its marker.</p><label htmlFor="anchor">{review.clip.label}: event time in seconds</label><div className="marker-controls"><input id="anchor" type="number" min={0} max={review.clip.duration ?? 90} step="0.01" value={Number.isFinite(review.clip.anchor) ? review.clip.anchor : ''} onChange={e => review.updateClip(review.clip!.id, { anchor: e.target.valueAsNumber })} /><button type="button" className="text-button" onClick={() => review.updateClip(review.clip!.id, { anchor: Math.round((review.videoRef.current?.currentTime ?? 0) * 100) / 100 })}>Use current frame</button></div><ul className="marker-list">{review.clips.map(c => <li key={c.id}><button onClick={() => review.setActiveId(c.id)}>{c.label}</button><span>{Number.isFinite(c.anchor) ? `${c.anchor.toFixed(2)}s` : 'Set a marker'}</span></li>)}</ul><p className="field-hint">{review.interval ? `${review.interval.duration.toFixed(1)} seconds overlap. Only shared footage will be reviewed.` : 'Every marker must be inside its recording.'}</p></div>}
-            <p className="privacy-note">Recordings are sent to this computer’s local pipeline when you submit. {review.availability.execution === 'manual' ? 'No automatic model call.' : 'Selected frames and your question are sent to OpenAI through your Codex login, using your Codex allowance.'} No audio analysis. Local review files expire after 24 hours when the server next cleans up.</p>
+            <p className="privacy-note">Recordings are sent to this computer’s local pipeline when you submit. {review.availability.execution === 'manual' ? 'No automatic model call.' : 'Selected frames and your question are sent to OpenAI through your Codex login, using your Codex allowance.'} Local review files expire after 24 hours when the server next cleans up.</p>
           </>}
         </section>
         <motion.section className="flow-content" key={view} initial={reduced ? false : { opacity: 0, y: 7 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .22 }}>
           {view === 'upload' && <>
-            {!review.clips.length ? <button className={`dropzone ${dragging ? 'dragging' : ''}`} onClick={choose} onDragOver={e => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}><span className="upload-illustration"><Film size={36} /><span><Upload size={18} /></span></span><strong>A fight has more than one side.</strong><span>Drop recordings here, or <b>browse files</b></span><small>1–5 clips · MP4 / WebM · Each 10–90s, up to 200 MB</small></button> : <>
+            {!review.clips.length ? <div className="evidence-intake">
+              <section className="evidence-guide" aria-labelledby="evidence-guide-title">
+                <p className="mini-label">FIRST, THE FOOTAGE</p>
+                <h3 id="evidence-guide-title">Bring your POV.<br /> Call a witness.</h3>
+                <p>Start with your own recording. Want a second angle? Add a teammate’s view, the player whose decision you’re questioning, or a witness to the action.</p>
+                <p className="evidence-rule"><strong>One fight per case.</strong> Upload 1–5 clips of that same fight. With multiple views, you’ll mark a shared moment so we can compare them.</p>
+                <span className="evidence-promise"><Gavel size={16} aria-hidden="true" />No guilty verdict without the evidence.</span>
+              </section>
+              <button className={`dropzone ${dragging ? 'dragging' : ''}`} onClick={choose} onDragOver={e => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
+                <span className="exhibit-label" aria-hidden="true">EXHIBIT A</span>
+                <span className="upload-illustration" aria-hidden="true"><FolderOpen size={42} /><span><Upload size={18} /></span></span>
+                <strong>Submit your evidence.</strong><span>Drop gameplay clips here, or <b>browse files</b></span>
+                <small>MP4 / WebM · 10–90 seconds per clip<br />Up to 200 MB each · Maximum 5 recordings</small>
+              </button>
+            </div> : <>
+              <p className="upload-guidance">Label whose view each recording shows. Add another player or a witness from the <strong>same fight</strong>, or make your case with the evidence already attached.</p>
               <div className="perspective-list">{review.clips.map((c, i) => <article className={`perspective-card ${c.error ? 'invalid' : ''}`} key={c.id}><div className="perspective-card-head"><span className="mini-label">PERSPECTIVE {i + 1}</span><button className="icon-button" aria-label={`Remove ${c.label}`} onClick={() => review.removeClip(c.id)}><X size={16} /></button></div><label htmlFor={`label-${c.id}`}>Player name</label><input id={`label-${c.id}`} maxLength={60} value={c.label} onChange={e => review.updateClip(c.id, { label: e.target.value })} /><div className="player-fields"><div><label htmlFor={`role-${c.id}`}>Role <span>optional</span></label><select id={`role-${c.id}`} value={c.role} onChange={e => review.updateClip(c.id, { role: e.target.value })}><option value="">Not specified</option>{['Tank', 'Damage', 'Support', 'Not sure'].map(r => <option key={r}>{r}</option>)}</select></div><div><label htmlFor={`hero-${c.id}`}>Hero <span>optional</span></label><input id={`hero-${c.id}`} maxLength={100} placeholder="e.g. Ana" value={c.hero} onChange={e => review.updateClip(c.id, { hero: e.target.value })} /></div></div><p className={c.error ? 'field-error' : 'field-hint'} role={c.error ? 'alert' : undefined}>{c.error || (c.duration ? `${c.file.name} · ${formatTime(c.duration)}` : 'Checking this recording…')}</p></article>)}</div>
               {review.clips.length < 5 && <button className="add-perspective" onClick={choose} onDragOver={e => e.preventDefault()} onDrop={drop}><Plus size={16} />Add another perspective</button>}
-              <div className="form-actions"><span className="field-hint">Same fight. Different players.</span><button className="primary-button" disabled={!review.ready} onClick={() => review.setStep('context')}>Continue <ArrowRight size={17} /></button></div>
+              <div className="form-actions"><span className="field-hint">{review.ready ? 'Evidence attached. Ready to tell your side?' : 'Checking your evidence…'}</span><button className="primary-button" disabled={!review.ready} onClick={() => review.setStep('context')}>Make your case <ArrowRight size={17} /></button></div>
             </>}
           </>}
           {view === 'context' && <form onSubmit={e => { e.preventDefault(); void review.analyze(); }}>
-            <label htmlFor="question">What are we looking at?</label><textarea id="question" rows={2} required maxLength={1000} value={review.question} onChange={e => review.setQuestion(e.target.value)} />
+            <label htmlFor="question">What’s your objection?</label><p id="question-help" className="defense-help">Ask about a decision, a position, or the moment it all went sideways. The judge will check your question against the footage.</p><textarea id="question" aria-describedby="question-help" rows={2} required maxLength={1000} value={review.question} onChange={e => review.setQuestion(e.target.value)} />
             <div className="question-chips">{(review.team ? ['Where did our coordination break down?', 'What could we each do better?'] : ['Did I push too early?', 'Was that ult worth it?']).map(q => <button type="button" key={q} onClick={() => review.setQuestion(q)}>{q}</button>)}</div>
-            <label htmlFor="context">Anything else? <span>optional</span></label><textarea id="context" rows={3} maxLength={2000} placeholder="The plan, the panic, the missing context…" value={review.context} onChange={e => review.setContext(e.target.value)} />
+            <label htmlFor="context">Anything the court should know? <span>optional</span></label><textarea id="context" rows={3} maxLength={2000} placeholder="Your plan, what your team called, or what happened just before the clip…" value={review.context} onChange={e => review.setContext(e.target.value)} />
             {review.team && <label className="alignment-confirm"><input type="checkbox" checked={review.confirmed} onChange={e => review.setConfirmed(e.target.checked)} /><span>These are different players in the same fight, and every marker identifies the same moment.</span></label>}
             <div className="manual-notice"><strong>{review.availability.execution === 'manual' ? 'Manual review workflow' : 'Review with your Codex login'}</strong><p>{review.availability.message}</p><p>{review.availability.execution === 'manual' ? 'Submitting prepares evidence for a reviewer.' : 'Reviewing starts automatic Codex analysis and a separate AI evidence check. This is not a human audit, and fast events between sampled frames may be missed.'}</p>{!review.availability.ready && <button type="button" className="text-button" onClick={() => void review.checkConnection()}>Check connection again</button>}</div>
-            <div className="form-actions"><button className="text-button" type="button" onClick={() => review.setStep('upload')}><ArrowLeft size={15} />Back</button><button className="primary-button" disabled={!review.ready || !review.question.trim() || !review.availability.ready || (review.team && !review.confirmed)}>{review.availability.execution === 'manual' ? 'Prepare review' : 'Review my clips'} <ArrowRight size={17} /></button></div>
+            <div className="form-actions"><button className="text-button" type="button" onClick={() => review.setStep('upload')}><ArrowLeft size={15} />Back</button><button className="primary-button" disabled={!review.ready || !review.question.trim() || !review.availability.ready || (review.team && !review.confirmed)}>{review.availability.execution === 'manual' ? 'Prepare review' : 'Call the judge'} <ArrowRight size={17} /></button></div>
           </form>}
           {view === 'review' && <div className="working-state"><div className="working-mascot"><Mascot pose="examining" bob={review.job?.state !== 'awaiting_review'} /></div><div><span className="mini-label">{review.job?.state === 'awaiting_review' ? 'WAITING FOR A REVIEWER' : 'REVIEWING YOUR CASE'}</span><h3>{review.job?.state === 'awaiting_review' ? 'The evidence is ready.' : 'Let’s take a closer look.'}</h3><p role="status" aria-live="polite">{review.job?.message ?? 'Creating your local review.'}</p><ol className="stage-list"><li className={review.job?.state === 'uploading' ? 'current' : 'done'}>Send recordings locally</li><li className={review.job?.state === 'preparing' ? 'current' : ''}>Align recordings and prepare frames {review.job && `(${review.job.prepared.length}/${review.job.total})`}</li><li className={['queued', 'observing', 'comparing', 'judging', 'awaiting_review'].includes(review.job?.state ?? '') ? 'current' : ''}>{review.availability.execution === 'manual' ? 'Manual evidence review' : 'Inspect footage and weigh the evidence'}</li>{review.availability.execution !== 'manual' && <li className={review.job?.state === 'auditing' ? 'current' : ''}>Separate AI evidence check</li>}</ol>{review.job?.state === 'awaiting_review' && <details className="operator-details"><summary>Reviewer handoff</summary><p>Review ID: <code>{review.job.id}</code></p><p>Open <code>.local/reviews/{review.job.id}/REVIEW.md</code> in the integrated project. This window checks for the published result automatically.</p></details>}<p className="field-hint">Closing this window cancels the local review. Your selected recordings remain available for an explicit retry.</p><button className="text-button" onClick={review.stopReview}><X size={14} />Cancel review</button></div></div>}
           {view === 'verdict' && review.report && <><Verdict report={review.report} clips={review.clips} onSeek={review.seek} onExport={review.exportReport} /><button className="text-button" onClick={review.editReview}><ArrowLeft size={15} />Start another review with these clips</button></>}
         </motion.section>
       </div>
     </ReviewDialog>
-    {import.meta.env.DEV && <Agentation />}
+    {import.meta.env.DEV && <Agentation portalContainer={annotationContainer} />}
   </MotionConfig>;
 }

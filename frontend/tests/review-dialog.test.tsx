@@ -9,6 +9,25 @@ beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+it('exposes the opened dialog to overlays and releases it on close and unmount', () => {
+  const onDialogElementChange = vi.fn((element: HTMLDialogElement | null) => {
+    if (element) expect(element.open).toBe(true);
+  });
+  const props = { onClose: vi.fn(), title: 'Review', subtitle: 'Test window', pose: 'idle' as const, step: 'upload', onDialogElementChange };
+  const { rerender, unmount } = render(<ReviewDialog {...props} open={false}><button>Upload</button></ReviewDialog>);
+  expect(onDialogElementChange).not.toHaveBeenCalled();
+  rerender(<ReviewDialog {...props} open><button>Upload</button></ReviewDialog>);
+  const dialog = screen.getByRole('dialog');
+  expect(onDialogElementChange).toHaveBeenLastCalledWith(dialog);
+  rerender(<ReviewDialog {...props} open step="context"><button>Review</button></ReviewDialog>);
+  expect(onDialogElementChange).toHaveBeenCalledTimes(1);
+  rerender(<ReviewDialog {...props} open={false}><button>Upload</button></ReviewDialog>);
+  expect(onDialogElementChange).toHaveBeenLastCalledWith(null);
+  rerender(<ReviewDialog {...props} open><button>Upload</button></ReviewDialog>);
+  expect(onDialogElementChange).toHaveBeenLastCalledWith(dialog);
+  unmount();
+  expect(onDialogElementChange).toHaveBeenLastCalledWith(null);
+});
 it('wraps focus past collapsed connection controls and includes them when expanded', () => {
   const onClose = vi.fn();
   render(<ReviewDialog open onClose={onClose} title="Review" subtitle="Test window" pose="idle" step="upload">

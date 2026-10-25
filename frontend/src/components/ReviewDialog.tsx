@@ -2,8 +2,9 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { Mascot, type MascotPose } from './Mascot';
 
-export function ReviewDialog({ open, onClose, title, subtitle, pose, step, children }: {
+export function ReviewDialog({ open, onClose, title, subtitle, pose, step, children, onDialogElementChange }: {
   open: boolean; onClose: () => void; title: string; subtitle: string; pose: MascotPose; step: string; children: ReactNode;
+  onDialogElementChange?: (element: HTMLDialogElement | null) => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -13,11 +14,16 @@ export function ReviewDialog({ open, onClose, title, subtitle, pose, step, child
     if (open && !element.open) element.showModal();
     if (!open && element.open) element.close();
     if (!open) return;
+    // Move development overlays only after the dialog enters the browser's top layer.
+    onDialogElementChange?.(element);
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     heading.current?.focus();
-    return () => { document.body.style.overflow = previousOverflow; };
-  }, [open]);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      onDialogElementChange?.(null);
+    };
+  }, [open, onDialogElementChange]);
   useEffect(() => {
     if (open) { heading.current?.focus(); if (body.current) body.current.scrollTop = 0; }
   }, [step, open]);
@@ -41,11 +47,13 @@ export function ReviewDialog({ open, onClose, title, subtitle, pose, step, child
       const box = e.currentTarget.getBoundingClientRect();
       if (e.clientX < box.left || e.clientX > box.right || e.clientY < box.top || e.clientY > box.bottom) onClose();
     } }}>
+    <div className="case-file-cover" aria-hidden="true"><span>OVERWATCH REPLAY COURT</span><strong>Case file.</strong><p>Let the footage speak.</p><span className="cover-stamp">FOR REVIEW</span></div>
+    <div className="case-binding" aria-hidden="true"><span>REPLAY COURT</span></div>
     <header className="dialog-header"><div className="dialog-portrait"><Mascot pose={pose} /></div>
-      <div><p className="eyebrow">YOUR REPLAY, TOGETHER</p><h2 id="dialog-title" ref={heading} tabIndex={-1}>{title}</h2><p id="dialog-subtitle">{subtitle}</p></div>
+      <div><p className="eyebrow">OVERWATCH REPLAY COURT <span aria-hidden="true">/</span> CASE FILE</p><h2 id="dialog-title" ref={heading} tabIndex={-1}>{title}</h2><p id="dialog-subtitle">{subtitle}</p></div>
       <button className="icon-button close-dialog" aria-label="Close replay window" onClick={onClose}><X size={20} /></button>
     </header>
     <div className="dialog-body" ref={body}>{children}</div>
-    <footer className="dialog-footer"><span>🐾 A second opinion, not the final word.</span><span>NO AUDIO ANALYSIS</span></footer>
+    <footer className="dialog-footer"><p>A second opinion, not the final word. AI reviews sampled frames, which can miss fast action. Audio isn’t analyzed.</p></footer>
   </dialog>;
 }

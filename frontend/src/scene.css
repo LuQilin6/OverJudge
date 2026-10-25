@@ -10,6 +10,7 @@
 .room-header { position:relative; z-index:4; padding:30px 4.2%; }
 .brand { display:inline-flex; align-items:center; gap:11px; text-decoration:none; font:700 15px/1.07 'Nunito',sans-serif; letter-spacing:-.3px; }
 .brand strong { font-weight:900; }
+.brand small { display:block; margin-top:9px; font:700 8px/1.3 'DM Sans',sans-serif; letter-spacing:1.5px; color:#dfbb9a; }
 .brand-mark { background:#ffe6c9; color:#6a3a44; border-radius:14px; width:40px; height:40px; display:grid; place-items:center; font-size:23px; transform:rotate(-7deg); box-shadow:0 4px 0 #2e20332b; }
 .character-stage { position:absolute; width:var(--dog-size); left:var(--dog-center); margin-left:calc(var(--dog-size) * -.5); top:calc(var(--bench-edge) - var(--dog-size) * .72); z-index:2; filter:drop-shadow(0 8px 18px #160f2840); }
 .character-button { position:relative; display:block; width:100%; padding:0; border:0; background:none; touch-action:manipulation; }
@@ -28,14 +29,16 @@
 .dialogue-message { font-size:16px; line-height:1.65; margin:0 0 24px; color:#6b5260; }
 .judge-dialogue .dialogue-upload { width:100%; min-height:48px; font-size:15px; border-radius:12px; gap:10px; }
 .dialogue-upload svg:last-child { margin-left:auto; }
-.dialogue-details { margin:15px 0 0; font-size:11px; color:#806674; text-align:center; }
-.dialogue-details span { padding:0 4px; color:#bc9c8c; }
 .room-about { position:absolute; left:4.2%; bottom:16px; z-index:5; }
 .room-about summary { list-style:none; display:inline-flex; align-items:center; min-height:44px; padding:10px 0; color:#e5cfc2; font-size:11px; text-decoration:underline; text-underline-offset:4px; }
 .room-about summary::-webkit-details-marker { display:none; }
-.about-card { position:absolute; bottom:52px; left:0; width:min(280px,88vw); padding:18px; border:1px solid #745360; border-radius:14px; background:#302332; color:#f9eadf; box-shadow:0 10px 35px #170c2270; font-size:12px; line-height:1.6; }
-.about-card strong { font-size:14px; }
-.about-card p { margin:9px 0 0; color:#e4d0d7; }
+.about-card { position:absolute; bottom:52px; left:0; width:min(340px,88vw); max-height:calc(100svh - 100px); overflow:auto; padding:24px; border:1px solid #9c7c66; border-radius:16px; background:#fff5e5; color:#49343d; box-shadow:0 10px 35px #170c2270; font-size:13px; line-height:1.65; }
+.about-card>strong { display:block; font:800 22px/1.2 'Nunito',sans-serif; margin:12px 0 18px; }
+.about-card .mini-label { margin:0; color:#8b5339; font-size:9px; }
+.about-card ol { padding-left:19px; margin:0; }
+.about-card li { padding-left:4px; margin-bottom:12px; color:#735b60; }
+.about-card b { color:#49343d; }
+.about-card .about-note { border-top:1px solid #ddcbb8; padding-top:14px; margin:16px 0 0; font-size:11px; color:#7c656b; }
 @media (min-width:901px) and (max-width:1199px) {
   .room { --dog-center:32%; --dog-size:min(86svh,68vw); }
   .judge-dialogue { left:55%; width:330px; padding:26px; }
@@ -52,7 +55,6 @@
   .judge-dialogue h1 br { display:none; }
   .judge-dialogue h1 em::before { content:' '; }
   .dialogue-message { font-size:15px; line-height:1.55; text-align:center; margin-bottom:18px; }
-  .dialogue-details { font-size:10px; margin-top:12px; }
   .court-bench>img { width:1100px; left:50%; transform:translateX(-50%); height:220px; top:-96.8px; }
   .room-about { left:6%; bottom:8px; }
 }
