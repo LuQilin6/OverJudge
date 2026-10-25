@@ -1,3 +1,7 @@
+> Run the commands in this manual guide from `backend/` after activating the
+> repository-root `.venv`. The web app uses automatic Codex review by default;
+> see [the main README](../README.md) for current setup and folder structure.
+
 # Integrated A/B/C/D workflow and handoff
 
 This branch integrates S0/A with B/C/D from `PROJECT_PLAN.md`. The operator uses

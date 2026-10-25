@@ -1,7 +1,7 @@
 # Replay room integration
 
-The courtroom React UI now lives in `web/`; the existing Python pipeline stays in
-`src/`. `api/app.py` is a local FastAPI bridge between them. The older standalone
+The courtroom React UI now lives in `frontend/`; the existing Python pipeline stays in
+`backend/overjudge/`. `backend/api/app.py` is a local FastAPI bridge between them. The older standalone
 UI outside this repository is a backup, not the integrated application.
 
 ## Run locally
@@ -11,8 +11,8 @@ was also tested with Python 3.12. Create the environment once:
 
 ```bash
 python3.11 -m venv .venv
-.venv/bin/python -m pip install -r requirements-web.txt
-npm --prefix web ci
+.venv/bin/python -m pip install -r backend/requirements.txt
+npm --prefix frontend ci
 ./dev.sh
 ```
 
@@ -125,7 +125,7 @@ record using the format in `docs/STAGE_B_ONWARD.md`. Record only frames actually
 inspected. Then submit using its real job path:
 
 ```bash
-python main.py submit --project-root "$review_root" --config "$review_config" \
+python backend/main.py submit --project-root "$review_root" --config "$review_config" \
   --pov pov1 --job /absolute/path/from/pov1-task.json \
   --report /absolute/path/to/pov1-report.md --review /absolute/path/to/pov1-review.json
 ```
@@ -133,8 +133,8 @@ python main.py submit --project-root "$review_root" --config "$review_config" \
 Repeat for every **supplied** POV, then:
 
 ```bash
-python main.py handoff --project-root "$review_root" --config "$review_config"
-python main.py prepare --stage B --project-root "$review_root" \
+python backend/main.py handoff --project-root "$review_root" --config "$review_config"
+python backend/main.py prepare --stage B --project-root "$review_root" \
   --config "$review_config" --accept-limitations
 ```
 
@@ -202,8 +202,8 @@ knowledgeable reviewers and actual fights.
 ```bash
 source .venv/bin/activate
 python -m pytest -q
-npm --prefix web test
-npm --prefix web run build
+npm --prefix frontend test
+npm --prefix frontend run build
 git diff --check
 ```
 

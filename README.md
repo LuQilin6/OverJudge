@@ -1,110 +1,201 @@
-# OverJudge
+# OverJudge — Was That My Fault?
 
-Overwatch 2 multi-POV teamfight analysis, based on [PROJECT_PLAN.md](PROJECT_PLAN.md).
+A local Overwatch replay reviewer. Upload one to five perspectives of the same
+fight, ask a question, and receive a cautious verdict with clickable video evidence.
+The courtroom interface is React; the API and analysis pipeline are Python.
 
-## Local replay-room web app
+The current automatic reviewer uses **Codex CLI signed in with ChatGPT**. It uses
+your Codex allowance and sends selected images and context to OpenAI. No OpenAI
+API key is required. This is a local prototype, not a hosted multi-user service.
 
-The integration branch adds a React courtroom UI in `web/` and a local Python API
-in `api/`. Upload one to five perspectives, align a shared event, and view audited
-reports with perspective-aware evidence links. The actual analysis is still manual.
-See [setup, workflow, and API guide](docs/WEB_INTEGRATION.md). Run `./dev.sh` after
-setup, then open http://127.0.0.1:5174/.
+## Repository layout
 
-## Current status
+```text
+OverJudge/
+├── frontend/
+│   ├── src/
+│   │   ├── api/contracts.ts    # Browser-side report validation
+│   │   ├── components/        # Scene, mascot, dialog and verdict
+│   │   ├── App.tsx            # Guided upload/review experience
+│   │   └── useReview.ts       # Upload, polling, cancellation and playback
+│   ├── public/images/         # Courtroom and character artwork
+│   ├── tests/                 # Vitest + React Testing Library
+│   └── package.json           # Frontend dependencies and commands
+├── backend/
+│   ├── api/
+│   │   ├── app.py             # FastAPI routes, uploads and local jobs
+│   │   └── codex_reviewer.py  # Automatic Codex CLI runner
+│   ├── overjudge/             # Analysis, evidence contracts and provenance
+│   ├── prompts/               # Versioned observer/judge/audit instructions
+│   ├── config/                # Manual pipeline configuration template
+│   ├── tests/                 # Python contract, pipeline and API tests
+│   ├── main.py                # Manual pipeline CLI entry point
+│   ├── requirements.in        # Direct dependencies
+│   ├── requirements.txt       # Pinned backend/development dependencies
+│   ├── inputs/videos/         # Local recordings; ignored
+│   ├── outputs/               # Manual pipeline artifacts; ignored
+│   └── work/clips/            # Temporary manual evidence clips; ignored
+├── docs/                      # Architecture, workflows and original plan
+├── .env.example               # Server configuration template
+├── .env                       # Your local settings; ignored
+├── .local/reviews/             # Uploaded clips and web review artifacts; ignored
+├── .venv/                     # Local Python environment; ignored
+├── pytest.ini                 # Backend test discovery from the repo root
+└── dev.sh                     # Start frontend and backend together
+```
 
-S0 and the **manual Codex A/B/C/D workflow** are integrated. Intake probes five
-pre-aligned recordings. A prepares isolated timestamped frames and imports neutral
-observation reports with review records. An explicit handoff selects five immutable
-report revisions for B's fusion and C's tactical assessment. D extracts evidence
-windows and requires independent review before publishing the final report.
+The Python library is named `overjudge`; it is separate from the HTTP layer in
+`backend/api`. TypeScript contracts live with the frontend because they are browser
+validators, not code shared with Python. Python performs its own validation.
 
-Actual observations and audits are performed manually in Codex; the application
-calls no model API. Software validates structure, provenance and release gates.
-Real gameplay benchmarking remains open. See the [workflow and handoff guide](docs/STAGE_B_ONWARD.md).
+## Quick start
 
-## Local environment
+Run these commands **from this repository's root** (the directory containing this
+README), not the older prototype folder above it.
 
-The shared baseline is Python **3.11.9** (`.python-version`). Local environments
-and recordings are not distributed through Git:
+Prerequisites:
+
+- Node.js 22+ and npm.
+- Python 3.11.9 (team baseline); Python 3.12 is also tested.
+- FFmpeg and ffprobe on PATH. On macOS: `brew install ffmpeg`.
+- Codex CLI installed and signed in with ChatGPT: `codex login`.
 
 ```bash
-python3.11 -m venv .venv
+python3 -m venv .venv
+.venv/bin/python -m pip install -r backend/requirements.txt
+npm --prefix frontend ci
+cp -n .env.example .env
+codex login status
+./dev.sh
+```
+
+Copy the template only on first setup; preserve an existing `.env` and its local
+settings. `dev.sh` adds `.venv/bin` to PATH, which also supports the project-local
+FFmpeg installation on the development machine. External tools and environments
+are not committed.
+
+Open **[http://127.0.0.1:5174/](http://127.0.0.1:5174/)**.
+
+| Service | Address | Responsibility |
+| --- | --- | --- |
+| React + Vite | `127.0.0.1:5174` | Upload form, preview, progress and results |
+| FastAPI + Uvicorn | `127.0.0.1:3004` | Local files, analysis and validated reports |
+
+Vite proxies `/api` to FastAPI. Both services bind only to localhost. Older
+prototypes on ports 3001/5173 are separate applications. Press Ctrl+C in the
+terminal running `dev.sh` to stop this app.
+
+### Run the services separately
+
+```bash
+# Terminal 1, from the repository root
 source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m pip check
+python -m uvicorn api.app:app --app-dir backend --host 127.0.0.1 --port 3004
+
+# Terminal 2, from the repository root
+npm --prefix frontend run dev
 ```
 
-`requirements.txt` pins the shared runtime/test environment; `requirements.in`
-records its direct dependencies. Intake uses Pydantic and the unified CLI uses
-argparse. The shared environment retains the original upstream packages.
-Update both dependency files together after resolving in a clean Python 3.11.9
-environment and reviewing `pip freeze` output.
+## How a review works
 
-FFmpeg and ffprobe are external executables. Install with `brew install ffmpeg`
-on macOS or `sudo apt install ffmpeg` on Debian/Ubuntu. A and D record their actual
-tool versions. The Python lock does not pin these system tools. No provider
-credentials are required for the manual workflow.
-
-## Run one fight
-
-Copy `config/run.example.json` to `config/run.json`, fill in the common interval
-and paths, and preserve the original aligned recordings. The example's null end
-time deliberately prevents an accidental run.
-
-```bash
-python main.py validate --config config/run.json
-python main.py run --stage A --pov tank --config config/run.json
+```mermaid
+flowchart LR
+    UI[React upload and preview] --> API[FastAPI local upload]
+    API --> Frames[FFmpeg alignment and frames]
+    Frames --> A[A: observe each perspective]
+    A --> B[B: reconstruct the fight]
+    B --> C[C: assess decisions]
+    C --> D[D: separate AI evidence check]
+    D --> Gate[Validate report and publication gate]
+    Gate --> UI
 ```
 
-Repeat A for the other four POVs in separate Codex contexts. Each prepared job
-contains its assigned video metadata, prompt snapshot and hashed timestamped
-frames. Preparation exits 1 / BLOCKED while actual inspection is pending. After
-viewing the frames, submit the Markdown report and actual review JSON:
+1. The browser checks MP4/WebM recordings: 10–90 seconds and up to 200 MB each.
+   For multiple perspectives, the user marks the same event in each clip.
+2. The backend saves local copies and aligns the shared interval. FFmpeg extracts
+   two frames per second, up to 180 frames per recording. Audio is not analyzed.
+3. Fresh Codex sessions observe each perspective, reconstruct the fight, propose
+   a verdict, then inspect frames from its cited evidence in a separate AI check.
+4. Python validates artifacts, source hashes and timestamp bounds. Only a current
+   passing evidence check releases a report. Failed checks never produce a fake
+   fallback verdict.
+5. The browser polls for progress, displays the report and seeks the original
+   recording when an evidence link is clicked. Reports can be downloaded as JSON.
+
+This is a **sampled-frame AI review, not a human audit**. It can miss fast actions
+and should abstain when evidence is insufficient. The live 22-second test clip
+took about four minutes; runtime varies with clip length and model settings.
+
+**Current lifecycle:** closing the review dialog or browser cancels that review.
+The independent review queue is deferred. Keep the local server and review window
+running until completion. Restarting the server does not restore browser jobs.
+
+## Configuration
+
+Only the backend reads the root `.env`. Never put credentials in `VITE_*` variables
+or frontend code; those would become browser-visible.
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `REVIEW_EXECUTION` | `codex` | Automatic CLI reviewer; use `manual` for explicit operator handoff |
+| `CODEX_REVIEW_MODEL` | Your Codex model setting | Optional model override |
+| `CODEX_REVIEW_TIMEOUT_SECONDS` | `600` | Timeout per model invocation |
+| `CODEX_CA_CERTIFICATE` | Unset | Existing trusted CA bundle, when needed by your network/runtime |
+
+If Codex reports `workspace routing discovery failed`, run
+`codex doctor --summary --no-color`. On this Mac the cause was TLS `UnknownIssuer`;
+`CODEX_CA_CERTIFICATE=/etc/ssl/cert.pem` in the local `.env` fixed it using existing
+macOS trusted roots. Certificate verification remains enabled. This path is
+Mac-specific. Restart the backend after changing `.env`.
+
+## Development and checks
 
 ```bash
-python main.py submit --config config/run.json --pov tank \
-  --job /absolute/job_path --report /absolute/report.md --review /absolute/review.json
-# After all five reports are submitted:
-python main.py handoff --config config/run.json
-python main.py prepare --stage B --config config/run.json --accept-limitations
-```
-
-The handoff preserves `PASS_WITH_LIMITATIONS` and human evidence audit `PENDING`.
-`--accept-limitations` records the coordinator's decision to proceed with the
-restrictions. Execute and import B, then C, then independently review D using
-its task package. The [guide](docs/STAGE_B_ONWARD.md) contains the exact response
-formats, commands and publication gates.
-
-`validate` probes S0 inputs. `validate --stage B` checks downstream handoffs.
-`run` and `prepare` support A/B/C/D; A defaults to `tank` when `--pov` is omitted.
-
-## Structure
-
-- `main.py`, `src/cli.py`: one CLI for intake, A preparation/submission, handoff, B/C/D and status.
-- `src/stage_a.py`, `src/intake.py`, `src/video_inspection.py`, `src/pov_analysis.py`: input validation and manual observation jobs.
-- `src/contracts.py`, `src/handoff.py`: shared report/evidence contracts and provenance-checked five-report handoffs.
-- `src/pipeline.py`, `src/fusion.py`, `src/judge.py`, `src/audit.py`: downstream orchestration, report rendering and evidence audit.
-- `src/artifacts.py`: atomic writes, per-run history, dependency invalidation and release indexes.
-- `prompts/stage_{a,b,c,d}.md`: versioned manual Codex instructions.
-- `inputs/videos/`: five original recordings; files are not included.
-- `outputs/{run_id}/`: S0 manifest, A jobs/report revisions, source index and verified handoffs.
-- `outputs/runs/{run_id}/`: B/C/D task/result revisions, evidence clips, releases and `run_metadata.json`.
-
-Recordings, outputs, secrets, local configuration, `.python-runtime/` and `.venv/`
-are ignored by Git. A source revision is never silently overwritten. Updated
-review records invalidate the old handoff and downstream current results.
-
-## Validation
-
-```bash
+# From the repository root; activation also exposes local FFmpeg if installed there
+source .venv/bin/activate
 python -m pytest -q
-python main.py --help
+npm --prefix frontend test
+npm --prefix frontend run build
+python backend/main.py --help
 git diff --check
 ```
 
-Tests cover contracts, provenance, five-player coverage, conflicts, abstention,
-concurrent writes/publication and the full A-to-D workflow with real FFmpeg
-extraction of synthetic video. Video tests skip when FFmpeg/ffprobe are absent.
-Synthetic observations and reviewer attestations do not establish gameplay
-accuracy. The plan's human-reviewed pilot and three-fight benchmark remain
-product acceptance work; no gameplay-quality result is claimed by these tests.
+Backend tests cover validation, cancellation, artifact provenance, timestamp
+mapping and the publication gate. Model responses in automated tests are mocked;
+tests do not consume Codex usage. FFmpeg-dependent tests skip if FFmpeg is missing.
+Frontend tests cover the dialog and review lifecycle. The production build is
+written to `frontend/dist/`; building it does not deploy anything.
+
+To use the manual CLI, copy `backend/config/run.example.json` to
+`backend/config/run.json`, supply actual inputs and interval, then run:
+
+```bash
+python backend/main.py validate --config backend/config/run.json
+```
+
+The example deliberately leaves the fight end unset. See the manual guide below
+for observation submission, reconstruction, judgment and evidence audit commands.
+
+## Files that stay off GitHub
+
+Git ignores **`test-media/` and `calhacks-kit/` at any depth**, as well as recordings
+in the backend input folders, `.local/`, generated outputs, `.env`, virtual
+environments and `node_modules`. The existing `test-media` and `calhacks-kit`
+folders above this repository remain local and are not copied into this repo.
+
+Check before committing or pushing:
+
+```bash
+git status --short
+git ls-files -- 'test-media/**' '**/test-media/**' 'calhacks-kit/**' '**/calhacks-kit/**'
+```
+
+The second command should print nothing. Ignore rules do not untrack files that
+were already committed; inspect the staged changes before publishing.
+
+## Further documentation
+
+- [Detailed web/API integration and reviewer behavior](docs/WEB_INTEGRATION.md)
+- [Manual A/B/C/D workflow and report contracts](docs/STAGE_B_ONWARD.md)
+- [Original project plan](docs/PROJECT_PLAN.md) — historical design, not current setup instructions
+- [Historical UI verification](docs/verification/README.md)
