@@ -39,13 +39,15 @@
     "D": "prompts/stage_d.md"
   },
   "output_directory": "outputs",
+  "manifest_path": "config/manifest.json",
+  "pov_reports_directory": "outputs/pov_reports",
   "max_retries": 2,
   "stage_tools": {
     "S0": null,
     "A": null,
-    "B": null,
-    "C": null,
-    "D": null
+    "B": {"method": "manual", "tool": "Codex"},
+    "C": {"method": "manual", "tool": "Codex"},
+    "D": {"method": "manual", "tool": "Codex"}
   },
   "inspection_settings": {
     "method": null,
