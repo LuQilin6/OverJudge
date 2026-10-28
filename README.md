@@ -43,19 +43,8 @@ runs the application on your computer; it does not provide a hosted review servi
 
 ## How it works
 
-```mermaid
-flowchart LR
-    UI[React interface] --> API[FastAPI job coordinator]
-    API --> Video[FFmpeg alignment and 4 FPS sampling]
-    Video --> A[A: Observe each perspective]
-    A --> B[B: Reconstruct the fight]
-    B --> C[C: Assess decisions and coach]
-    C --> D[D: Inspect cited evidence]
-    D --> Gate{Validation and audit pass?}
-    Gate -->|Yes| Report[Report with replay links]
-    Gate -->|No| Error[Explain failure and retain diagnostics]
-    Report --> UI
-```
+FastAPI coordinates each review, and FFmpeg aligns the recordings and extracts
+frames at 4 FPS. Four AI stages observe, reconstruct, judge, and check the evidence.
 
 Each observer gets one perspective in a fresh session. Reconstruction and judgment
 use the resulting reports. The final AI checker receives newly decoded images
@@ -158,7 +147,7 @@ below describe the implementation represented in this branch; areas overlap.
 
 | Contributor | Focus |
 | --- | --- |
-| [@julianahyc1225](https://github.com/julianahyc1225) | Courtroom UI and frontend flow; web/API integration; automatic review orchestration; progress and evidence playback; alignment and stale-output fixes |
+| [@julianahyc1225](https://github.com/julianahyc1225) | Courtroom UI and frontend flow; end-to-end integration of the agent backend with the app, connecting uploads, automated analysis, progress updates, and results; evidence playback; alignment and stale-output fixes |
 | [@LuQilin6](https://github.com/LuQilin6) | Stage A video intake and observation workflow; standalone observation automation; example footage outputs |
 | [@xzptofu](https://github.com/xzptofu) | Stages B–D: reconstruction, judgment, audit, artifact contracts, validation, and integrated handoffs |
 
