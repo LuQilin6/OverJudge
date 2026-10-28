@@ -1,0 +1,542 @@
+{
+  "method": "Independent Codex visual review in this chat; exact model version unknown. Read task/prompt/schema/index, full original five POV report texts with provenance, Stage B structured fusion and rendered fusion.md, Stage C structured assessment and rendered verdict.md. ffmpeg 9.0.2 extracted labeled stills at clip-local 0.5-second spacing plus duration minus 0.04 seconds; source timestamp = indexed start + local seek, no offsets. Pillow 13.0.0, Python 3.11.9; functions.view_image displayed and reviewer inspected every sheet 00-26, plus original_tails.jpg and three original native-size frames. SHA-256 matched all indexed clip bytes and all five source bytes. This is sampled frame inspection, not continuous playback, exhaustive decode validation or audio review; exact requested times and scope are logged in inspection_log.json.",
+  "clips": [
+    {
+      "evidence_ref": "dps1@11.0-13.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.46
+      ],
+      "original_requested_timestamps": [
+        11.0,
+        11.5,
+        12.0,
+        12.5,
+        13.0,
+        13.46
+      ],
+      "sheet": "inspection/00.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "dps1@14.0-15.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.46
+      ],
+      "original_requested_timestamps": [
+        14.0,
+        14.5,
+        15.0,
+        15.46
+      ],
+      "sheet": "inspection/01.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "dps1@16.0-17.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.443333
+      ],
+      "original_requested_timestamps": [
+        16.0,
+        16.5,
+        17.0,
+        17.443333
+      ],
+      "sheet": "inspection/02.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "dps1@8.5-10.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        1.96
+      ],
+      "original_requested_timestamps": [
+        8.5,
+        9.0,
+        9.5,
+        10.0,
+        10.46
+      ],
+      "sheet": "inspection/03.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "dps2@10.0-11.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.476667
+      ],
+      "original_requested_timestamps": [
+        10.0,
+        10.5,
+        11.0,
+        11.476666999999999
+      ],
+      "sheet": "inspection/04.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "dps2@13.5-14.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        0.96
+      ],
+      "original_requested_timestamps": [
+        13.5,
+        14.0,
+        14.46
+      ],
+      "sheet": "inspection/05.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "dps2@15.0-16.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.443008
+      ],
+      "original_requested_timestamps": [
+        15.0,
+        15.5,
+        16.0,
+        16.443008
+      ],
+      "sheet": "inspection/06.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "dps2@17.0-17.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.46
+      ],
+      "original_requested_timestamps": [
+        17.0,
+        17.46
+      ],
+      "sheet": "inspection/07.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "dps2@7.5-9.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        1.96
+      ],
+      "original_requested_timestamps": [
+        7.5,
+        8.0,
+        8.5,
+        9.0,
+        9.46
+      ],
+      "sheet": "inspection/08.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "support1@12.0-14.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.46
+      ],
+      "original_requested_timestamps": [
+        12.0,
+        12.5,
+        13.0,
+        13.5,
+        14.0,
+        14.46
+      ],
+      "sheet": "inspection/09.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "support1@15.0-17.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.46
+      ],
+      "original_requested_timestamps": [
+        15.0,
+        15.5,
+        16.0,
+        16.5,
+        17.0,
+        17.46
+      ],
+      "sheet": "inspection/10.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "support1@6.0-8.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.46
+      ],
+      "original_requested_timestamps": [
+        6.0,
+        6.5,
+        7.0,
+        7.5,
+        8.0,
+        8.46
+      ],
+      "sheet": "inspection/11.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "support1@9.0-11.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.46
+      ],
+      "original_requested_timestamps": [
+        9.0,
+        9.5,
+        10.0,
+        10.5,
+        11.0,
+        11.46
+      ],
+      "sheet": "inspection/12.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "support2@0.0-2.0",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        1.96
+      ],
+      "original_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        1.96
+      ],
+      "sheet": "inspection/13.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "support2@10.5-13.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.5,
+        2.96
+      ],
+      "original_requested_timestamps": [
+        10.5,
+        11.0,
+        11.5,
+        12.0,
+        12.5,
+        13.0,
+        13.46
+      ],
+      "sheet": "inspection/14.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "support2@13.5-17.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        3.91
+      ],
+      "original_requested_timestamps": [
+        13.5,
+        14.0,
+        14.5,
+        15.0,
+        15.5,
+        16.0,
+        16.5,
+        17.0,
+        17.41
+      ],
+      "sheet": "inspection/15.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "support2@5.5-8.0",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.46
+      ],
+      "original_requested_timestamps": [
+        5.5,
+        6.0,
+        6.5,
+        7.0,
+        7.5,
+        7.96
+      ],
+      "sheet": "inspection/16.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "support2@8.0-10.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.443333
+      ],
+      "original_requested_timestamps": [
+        8.0,
+        8.5,
+        9.0,
+        9.5,
+        10.0,
+        10.443332999999999
+      ],
+      "sheet": "inspection/17.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "tank@10.0-11.0",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        0.96
+      ],
+      "original_requested_timestamps": [
+        10.0,
+        10.5,
+        10.96
+      ],
+      "sheet": "inspection/18.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "tank@11.0-13.0",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        1.943333
+      ],
+      "original_requested_timestamps": [
+        11.0,
+        11.5,
+        12.0,
+        12.5,
+        12.943332999999999
+      ],
+      "sheet": "inspection/19.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "tank@13.0-14.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.443333
+      ],
+      "original_requested_timestamps": [
+        13.0,
+        13.5,
+        14.0,
+        14.443332999999999
+      ],
+      "sheet": "inspection/20.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "tank@14.5-16.0",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.443333
+      ],
+      "original_requested_timestamps": [
+        14.5,
+        15.0,
+        15.5,
+        15.943332999999999
+      ],
+      "sheet": "inspection/21.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "tank@16.0-17.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.426667
+      ],
+      "original_requested_timestamps": [
+        16.0,
+        16.5,
+        17.0,
+        17.426667
+      ],
+      "sheet": "inspection/22.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "tank@17.5-18.0",
+      "local_requested_timestamps": [
+        0.0,
+        0.44333300000000003
+      ],
+      "original_requested_timestamps": [
+        17.5,
+        17.943333
+      ],
+      "sheet": "inspection/23.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "tank@3.0-5.5",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.426667
+      ],
+      "original_requested_timestamps": [
+        3.0,
+        3.5,
+        4.0,
+        4.5,
+        5.0,
+        5.426667
+      ],
+      "sheet": "inspection/24.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "tank@5.5-8.0",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.443333
+      ],
+      "original_requested_timestamps": [
+        5.5,
+        6.0,
+        6.5,
+        7.0,
+        7.5,
+        7.943333
+      ],
+      "sheet": "inspection/25.jpg",
+      "clip_sha256_verified": true
+    },
+    {
+      "evidence_ref": "tank@8.0-10.0",
+      "local_requested_timestamps": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        1.96
+      ],
+      "original_requested_timestamps": [
+        8.0,
+        8.5,
+        9.0,
+        9.5,
+        9.96
+      ],
+      "sheet": "inspection/26.jpg",
+      "clip_sha256_verified": true
+    }
+  ],
+  "supplementary_original_samples": {
+    "tank": [
+      17.5,
+      17.95
+    ],
+    "dps1": [
+      17.5,
+      17.95
+    ],
+    "dps2": [
+      17.5,
+      17.95
+    ],
+    "support1": [
+      17.5,
+      17.95
+    ],
+    "support2": [
+      17.5,
+      17.95
+    ]
+  },
+  "original_native_frame_checks": [
+    "tank at 10.0",
+    "tank at 15.0",
+    "support2 at 10.0"
+  ],
+  "audio_inspected": false
+}

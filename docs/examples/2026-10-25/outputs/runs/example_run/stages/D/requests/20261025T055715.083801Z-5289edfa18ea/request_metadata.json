@@ -1,0 +1,10 @@
+{
+  "cache_key": "17c7108ceb959b668525f53447fe9dd3ac5fd458781815f624c09a69ecbb11dd",
+  "context_sha256": "03236a7320acce14748693308086a9ccfcd06abce46bebb42183a50a443ff591",
+  "created_at": "2026-10-25T05:57:15.082506+00:00",
+  "prompt_sha256": "f78a8a3c6732008892c63c497b94a347cf46760cb0d55e9561f3bdefd0d1586e",
+  "request_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea",
+  "revision_id": "20261025T055715.083801Z-5289edfa18ea",
+  "run_id": "example_run",
+  "stage": "D"
+}

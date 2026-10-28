@@ -252,7 +252,7 @@ Codex execution options follow the [official non-interactive mode documentation]
 
 ## Teammate example snapshots
 
-Previously committed Stage A/B examples are preserved under
+Previously committed Stage A–D examples are preserved under
 `docs/examples/2026-10-25/`. They are historical snapshots: embedded absolute paths
 and hashes describe the original machine and are not portable run configuration.
 New runtime outputs remain ignored. These examples came from the existing main

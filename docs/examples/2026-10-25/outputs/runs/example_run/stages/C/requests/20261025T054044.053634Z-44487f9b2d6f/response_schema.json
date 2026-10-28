@@ -1,0 +1,458 @@
+{
+  "envelope": {
+    "execution": {
+      "tool": "actual tool name",
+      "model": "actual model/version, or unknown",
+      "operator": "reviewer/operator name"
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
+        },
+        "fight_summary": {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "enum": [
+                "loss",
+                "win",
+                "draw",
+                "unknown"
+              ]
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1
+            },
+            "evidence_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Exact canonical citation from the task's allowed_refs; no offsets or new intervals."
+              },
+              "minItems": 0,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "outcome",
+            "summary",
+            "evidence_refs"
+          ],
+          "additionalProperties": false
+        },
+        "confirmed_facts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "claim": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Exact canonical citation from the task's allowed_refs; no offsets or new intervals."
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "id",
+              "claim",
+              "evidence_refs"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pov_id": {
+                "type": "string",
+                "enum": [
+                  "tank",
+                  "dps1",
+                  "dps2",
+                  "support1",
+                  "support2"
+                ]
+              },
+              "level": {
+                "type": "string",
+                "enum": [
+                  "primary",
+                  "secondary",
+                  "shared",
+                  "not_established"
+                ]
+              },
+              "claim": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Exact canonical citation from the task's allowed_refs; no offsets or new intervals."
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "player_information": {
+                "type": "string",
+                "minLength": 1
+              },
+              "alternative_action": {
+                "type": "string",
+                "minLength": 1
+              },
+              "plausible_consequence": {
+                "type": "string",
+                "minLength": 1
+              },
+              "causal_reasoning": {
+                "type": "string",
+                "minLength": 1
+              },
+              "alternative_explanation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "id",
+              "pov_id",
+              "level",
+              "claim",
+              "evidence_refs",
+              "player_information",
+              "alternative_action",
+              "plausible_consequence",
+              "causal_reasoning",
+              "alternative_explanation"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0
+        },
+        "player_findings": {
+          "type": "object",
+          "properties": {
+            "tank": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "findings",
+                    "no_supported_mistake"
+                  ]
+                },
+                "summary": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "finding_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 0,
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "status",
+                "summary",
+                "finding_ids"
+              ],
+              "additionalProperties": false
+            },
+            "dps1": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "findings",
+                    "no_supported_mistake"
+                  ]
+                },
+                "summary": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "finding_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 0,
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "status",
+                "summary",
+                "finding_ids"
+              ],
+              "additionalProperties": false
+            },
+            "dps2": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "findings",
+                    "no_supported_mistake"
+                  ]
+                },
+                "summary": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "finding_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 0,
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "status",
+                "summary",
+                "finding_ids"
+              ],
+              "additionalProperties": false
+            },
+            "support1": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "findings",
+                    "no_supported_mistake"
+                  ]
+                },
+                "summary": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "finding_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 0,
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "status",
+                "summary",
+                "finding_ids"
+              ],
+              "additionalProperties": false
+            },
+            "support2": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "findings",
+                    "no_supported_mistake"
+                  ]
+                },
+                "summary": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "finding_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 0,
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "status",
+                "summary",
+                "finding_ids"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "tank",
+            "dps1",
+            "dps2",
+            "support1",
+            "support2"
+          ],
+          "additionalProperties": false
+        },
+        "alternative_explanations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "verdict": {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "type": "string",
+              "enum": [
+                "inconclusive",
+                "shared",
+                "supported"
+              ]
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1
+            },
+            "limitations": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "outcome",
+            "summary",
+            "limitations"
+          ],
+          "additionalProperties": false
+        },
+        "top_evidence_clips": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Exact canonical citation from the task's allowed_refs; no offsets or new intervals."
+          },
+          "minItems": 0,
+          "maxItems": 3,
+          "uniqueItems": true
+        },
+        "actionable_lessons": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pov_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "tank",
+                    "dps1",
+                    "dps2",
+                    "support1",
+                    "support2"
+                  ]
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "lesson": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Exact canonical citation from the task's allowed_refs; no offsets or new intervals."
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "pov_ids",
+              "lesson",
+              "evidence_refs"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0
+        },
+        "confidence": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "label",
+            "rationale"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "fight_summary",
+        "confirmed_facts",
+        "findings",
+        "player_findings",
+        "alternative_explanations",
+        "verdict",
+        "top_evidence_clips",
+        "actionable_lessons",
+        "confidence"
+      ],
+      "additionalProperties": false,
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "OverJudge Stage C manual response",
+      "description": "Qualitative evidence-grounded judgment. Every finding is linked to its player. An unknown fight outcome requires an inconclusive verdict. Inconclusive establishes no adverse findings; shared requires at least two players and no primary. Confidence labels are not calibrated probabilities. Program validation also enforces citation and verdict consistency."
+    }
+  }
+}

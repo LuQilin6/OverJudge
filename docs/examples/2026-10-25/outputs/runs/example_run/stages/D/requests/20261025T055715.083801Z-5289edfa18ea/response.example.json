@@ -1,0 +1,47 @@
+{
+  "execution": {
+    "tool": "REPLACE",
+    "model": "REPLACE",
+    "operator": "REPLACE"
+  },
+  "result": {
+    "qa_status": "FAIL",
+    "reviewer": {
+      "name": "REPLACE_WITH_REVIEWER",
+      "tool": "REPLACE_WITH_ACTUAL_TOOL_VERSION",
+      "method": "Describe actual clips, frames, HUD and audio inspected"
+    },
+    "inspected_evidence": [
+      {
+        "evidence_ref": "tank@12.0-13.4",
+        "clip_sha256": "COPY_FROM_CLIP_INDEX",
+        "source_sha256": "COPY_FROM_CLIP_INDEX",
+        "inspected": false,
+        "notes": "Replace only after actual inspection"
+      }
+    ],
+    "finding_checks": [
+      {
+        "finding_id": "finding_1",
+        "status": "unverified",
+        "identity_verified": false,
+        "timestamp_verified": false,
+        "ability_verified": false,
+        "hindsight_checked": false,
+        "source_consistency_checked": false,
+        "notes": "Actual identity, timing, abilities, player knowledge, and source consistency checks"
+      }
+    ],
+    "conclusion_review": {
+      "inspected": false,
+      "evidence_refs": [
+        "tank@12.0-13.4"
+      ],
+      "notes": "Review the full conclusion, including an inconclusive verdict, against footage"
+    },
+    "issues": [],
+    "limitations": [
+      "Example response only; no footage has been inspected"
+    ]
+  }
+}

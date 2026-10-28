@@ -1,0 +1,436 @@
+{
+  "clips": [
+    {
+      "evidence_ref": "dps1@11.0-13.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/dps1_22fc1711510b95531d69.mp4",
+      "sha256": "ccf17e0f867c382a8e7485f74525da865b2c10ddffbe64f85e404016836cb5ca",
+      "source_sha256": "d3dc47b0de2e3c3f5480e7b6877e6a472fef7cef2f0f7a9e969e1e92131be7ed",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/dps1.mov",
+      "start_timestamp": 11.0,
+      "end_timestamp": 13.5,
+      "duration_seconds": 2.5,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "dps1@14.0-15.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/dps1_58314d4bbbaa60c1ffd3.mp4",
+      "sha256": "99cc82bb8ce486953071df3fafaf6730c196ee6157fbc67a0864d531a8bbd279",
+      "source_sha256": "d3dc47b0de2e3c3f5480e7b6877e6a472fef7cef2f0f7a9e969e1e92131be7ed",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/dps1.mov",
+      "start_timestamp": 14.0,
+      "end_timestamp": 15.5,
+      "duration_seconds": 1.5,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "dps1@16.0-17.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/dps1_e883723e348288c82746.mp4",
+      "sha256": "c78f1c652f689dc1e6790d1a44cc4d527f7159bfb35a8a2b4d675cdc8153f2f6",
+      "source_sha256": "d3dc47b0de2e3c3f5480e7b6877e6a472fef7cef2f0f7a9e969e1e92131be7ed",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/dps1.mov",
+      "start_timestamp": 16.0,
+      "end_timestamp": 17.5,
+      "duration_seconds": 1.483333,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "dps1@8.5-10.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/dps1_238c5229f58d490c6885.mp4",
+      "sha256": "cafccc13777f52b76bab6769f9b0b4f05c72d5d89ecd20b06cf4ef7983beb4fb",
+      "source_sha256": "d3dc47b0de2e3c3f5480e7b6877e6a472fef7cef2f0f7a9e969e1e92131be7ed",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/dps1.mov",
+      "start_timestamp": 8.5,
+      "end_timestamp": 10.5,
+      "duration_seconds": 2.0,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "dps2@10.0-11.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/dps2_8d41fa25294b62019a13.mp4",
+      "sha256": "2eed48f35813695112d6014931a134424a4399ae3bb935dd3ef241309f261885",
+      "source_sha256": "7f6ccad148645732de71ca0e837f3d51304d934306ec324aa4292ff5c9538ab1",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/dps2.mov",
+      "start_timestamp": 10.0,
+      "end_timestamp": 11.5,
+      "duration_seconds": 1.516667,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "dps2@13.5-14.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/dps2_3c7a7bc467910d51c368.mp4",
+      "sha256": "807a9a3ebbc999f744bba5bb9c2f9f26328ccd95e904bdf0f007d23c80dd99da",
+      "source_sha256": "7f6ccad148645732de71ca0e837f3d51304d934306ec324aa4292ff5c9538ab1",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/dps2.mov",
+      "start_timestamp": 13.5,
+      "end_timestamp": 14.5,
+      "duration_seconds": 1.0,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "dps2@15.0-16.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/dps2_562ec7eca723e7aeb313.mp4",
+      "sha256": "efe900cbedc181a1947be6f835573e38c041904dcbfd4fbb8ed09be7c76020c6",
+      "source_sha256": "7f6ccad148645732de71ca0e837f3d51304d934306ec324aa4292ff5c9538ab1",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/dps2.mov",
+      "start_timestamp": 15.0,
+      "end_timestamp": 16.5,
+      "duration_seconds": 1.483008,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "dps2@17.0-17.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/dps2_a37a4f88b2ecdf5c62ae.mp4",
+      "sha256": "01fa92f789ccca1fccfa1bda36db2e7e11346ce20e82ed1616131a2270726c59",
+      "source_sha256": "7f6ccad148645732de71ca0e837f3d51304d934306ec324aa4292ff5c9538ab1",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/dps2.mov",
+      "start_timestamp": 17.0,
+      "end_timestamp": 17.5,
+      "duration_seconds": 0.5,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "dps2@7.5-9.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/dps2_6e378574c5b09bf275f6.mp4",
+      "sha256": "3d6775df58fefd115daee81f2cf7b3ecb0f6ecf78370870aa8135bf4dc88ab88",
+      "source_sha256": "7f6ccad148645732de71ca0e837f3d51304d934306ec324aa4292ff5c9538ab1",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/dps2.mov",
+      "start_timestamp": 7.5,
+      "end_timestamp": 9.5,
+      "duration_seconds": 2.0,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "support1@12.0-14.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/support1_ad2a3540051d5a98b38d.mp4",
+      "sha256": "956cac6b82c78c10f81d7ea03feb09ed736ef466b24419961c2831de37e7e76e",
+      "source_sha256": "38a6ebbbc805c263cd1127e77d49e5ffe6e181e69d3994603d069b62334b2a56",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/support1.mov",
+      "start_timestamp": 12.0,
+      "end_timestamp": 14.5,
+      "duration_seconds": 2.5,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "support1@15.0-17.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/support1_f4a99adcbe5543bb3871.mp4",
+      "sha256": "273f6009d7a3ed6449cd03e551b8b3c0935a365b3fdf816e1729bdba9ae2cc3f",
+      "source_sha256": "38a6ebbbc805c263cd1127e77d49e5ffe6e181e69d3994603d069b62334b2a56",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/support1.mov",
+      "start_timestamp": 15.0,
+      "end_timestamp": 17.5,
+      "duration_seconds": 2.5,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "support1@6.0-8.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/support1_106737e80798fc1b757b.mp4",
+      "sha256": "7d6330ac2f00f7183b1ed9b772ba953e1858bec8c789e315b8cf4319de5954b9",
+      "source_sha256": "38a6ebbbc805c263cd1127e77d49e5ffe6e181e69d3994603d069b62334b2a56",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/support1.mov",
+      "start_timestamp": 6.0,
+      "end_timestamp": 8.5,
+      "duration_seconds": 2.5,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "support1@9.0-11.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/support1_807f6b92dd3aa0803de0.mp4",
+      "sha256": "1af749e53c044b24bc3d6e34ac82ccec3e68db60f462e6b96b354840246e19c3",
+      "source_sha256": "38a6ebbbc805c263cd1127e77d49e5ffe6e181e69d3994603d069b62334b2a56",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/support1.mov",
+      "start_timestamp": 9.0,
+      "end_timestamp": 11.5,
+      "duration_seconds": 2.5,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "support2@0.0-2.0",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/support2_79e84fb3283839375629.mp4",
+      "sha256": "7c68e732c0234a2e6f6279852343f050527fdf3d7646d3957887c1b75c61182e",
+      "source_sha256": "451b297c45b7d61d37e54b9204b463b4bcaab600eacc79245441adaf7d7390cc",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/support2.mov",
+      "start_timestamp": 0.0,
+      "end_timestamp": 2.0,
+      "duration_seconds": 2.0,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "support2@10.5-13.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/support2_169edd92df56813077d0.mp4",
+      "sha256": "320d7acaedfac42f75daf5dbd9731d56f9f467a5ef1457ddb28e0e7dc75e0a29",
+      "source_sha256": "451b297c45b7d61d37e54b9204b463b4bcaab600eacc79245441adaf7d7390cc",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/support2.mov",
+      "start_timestamp": 10.5,
+      "end_timestamp": 13.5,
+      "duration_seconds": 3.0,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "support2@13.5-17.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/support2_eda5210282be931f78b2.mp4",
+      "sha256": "89245abd75cc97c178caae511f0fd4f01f22c2e8636c467235cdf35a77ec5e69",
+      "source_sha256": "451b297c45b7d61d37e54b9204b463b4bcaab600eacc79245441adaf7d7390cc",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/support2.mov",
+      "start_timestamp": 13.5,
+      "end_timestamp": 17.5,
+      "duration_seconds": 3.95,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "support2@5.5-8.0",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/support2_d53d06c13c37c91b6c1a.mp4",
+      "sha256": "14703e0708f0ca5886160e6d451574f0aebedccc1bcdd315128431dd06933acc",
+      "source_sha256": "451b297c45b7d61d37e54b9204b463b4bcaab600eacc79245441adaf7d7390cc",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/support2.mov",
+      "start_timestamp": 5.5,
+      "end_timestamp": 8.0,
+      "duration_seconds": 2.5,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "support2@8.0-10.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/support2_514c6dd8c965ac4d7fa5.mp4",
+      "sha256": "a9c542605a2a2aa39a19710ad696a4b28e1ac9f57ad6337c4d546286b209f18a",
+      "source_sha256": "451b297c45b7d61d37e54b9204b463b4bcaab600eacc79245441adaf7d7390cc",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/support2.mov",
+      "start_timestamp": 8.0,
+      "end_timestamp": 10.5,
+      "duration_seconds": 2.483333,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "tank@10.0-11.0",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/tank_61210a17554d5639757e.mp4",
+      "sha256": "850d862d9d8058d7f962e6240fd6bcb1045b618923d11ee3e8768dc7ea7aa180",
+      "source_sha256": "02aa57d986f2f0c014f7b6cb52314fb2ba895bcf97b25b4f1578e47f3dd15032",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/tank.mov",
+      "start_timestamp": 10.0,
+      "end_timestamp": 11.0,
+      "duration_seconds": 1.0,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "tank@11.0-13.0",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/tank_468a3b82edc83382de1b.mp4",
+      "sha256": "9e1a2b74a104758f22c2512489dccda013652ba6f059152db5518026da79c782",
+      "source_sha256": "02aa57d986f2f0c014f7b6cb52314fb2ba895bcf97b25b4f1578e47f3dd15032",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/tank.mov",
+      "start_timestamp": 11.0,
+      "end_timestamp": 13.0,
+      "duration_seconds": 1.983333,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "tank@13.0-14.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/tank_941c50c4371dc3803315.mp4",
+      "sha256": "89fae786831607b3c49c87ed83a5792be32e5a791164d4255c4c15cfd4a79c44",
+      "source_sha256": "02aa57d986f2f0c014f7b6cb52314fb2ba895bcf97b25b4f1578e47f3dd15032",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/tank.mov",
+      "start_timestamp": 13.0,
+      "end_timestamp": 14.5,
+      "duration_seconds": 1.483333,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "tank@14.5-16.0",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/tank_591a88b6eb12c2e70354.mp4",
+      "sha256": "ba19253681e595ff6faf77d6bf088e728d8875bb755105ab29410856abb1209a",
+      "source_sha256": "02aa57d986f2f0c014f7b6cb52314fb2ba895bcf97b25b4f1578e47f3dd15032",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/tank.mov",
+      "start_timestamp": 14.5,
+      "end_timestamp": 16.0,
+      "duration_seconds": 1.483333,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "tank@16.0-17.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/tank_ef361abdf0513d91ce81.mp4",
+      "sha256": "6261a953107c86c978a56659ae4455052f7b7204d7c5264a881aa7dcae15d00d",
+      "source_sha256": "02aa57d986f2f0c014f7b6cb52314fb2ba895bcf97b25b4f1578e47f3dd15032",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/tank.mov",
+      "start_timestamp": 16.0,
+      "end_timestamp": 17.5,
+      "duration_seconds": 1.466667,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "tank@17.5-18.0",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/tank_ad2237310a1023c15432.mp4",
+      "sha256": "fa68bfde2dcf9902a4334b84d24b4e0dd137a56a78c80d4b5d46b0479cc4e951",
+      "source_sha256": "02aa57d986f2f0c014f7b6cb52314fb2ba895bcf97b25b4f1578e47f3dd15032",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/tank.mov",
+      "start_timestamp": 17.5,
+      "end_timestamp": 18.0,
+      "duration_seconds": 0.483333,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "tank@3.0-5.5",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/tank_8875a52030c9f26d43ab.mp4",
+      "sha256": "8bea095df526a4e8206dc2e22ef7b11be491f3506df0861e6c7e33d86a60f150",
+      "source_sha256": "02aa57d986f2f0c014f7b6cb52314fb2ba895bcf97b25b4f1578e47f3dd15032",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/tank.mov",
+      "start_timestamp": 3.0,
+      "end_timestamp": 5.5,
+      "duration_seconds": 2.466667,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "tank@5.5-8.0",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/tank_0c2fe578d6c42de4b372.mp4",
+      "sha256": "f3e7adc85e778a29230ad2d6a0fe2af68423b881a52d6a471d39fac7c67c5862",
+      "source_sha256": "02aa57d986f2f0c014f7b6cb52314fb2ba895bcf97b25b4f1578e47f3dd15032",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/tank.mov",
+      "start_timestamp": 5.5,
+      "end_timestamp": 8.0,
+      "duration_seconds": 2.483333,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    },
+    {
+      "evidence_ref": "tank@8.0-10.0",
+      "path": "/Users/xgu/gxt/code/OverJudge/OverJudge/outputs/runs/example_run/stages/D/requests/20261025T055715.083801Z-5289edfa18ea/evidence_clips/tank_a98abdb7a42c549b84f4.mp4",
+      "sha256": "8fdeff00b990e7abf1db57a22a7a898d2541b9d504a01b7815363f1bdb7530e7",
+      "source_sha256": "02aa57d986f2f0c014f7b6cb52314fb2ba895bcf97b25b4f1578e47f3dd15032",
+      "source_path": "/Users/xgu/gxt/code/OverJudge/OverJudge/inputs/videos/tank.mov",
+      "start_timestamp": 8.0,
+      "end_timestamp": 10.0,
+      "duration_seconds": 2.0,
+      "extraction_method": "ffmpeg output-side seek; H.264/AAC; full decode verified",
+      "tool_versions": {
+        "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+        "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers"
+      },
+      "model": "none; deterministic local video extraction"
+    }
+  ]
+}
