@@ -1,151 +1,170 @@
-# OverJudge
+# Not My Fault
 
-Overwatch 2 multi-POV teamfight analysis, based on [PROJECT_PLAN.md](PROJECT_PLAN.md).
+**Your teamfight. On trial.**
 
-## Current status
+An Overwatch replay reviewer built at **Cal Hacks 13.0**. Upload one to five views
+of the same fight, tell your side, and let Judge Murphy (Sojourn’s dog, in case you don't know :)) examine the footage.
+The verdict comes with clickable evidence, a subjective blame estimate, and
+something to try in your next match.
 
-S0 and the **manual Codex A/B/C/D workflow** are integrated. Intake probes five
-pre-aligned recordings. A prepares isolated timestamped frames and imports neutral
-observation reports with review records. An explicit handoff selects five immutable
-report revisions for B's fusion and C's tactical assessment. D extracts evidence
-windows and requires independent review before publishing the final report.
+![Judge Murphy welcomes players to the replay courtroom](docs/images/courtroom-home.jpg)
 
-Actual observations and audits are performed manually in Codex; the application
-calls no model API. Software validates structure, provenance and release gates.
-Real gameplay benchmarking remains open. See the [workflow and handoff guide](docs/STAGE_B_ONWARD.md).
+[View on Devpost](https://devpost.com/software/not-my-fault) ·
+[How it works](#how-it-works) · [Run locally](#run-locally) ·
+[Engineering decisions](#engineering-decisions) · [Team](#team) ·
+[Project story](docs/DEVPOST.md)
 
-## Local environment
+## Why we built it
 
-The shared baseline is Python **3.11.9** (`.python-version`). Local environments
-and recordings are not distributed through Git:
+“No way that’s my fault.” One lost fight, five different stories. The scoreboard
+isn’t settling the argument, so we gave a dog a gavel. We wanted a fun way to
+revisit those moments with friends. If it takes even a little toxicity out of
+the community along the way, even better.
+
+## The experience
+
+1. **Submit the evidence.** Add 1–5 MP4/WebM clips of the same fight, each
+   10–90 seconds and up to 200 MB. Name the players and optionally add roles and heroes.
+2. **Make your case.** Ask about a decision and add context. With multiple views,
+   mark the same visible event in each recording to align them.
+3. **Follow the review.** Watch actual pipeline stages progress from video
+   preparation through observation, reconstruction, judgment, and evidence checking.
+4. **Inspect the verdict.** Read the reasoning, switch perspectives, and click a
+   timestamp to revisit the relevant moment. Download the report as JSON.
+
+![The evidence upload screen with the courtroom case-file design](docs/images/courtroom-upload.jpg)
+
+*Screenshots show the running frontend in this branch. The interface also uses
+“Was that my fault?” as its opening question.*
+
+**Status:** working local hackathon prototype. Automatic reviews use real uploaded
+footage and OpenAI models through Codex CLI with a ChatGPT login. This repository
+runs the application on your computer; it does not provide a hosted review service.
+
+## How it works
+
+FastAPI coordinates each review, and FFmpeg aligns the recordings and extracts
+frames at 4 FPS. Four AI stages observe, reconstruct, judge, and check the evidence.
+
+Each observer gets one perspective in a fresh session. Reconstruction and judgment
+use the resulting reports. The final AI checker receives newly decoded images
+from the cited windows. Structured contracts and the publication gate decide
+whether a report can reach the browser. User questions and context are supplied
+as unverified context, not treated as established gameplay facts.
+
+| Layer | Implementation |
+| --- | --- |
+| Interface | React, TypeScript, Vite, Motion, custom CSS |
+| Browser contracts | Zod validation and recording/timestamp checks |
+| API and jobs | Python, FastAPI, Uvicorn |
+| Video processing | FFmpeg / ffprobe; aligned overlap and timestamped frames |
+| AI execution | Fresh Codex CLI sessions; observation, reconstruction, judgment, audit |
+| Backend contracts | Pydantic, evidence references, source hashes, stage gates |
+| Tests | pytest, Vitest, React Testing Library |
+
+## Engineering decisions
+
+- **Evidence stays connected to playback.** The backend validates citations in the
+  aligned timeline, then maps them back to each original recording. A finding is
+  inspectable without manually searching through several clips.
+- **Observation is separate from judgment.** Independent perspective reports feed
+  the reconstruction before the judge makes a call. A separate AI session then
+  inspects the cited footage; its agreement is an additional check, not proof of accuracy.
+- **Failed reviews do not become fabricated results.** Invalid artifacts, failed
+  audits, and unavailable model execution block publication. Unique review folders
+  and an existing-output guard prevent old files from masquerading as fresh responses.
+- **Async state has explicit ownership.** The browser cancels active work when
+  appropriate and ignores stale responses. Changing recordings invalidates the old
+  result and alignment confirmation.
+- **Sampling has a budget.** The default is 4 FPS, with a 900-image limit per web
+  model invocation and bounded format repair. Fast events between frames can still
+  be missed. Adaptive sampling is future work.
+
+For code navigation, start with [the review controller](frontend/src/useReview.ts),
+[the API](backend/api/app.py), [the automatic runner](backend/api/codex_reviewer.py),
+and [the pipeline contracts](backend/overjudge/).
+
+## Run locally
+
+Prerequisites: **Node.js 22+**, **Python 3.11 or 3.12**, **FFmpeg and ffprobe** on
+`PATH`, and **Codex CLI signed in with ChatGPT** for automatic reviews.
+On macOS, FFmpeg can be installed with `brew install ffmpeg`.
+
+From a checkout containing `frontend/` and `backend/`:
 
 ```bash
-python3.11 -m venv .venv
+python3 -m venv .venv
+.venv/bin/python -m pip install -r backend/requirements.txt
+npm --prefix frontend ci
+cp -n .env.example .env
+codex login
+./dev.sh
+```
+
+Open **http://127.0.0.1:5174/**. The API runs at `127.0.0.1:3004`; Vite proxies
+`/api` to it. The setup above targets macOS/Linux. Preserve any existing `.env`.
+
+Automatic analysis uses your Codex allowance and sends selected frames and text
+context to OpenAI. It does not require an OpenAI API key. For configuration,
+manual handoffs, separate server commands, and troubleshooting, see the
+[development guide](docs/DEVELOPMENT.md).
+
+## Verification
+
+```bash
 source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m pip check
+python -m pytest backend/tests -q
+npm --prefix frontend test
+npm --prefix frontend run build
 ```
 
-`requirements.txt` pins the shared runtime/test environment; `requirements.in`
-records its direct dependencies. Intake uses Pydantic and the unified CLI uses
-argparse. The shared environment retains the original upstream packages.
-Update both dependency files together after resolving in a clean Python 3.11.9
-environment and reviewing `pip freeze` output.
+Tests exercise video preparation, evidence bounds, stale-output protection,
+cancellation, report validation, publication gates, and frontend interaction.
+Model responses in automated tests are mocked, so the tests spend no model usage.
+FFmpeg-dependent tests skip if the tools are unavailable. Passing these tests
+checks software behavior; it does not establish the accuracy of gameplay judgments.
 
-FFmpeg and ffprobe are external executables. Install with `brew install ffmpeg`
-on macOS or `sudo apt install ffmpeg` on Debian/Ubuntu. A and D record their actual
-tool versions. The Python lock does not pin these system tools. No provider
-credentials are required for the manual workflow.
+## Limits and next steps
 
-## Run one fight
+- Reviews inspect sampled images without audio. Off-screen actions and fast
+  ability sequences may be unavailable.
+- Blame percentages are subjective estimates for the submitted moment. They are
+  not measured causal shares; an inconclusive result can still include speculative estimates.
+- The app is local and sessions are ephemeral. Closing an active review cancels
+  it; closing a completed dialog keeps its result in the current page session.
+  Server restarts do not restore browser jobs. Export reports you want to keep.
+- Uploads and review artifacts are stored locally. Expired review folders are
+  cleaned up when the backend starts; recordings are not automatically deleted
+  exactly 24 hours after upload.
 
-Copy `config/run.example.json` to `config/run.json`, fill in the common interval
-and paths, and preserve the original aligned recordings. The example's null end
-time deliberately prevents an accidental run.
+Next: denser sampling around disputed moments, one bounded reinspection request,
+and evaluation against experienced players’ reviews.
 
-```bash
-python main.py validate --config config/run.json
-python main.py run --stage A --pov tank --config config/run.json
-```
+## Team
 
-Repeat A for the other four POVs in separate Codex contexts. Each prepared job
-contains its assigned video metadata, prompt snapshot and hashed timestamped
-frames. Preparation exits 1 / BLOCKED while actual inspection is pending. After
-viewing the frames, submit the Markdown report and actual review JSON:
+Built collaboratively by UC Berkeley students at Cal Hacks 13.0. Contributions
+below describe the implementation represented in this branch; areas overlap.
 
-```bash
-python main.py submit --config config/run.json --pov tank \
-  --job /absolute/job_path --report /absolute/report.md --review /absolute/review.json
-# After all five reports are submitted:
-python main.py handoff --config config/run.json
-python main.py prepare --stage B --config config/run.json --accept-limitations
-```
+| Contributor | Focus |
+| --- | --- |
+| [@julianahyc1225](https://github.com/julianahyc1225) | Courtroom UI and frontend flow; end-to-end integration of the agent backend with the app, connecting uploads, automated analysis, progress updates, and results; evidence playback; alignment and stale-output fixes |
+| [@LuQilin6](https://github.com/LuQilin6) | Stage A video intake and observation workflow; standalone observation automation; example footage outputs |
+| [@xzptofu](https://github.com/xzptofu) | Stages B–D: reconstruction, judgment, audit, artifact contracts, validation, and integrated handoffs |
 
-The handoff preserves `PASS_WITH_LIMITATIONS` and human evidence audit `PENDING`.
-`--accept-limitations` records the coordinator's decision to proceed with the
-restrictions. Execute and import B, then C, then independently review D using
-its task package. The [guide](docs/STAGE_B_ONWARD.md) contains the exact response
-formats, commands and publication gates.
+Special thanks to **Jianing Xu Wang** for hanging out with us on day one.
 
-`validate` probes S0 inputs. `validate --stage B` checks downstream handoffs.
-`run` and `prepare` support A/B/C/D; A defaults to `tank` when `--pov` is omitted.
+Codex also assisted development and debugging. Runtime AI reviews are described
+above; automated test fixtures are identified separately from real analysis.
 
-## Structure
+## Documentation and contributing
 
-- `main.py`, `src/cli.py`: one CLI for intake, A preparation/submission, handoff, B/C/D and status.
-- `src/stage_a.py`, `src/intake.py`, `src/video_inspection.py`, `src/pov_analysis.py`: input validation and manual observation jobs.
-- `src/contracts.py`, `src/handoff.py`: shared report/evidence contracts and provenance-checked five-report handoffs.
-- `src/pipeline.py`, `src/fusion.py`, `src/judge.py`, `src/audit.py`: downstream orchestration, report rendering and evidence audit.
-- `src/artifacts.py`: atomic writes, per-run history, dependency invalidation and release indexes.
-- `prompts/stage_{a,b,c,d}.md`: versioned manual Codex instructions.
-- `inputs/videos/`: five original recordings; files are not included.
-- `outputs/{run_id}/`: S0 manifest, A jobs/report revisions, source index and verified handoffs.
-- `outputs/runs/{run_id}/`: B/C/D task/result revisions, evidence clips, releases and `run_metadata.json`.
+- [Development and operations](docs/DEVELOPMENT.md)
+- [Web API and integration behavior](docs/WEB_INTEGRATION.md)
+- [Manual pipeline workflow](docs/STAGE_B_ONWARD.md)
+- [Hackathon story and submission draft](docs/DEVPOST.md)
+- [Historical example outputs](docs/examples/2026-10-25/) — machine-specific snapshots
+- [Contributing](CONTRIBUTING.md)
 
-Recordings, outputs, secrets, local configuration, `.python-runtime/` and `.venv/`
-are ignored by Git. A source revision is never silently overwritten. Updated
-review records invalidate the old handoff and downstream current results.
-
-## Validation
-
-```bash
-python -m pytest -q
-python main.py --help
-git diff --check
-```
-
-Tests cover contracts, provenance, five-player coverage, conflicts, abstention,
-concurrent writes/publication and the full A-to-D workflow with real FFmpeg
-extraction of synthetic video. Video tests skip when FFmpeg/ffprobe are absent.
-Synthetic observations and reviewer attestations do not establish gameplay
-accuracy. The plan's human-reviewed pilot and three-fight benchmark remain
-product acceptance work; no gameplay-quality result is claimed by these tests.
-
-## Automatic Stage A with Codex CLI
-
-Install the Codex CLI and run `codex login`, choosing **Sign in with ChatGPT**.
-Confirm `codex login status` says `Logged in using ChatGPT`. The runner requires
-this login and removes `OPENAI_API_KEY` / `CODEX_API_KEY` from its child environment;
-it does not fall back to API billing. Codex usage consumes your account allowance.
-
-```bash
-.venv/bin/python main.py run --stage A --pov tank --config config/run.json --execute
-```
-
-This prepares (or reuses) the assigned POV's frames, attaches them to a fresh
-non-interactive `codex exec`, and automatically imports its Markdown report and
-inspection attestation using the existing Stage A validators. You do not need to
-open another chat or manually submit a successful response. Other POVs use the
-same command with `--pov dps1`, `dps2`, `support1`, or `support2`.
-
-`prepare` and `run` without `--execute` retain the manual workflow. Automatic
-execution currently supports Stage A only. Each `--execute` invocation starts a
-new analysis even when preparation is cached; avoid rerunning completed analyses
-unless you want a new review. `--force` also regenerates the preparation job.
-
-Optional flags:
-
-- `--model MODEL`: select an available Codex model; otherwise the CLI default is
-  used (user config is ignored for reproducibility).
-- `--codex-timeout 900`: execution timeout in seconds (default 15 minutes).
-
-Every attempt retains its prompt, frame-to-timestamp mapping, CLI version, JSONL
-events, stderr, raw response (when produced), and status under
-`outputs/{run_id}/codex_execution/{pov}/{attempt}/`. Successful imports still have
-`PASS_WITH_LIMITATIONS` and independent evidence audit `PENDING`. Model attestations
-and structural checks do not prove visual accuracy. No audio is supplied.
-
-The model receives full-resolution image attachments, the one-POV prompt, and
-metadata in a fresh temporary working directory. The CLI uses a read-only sandbox,
-ephemeral sessions, and no user config. It is instructed not to use tools or read
-other files. This prevents repository context from being supplied automatically;
-it is not an OS security boundary that denies reading all other filesystem paths.
-There is no session resume or cross-POV prompt sharing.
-
-Automatic runs accept at most 100 sampled frames; shorten the configured interval
-or lower the sampling rate for larger jobs, preserving the sampling limitations.
-A missing login, timeout, nonzero process exit, blocked model response, or invalid
-report stops import and retains a BLOCKED attempt for inspection. No automatic
-retries are performed, avoiding duplicate account usage after uncertain failures.
-
-Codex execution options follow the [official non-interactive mode documentation](https://learn.chatgpt.com/docs/non-interactive-mode).
+The repository and Python package retain the earlier `OverJudge` / `overjudge`
+names. **Not My Fault** is the product name. This is an independent fan project,
+not affiliated with Blizzard Entertainment.

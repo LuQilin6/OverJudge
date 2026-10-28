@@ -17,16 +17,27 @@ dist/
 .DS_Store
 
 # Source recordings and generated artifacts
-inputs/videos/*
-!inputs/videos/.gitkeep
-work/clips/*
-!work/clips/.gitkeep
-# Round outputs are versioned; transient locks and temporary writes are not.
-outputs/**/*.lock
-outputs/**/*.tmp
-# Keep generated video clips local along with input recordings.
-outputs/**/*.mp4
-outputs/**/*.mov
-outputs/**/*.mkv
-config/run.json
-config/manifest.json
+backend/inputs/videos/*
+!backend/inputs/videos/.gitkeep
+backend/work/clips/*
+!backend/work/clips/.gitkeep
+backend/outputs/*
+!backend/outputs/.gitkeep
+!backend/outputs/pov_reports/
+backend/outputs/pov_reports/*
+!backend/outputs/pov_reports/.gitkeep
+!backend/outputs/evidence_clips/
+backend/outputs/evidence_clips/*
+!backend/outputs/evidence_clips/.gitkeep
+backend/config/run.json
+backend/config/manifest.json
+
+# Web UI and local review sessions
+node_modules/
+frontend/dist/
+.local/
+*.log
+
+# Local-only recordings and hackathon toolkit (at any depth)
+test-media/
+calhacks-kit/
